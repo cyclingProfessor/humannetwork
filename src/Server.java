@@ -7,7 +7,7 @@ public class Server {
 
 	 static Socket socket;
 	 static ServerSocket ssocket;
-	 static int port = 19999;
+	 static int port = 10000;
 	 
 	 /**
 	  * Listen to incoming connections

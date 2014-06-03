@@ -39,9 +39,9 @@ public class Client {
 	 */
 	public static void main(String[] args) {
 		/** Define a host server */
-		String host = "localhost";
+		String host = "stafflinux.cs.rhul.ac.uk";
 		/** Define a port */
-		int port = 19999;
+		int port = 10000;
 		
 		/** Each has an id */
 		if (args.length > 1){
@@ -50,7 +50,7 @@ public class Client {
 		}
 		/** Connect */
 
-		String id = (String) JOptionPane.showInputDialog("Enter your name");
+		String id = (String) JOptionPane.showInputDialog("What is your group?");
 		if (id == null){ id = ""; }
 		c = new Connection(host, port, id);
 		
