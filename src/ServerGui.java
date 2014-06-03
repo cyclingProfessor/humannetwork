@@ -8,6 +8,8 @@ import javax.swing.JCheckBox;
 import javax.swing.JSlider;
 import javax.swing.JSpinner;
 import javax.swing.JLabel;
+import javax.swing.SwingConstants;
+import javax.swing.SpinnerNumberModel;
 
 
 public class ServerGui {
@@ -60,7 +62,7 @@ public class ServerGui {
 		btnCircular.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				int[] selected = listNodes.getSelectedIndices();
-				if(selected.length > 3){
+				if(selected.length > 2){
 					int nodeA = connections.get(selected[0]).node;
 					int nodeB = connections.get(selected[selected.length-1]).node;
 					System.out.println("Create link between "+nodeA+" and "+nodeB);
@@ -94,24 +96,25 @@ public class ServerGui {
 				}
 			}
 		});
-		btnDeleteLink.setBounds(204, 398, 180, 25);
+		btnDeleteLink.setBounds(12, 469, 180, 25);
 		frmDarknetServer.getContentPane().add(btnDeleteLink);
 		
 		JSlider sliderFailure = new JSlider();
 		sliderFailure.setValue(33);
-		sliderFailure.setBounds(281, 435, 107, 25);
+		sliderFailure.setBounds(200, 435, 184, 25);
 		frmDarknetServer.getContentPane().add(sliderFailure);
 		
 		JSpinner spinner = new JSpinner();
+		spinner.setModel(new SpinnerNumberModel(0, 0, 60, 1));
 		spinner.setBounds(340, 472, 44, 20);
 		frmDarknetServer.getContentPane().add(spinner);
 		
-		JLabel lblRandomDelay = new JLabel("Random delay:");
+		JLabel lblRandomDelay = new JLabel("Random delay (s):");
 		lblRandomDelay.setBounds(204, 474, 118, 15);
 		frmDarknetServer.getContentPane().add(lblRandomDelay);
 		
 		JLabel lblDropRate = new JLabel("Drop rate:");
-		lblDropRate.setBounds(204, 435, 83, 15);
+		lblDropRate.setBounds(204, 403, 118, 15);
 		frmDarknetServer.getContentPane().add(lblDropRate);
 		
 		JButton btnCreateLink = new JButton("Create link");
@@ -130,15 +133,20 @@ public class ServerGui {
 			}
 		});
 		
-		btnCreateLink.setBounds(12, 435, 180, 25);
+		btnCreateLink.setBounds(12, 432, 180, 25);
 		frmDarknetServer.getContentPane().add(btnCreateLink);
 		
 		JCheckBox chckbxWhoisOnly = new JCheckBox("Whois only");
-		chckbxWhoisOnly.setBounds(204, 497, 129, 23);
+		chckbxWhoisOnly.setBounds(204, 497, 180, 23);
 		frmDarknetServer.getContentPane().add(chckbxWhoisOnly);
 		
-		JCheckBox chckbxNodeCorruption = new JCheckBox("Node corruption");
+		JCheckBox chckbxNodeCorruption = new JCheckBox("Content corruption");
 		chckbxNodeCorruption.setBounds(204, 524, 160, 23);
 		frmDarknetServer.getContentPane().add(chckbxNodeCorruption);
+		
+		JLabel labelDrop = new JLabel("0 %");
+		labelDrop.setHorizontalAlignment(SwingConstants.RIGHT);
+		labelDrop.setBounds(294, 403, 90, 15);
+		frmDarknetServer.getContentPane().add(labelDrop);
 	}
 }
