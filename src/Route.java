@@ -1,16 +1,21 @@
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.InetAddress;
-import java.util.ArrayList;
 import java.util.Random;
 
 public class Route extends Thread {
 
-	ArrayList<Connection> connections = new ArrayList<Connection>();
+	ConnectionList connections;
+	MessageList messages;
+	LinkList links;
 	Random rand = new Random();
 	
-	// ConnectionList connections;
-
+	public Route(ConnectionList connections, LinkList links, MessageList messages){
+		this.connections = connections;
+		this.messages = messages;
+		this.links = links;
+	}
+	
 	public int newNode(){
 		while(true) {
 			int node = rand.nextInt(900) + 100; // node number is between 100 and 999
@@ -47,12 +52,13 @@ public class Route extends Thread {
 			c.id = id;
 			c.write("" + node);
 			System.out.println(id + " is playing new node " + node);
-			connections.add(c);
+			connections.addElement(c);
 		}
 	}
 	
 	private Connection getByNode(int node){
-		for(Connection c : connections){
+		for(int i = 0; i < connections.size(); i++) {
+			Connection c = connections.get(i);
 			if (c.node == node) {
 				return c;
 			}
@@ -70,9 +76,6 @@ public class Route extends Thread {
 		return 0; // Should not happen
 	}
 	
-	public Route(){
-		connections = new ArrayList<Connection>();
-	}
 	
 	public boolean isNeighbour(int nodeA, int nodeB){
 		// For now :-)
@@ -91,7 +94,8 @@ public class Route extends Thread {
 			int toNode = Integer.parseInt(pieces[0]);
 			if (toNode == 0){
 				// Broadcast
-				for(Connection c : connections){
+				for(int i = 0; i < connections.size(); i++) {
+					Connection c = connections.get(i);
 					if(isNeighbour(fromNode,c.node)) {
 						c.write(fromNode + "" + (char) 13 + message);
 					}
@@ -121,6 +125,7 @@ public class Route extends Thread {
 						 System.out.println("Received message from "+i);
 						 String message = c.read();
 						 System.out.println(message);
+						 messages.addElement("" + c.node + (char) 13 + message);
 						 route(message,c.node);
 					 }
 				 }

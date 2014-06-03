@@ -132,5 +132,9 @@ public class Connection {
 		
 		return 0;
 	}
+	
+	public String toString(){
+		return ("" + node + " [" + id + "] ");
+	}
 
 }

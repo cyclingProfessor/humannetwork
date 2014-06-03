@@ -1,4 +1,5 @@
 import java.net.*;
+import java.awt.EventQueue;
 import java.io.*;
 
 public class Server {
@@ -59,10 +60,23 @@ public class Server {
 		if (args.length > 0){
 			port = Integer.parseInt(args[0]);
 		}
-		route = new Route();
+		final ConnectionList connections = new ConnectionList();
+		final LinkList links = new LinkList();
+		final MessageList messages = new MessageList();
+		route = new Route(connections, links, messages);
 		route.start();
 		listen(port);
-		
+
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					ServerGui window = new ServerGui(port, route, connections, links, messages);
+					window.frmDarknetServer.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
 		// TODO read network topology
 		// TODO listen to network connections
 		// TODO setup routing
