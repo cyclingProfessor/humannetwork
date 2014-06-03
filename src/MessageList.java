@@ -31,13 +31,17 @@ public class MessageList extends DefaultListModel<String> {
 	}
 
 	public void moveUp(int i) {
-		// TODO Auto-generated method stub
-		
+		String a = super.get(i);
+		String b = super.get(i-1);
+		super.set(i, b);
+		super.set(i-1, a);
 	}
 
 	public void moveDown(int i) {
-		// TODO Auto-generated method stub
-		
+		String a = super.get(i);
+		String b = super.get(i+1);
+		super.set(i, b);
+		super.set(i+1, a);
 	}
 	
 	

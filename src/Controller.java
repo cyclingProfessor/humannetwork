@@ -130,15 +130,15 @@ public class Controller {
 			public void actionPerformed(ActionEvent arg0) {
 				String message = txtMessage.getText();
 				System.out.println("Split clicked with " + message);
-				String nonce = "%" + (1000 + rand.nextInt(9000));
+				//String nonce = "%" + (1000 + rand.nextInt(9000));
 				int length = message.length();
 				int size = 30;
 				System.out.println("Length is " + length);
 				System.out.println("Splitting in " + (1 + length/size));
 				for(int i = 0 ; i < 1 + length / size; i++){
 					int end = ((i+1)*size <= length) ? (i+1)*size : length;
-					String part = chunk(i+1, 1+length/size);
-					messages.addElement(message.substring(i*size, end)+ nonce + part);
+					//String part = chunk(i+1, 1+length/size);
+					messages.addElement(message.substring(i*size, end));
 				}
 			}
 		});
@@ -149,6 +149,7 @@ public class Controller {
 				int[] selected = list.getSelectedIndices();
 				String[] pieces = new String[selected.length];
 				System.out.println("Selected " + selected.length);
+				/*
 				String nonce = null;
 				for(int i : selected){
 					String message = messages.get(i);
@@ -190,6 +191,12 @@ public class Controller {
 					}
 					messages.addElement(message);
 				}
+			*/
+				String message = "";
+				for(int i = 0; i< selected.length; i++){
+					message = message + messages.get(selected[i]);
+				}
+				messages.addElement(message);
 			}
 		});
 		
@@ -237,6 +244,7 @@ public class Controller {
 				System.out.println("MoveUp clicked");
 				if(array.length == 1 && array[0] != 0){
 					messages.moveUp(array[0]);
+					list.setSelectedIndex(array[0]-1);
 				}
 			}
 		});
@@ -247,6 +255,7 @@ public class Controller {
 				System.out.println("MoveDown clicked");
 				if(array.length == 1 && array[0] != messages.size()-1){
 					messages.moveDown(array[0]);
+					list.setSelectedIndex(array[0]+1);
 				}
 			}
 		});

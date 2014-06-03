@@ -5,6 +5,8 @@ import javax.swing.JButton;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.JList;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 
 
@@ -46,15 +48,19 @@ public class ClientGui {
 		scrollPane.setViewportView(list);
 
 		JButton btnAdd = new JButton("Add");
-		btnAdd.setBounds(570, 9, 94, 25);
+		btnAdd.setBounds(570, 43, 212, 25);
 		frmDarknet.getContentPane().add(btnAdd);
 		
 		JButton btnSend = new JButton("Send");
-		btnSend.setBounds(688, 9, 94, 25);
+		btnSend.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+			}
+		});
+		btnSend.setBounds(570, 9, 212, 25);
 		frmDarknet.getContentPane().add(btnSend);
 		
 		JButton btnSplit = new JButton("Split");
-		btnSplit.setBounds(570, 190, 212, 25);
+		btnSplit.setBounds(570, 264, 212, 25);
 		frmDarknet.getContentPane().add(btnSplit);
 		
 		JButton btnMerge = new JButton("Merge");
@@ -62,7 +68,7 @@ public class ClientGui {
 		frmDarknet.getContentPane().add(btnMerge);
 		
 		JButton btnAddCheck = new JButton("Add Checksum");
-		btnAddCheck.setBounds(570, 301, 212, 25);
+		btnAddCheck.setBounds(570, 339, 212, 25);
 		frmDarknet.getContentPane().add(btnAddCheck);
 		
 		JButton btnDelete = new JButton("Delete");
@@ -78,7 +84,7 @@ public class ClientGui {
 		frmDarknet.getContentPane().add(btnNonce);
 		
 		JButton btnVerifyChecksum = new JButton("Verify Checksum");
-		btnVerifyChecksum.setBounds(570, 338, 212, 25);
+		btnVerifyChecksum.setBounds(570, 376, 212, 25);
 		frmDarknet.getContentPane().add(btnVerifyChecksum);
 		
 		JButton btnMoveUp = new JButton("Move Up");
@@ -86,7 +92,7 @@ public class ClientGui {
 		frmDarknet.getContentPane().add(btnMoveUp);
 		
 		JButton btnMoveDown = new JButton("Move Down");
-		btnMoveDown.setBounds(570, 79, 212, 25);
+		btnMoveDown.setBounds(570, 153, 212, 25);
 		frmDarknet.getContentPane().add(btnMoveDown);
 		
 		JButton btnEncrypt = new JButton("Encrypt");
