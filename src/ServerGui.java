@@ -2,14 +2,18 @@ import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JList;
 import javax.swing.JButton;
+
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+
 import javax.swing.JCheckBox;
 import javax.swing.JSlider;
 import javax.swing.JSpinner;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 
 public class ServerGui {
@@ -98,24 +102,44 @@ public class ServerGui {
 		});
 		btnDeleteLink.setBounds(12, 469, 180, 25);
 		frmDarknetServer.getContentPane().add(btnDeleteLink);
+
 		
-		JSlider sliderFailure = new JSlider();
-		sliderFailure.setValue(33);
-		sliderFailure.setBounds(200, 435, 184, 25);
-		frmDarknetServer.getContentPane().add(sliderFailure);
-		
-		JSpinner spinner = new JSpinner();
-		spinner.setModel(new SpinnerNumberModel(0, 0, 60, 1));
-		spinner.setBounds(340, 472, 44, 20);
-		frmDarknetServer.getContentPane().add(spinner);
-		
-		JLabel lblRandomDelay = new JLabel("Random delay (s):");
+		final JLabel lblRandomDelay = new JLabel("Random delay (s):");
 		lblRandomDelay.setBounds(204, 474, 118, 15);
 		frmDarknetServer.getContentPane().add(lblRandomDelay);
 		
 		JLabel lblDropRate = new JLabel("Drop rate:");
 		lblDropRate.setBounds(204, 403, 118, 15);
 		frmDarknetServer.getContentPane().add(lblDropRate);
+
+		final JLabel labelDrop = new JLabel("33 %");
+		labelDrop.setHorizontalAlignment(SwingConstants.RIGHT);
+		labelDrop.setBounds(294, 403, 90, 15);
+		frmDarknetServer.getContentPane().add(labelDrop);
+		
+		final JSlider sliderFailure = new JSlider();
+		sliderFailure.setValue(33);
+		sliderFailure.setBounds(200, 435, 184, 25);
+		sliderFailure.addChangeListener(new ChangeListener(){
+			public void stateChanged(ChangeEvent arg0) {
+				int val = sliderFailure.getValue();
+				labelDrop.setText(val + "%");
+				links.setDropRate(val);
+			}
+		});
+		frmDarknetServer.getContentPane().add(sliderFailure);
+		
+		final JSpinner spinner = new JSpinner();
+		spinner.setModel(new SpinnerNumberModel(0, 0, 60, 1));
+		spinner.setBounds(340, 472, 44, 20);
+		frmDarknetServer.getContentPane().add(spinner);
+		
+		spinner.addChangeListener(new ChangeListener(){
+			public void stateChanged(ChangeEvent arg0) {
+				int val = (Integer) spinner.getValue();
+				links.setDelay(val);
+			}
+		});
 		
 		JButton btnCreateLink = new JButton("Create link");
 		btnCreateLink.addActionListener(new ActionListener() {
@@ -136,17 +160,27 @@ public class ServerGui {
 		btnCreateLink.setBounds(12, 432, 180, 25);
 		frmDarknetServer.getContentPane().add(btnCreateLink);
 		
-		JCheckBox chckbxWhoisOnly = new JCheckBox("Whois only");
+		final JCheckBox chckbxWhoisOnly = new JCheckBox("Whois only");
 		chckbxWhoisOnly.setBounds(204, 497, 180, 23);
 		frmDarknetServer.getContentPane().add(chckbxWhoisOnly);
 		
-		JCheckBox chckbxNodeCorruption = new JCheckBox("Content corruption");
+		chckbxWhoisOnly.addChangeListener(new ChangeListener(){
+			public void stateChanged(ChangeEvent arg0) {
+				boolean b = chckbxWhoisOnly.isSelected();
+				links.setWhois(b);
+			}
+		});
+		
+		final JCheckBox chckbxNodeCorruption = new JCheckBox("Content corruption");
 		chckbxNodeCorruption.setBounds(204, 524, 160, 23);
 		frmDarknetServer.getContentPane().add(chckbxNodeCorruption);
 		
-		JLabel labelDrop = new JLabel("0 %");
-		labelDrop.setHorizontalAlignment(SwingConstants.RIGHT);
-		labelDrop.setBounds(294, 403, 90, 15);
-		frmDarknetServer.getContentPane().add(labelDrop);
+		chckbxNodeCorruption.addChangeListener(new ChangeListener(){
+			public void stateChanged(ChangeEvent arg0) {
+				boolean b = chckbxNodeCorruption.isSelected();
+				links.setCorruption(b);
+			}
+		});
+		
 	}
 }

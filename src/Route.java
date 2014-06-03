@@ -78,11 +78,15 @@ public class Route extends Thread {
 	
 	
 	public boolean isNeighbour(int nodeA, int nodeB){
-		// For now :-)
-		// Circle
-		int iA = nodeToIndex(nodeA);
-		int iB = nodeToIndex(nodeB);
-		return iA % 10 == (iB + 1) % 10 || iA % 10 == (iB - 1) % 10;
+		// Check in links
+		String link1 = nodeA + "" + (char) 13 + nodeB;
+		String link2 = nodeB + "" + (char) 13 + nodeA;
+		for (int i = 0; i< links.size(); i++) {
+			if(link1.equals(links.get(i)) || link2.equals(links.get(i))){
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	public void route(String message, int fromNode){
@@ -97,7 +101,7 @@ public class Route extends Thread {
 				for(int i = 0; i < connections.size(); i++) {
 					Connection c = connections.get(i);
 					if(isNeighbour(fromNode,c.node)) {
-						c.write(fromNode + "" + (char) 13 + message);
+						send(c,pieces[1],fromNode,toNode);
 					}
 				}
 			} else {
@@ -107,8 +111,22 @@ public class Route extends Thread {
 					System.out.println("Unreacheable node");
 				} else {
 					// send to toNode the original message
-					c.write(fromNode + "" + (char) 13 + message);
+					send(c,pieces[1],fromNode,toNode);
 				}
+			}
+		}
+	}
+	
+	public void send(Connection c, String message, int fromNode, int toNode){
+		int drop = rand.nextInt(100);
+		if (drop >= links.dropRate){
+			String content = message;
+			boolean whois = links.checkwhois; // Only whois allowed
+			whois = !whois || ((content.length() > 12) && 
+					(content.substring(0,12).equals("WHOIS(Query,") ||
+					 content.subSequence(0, 13).equals("WHOIS(Answer,")));
+			if(whois){
+				c.write(fromNode + "" + (char) 13 + toNode + (char) 13 + content);
 			}
 		}
 	}

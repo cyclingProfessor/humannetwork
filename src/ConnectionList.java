@@ -17,6 +17,11 @@ class LinkList extends DefaultListModel<String> {
 
 	private static final long serialVersionUID = 8598993602003120199L;
 
+	int dropRate = 0;
+	int delay = 0;
+	boolean checkwhois = false;
+	boolean modifyNb = false;
+	
 	public LinkList(){
 		super();
 	}
@@ -39,6 +44,22 @@ class LinkList extends DefaultListModel<String> {
 			super.addElement(link);
 		}
 		
+	}
+
+	public void setDropRate(int val) {
+		dropRate = val;
+	}
+	
+	public void setDelay(int val) {
+		delay = val;
+	}
+
+	public void setWhois(boolean b) {
+		checkwhois = b;
+	}
+
+	public void setCorruption(boolean b) {
+		modifyNb = b;
 	}
 
 }
