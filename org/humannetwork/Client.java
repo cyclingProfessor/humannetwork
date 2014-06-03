@@ -1,4 +1,4 @@
-package humannetwork;
+package org.humannetwork;
 
 import java.awt.EventQueue;
 import java.util.Scanner;

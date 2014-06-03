@@ -1,4 +1,4 @@
-package humannetwork;
+package org.humannetwork;
 
 import javax.swing.DefaultListModel;
 
