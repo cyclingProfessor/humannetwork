@@ -134,7 +134,7 @@ public class Connection {
 	}
 	
 	public String toString(){
-		return ("" + node + " [" + id + "] ");
+		return (" [" + id + "] " + node );
 	}
 
 }

@@ -59,6 +59,26 @@ public class ServerGui {
 		JButton btnCircular = new JButton("Create Circular links");
 		btnCircular.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
+				int[] selected = listNodes.getSelectedIndices();
+				if(selected.length > 3){
+					int nodeA = connections.get(selected[0]).node;
+					int nodeB = connections.get(selected[selected.length-1]).node;
+					System.out.println("Create link between "+nodeA+" and "+nodeB);
+					String id = connections.get(selected[0]).id;
+					if(id.equals(connections.get(selected[selected.length-1]).id)){
+						links.addElement(id + (char) 13 + nodeA + (char) 13 + nodeB);
+					}
+					for(int i = 0; i < selected.length - 1; i++){
+						int node1 = connections.get(selected[i]).node;
+						int node2 = connections.get(selected[i+1]).node;
+						System.out.println("Create link between "+node1+" and "+node2);
+						String idl = connections.get(selected[i]).id;
+						if(id.equals(connections.get(selected[i]).id)){
+							links.addElement(idl + (char) 13 + node1 + (char) 13 + node2);
+						}
+					}
+					
+				}
 			}
 		});
 		btnCircular.setBounds(12, 398, 180, 25);
