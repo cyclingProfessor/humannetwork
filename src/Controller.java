@@ -260,6 +260,33 @@ public class Controller {
 			}
 		});
 		
+		btnEncrypt.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				String message = txtMessage.getText();
+				String encrypted = "";
+				try {
+					for(char c : message.toCharArray()){
+						encrypted = encrypted + String.format("%02x", (int) c);
+					}
+					txtMessage.setText(encrypted);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+
+		btnDecrypt.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				String message = txtMessage.getText();
+				String decrypted = "";
+				for(int i = 0; 2*i+2<= message.length(); i++){
+					String c = message.substring(i*2,i*2+2);
+					decrypted = decrypted + (char) Integer.decode("0x"+c).intValue();
+				}
+				txtMessage.setText(decrypted);
+			}
+		});
+		
 		btnDelete.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				int[] array = list.getSelectedIndices();
