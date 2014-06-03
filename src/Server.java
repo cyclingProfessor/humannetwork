@@ -31,7 +31,7 @@ public class Server {
 						 OutputStreamWriter osw = new OutputStreamWriter(os, "US-ASCII");
 						 //int node = route.newNode();
 						 //Connection c = new Connection(osw, isr, node);
-						 route.addConnection(osw,isr);
+						 route.addConnection(osw,isr,socket.getInetAddress());
 						 //Thread.sleep(1000L);
 					 }
 			//	 } catch (InterruptedException e){

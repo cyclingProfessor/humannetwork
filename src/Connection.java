@@ -34,7 +34,7 @@ public class Connection {
 	 * @param port
 	 * @param id
 	 */
-	public Connection(String hostname, int port, String id){
+	public Connection(String hostname, int port, String id, int setnode){
 
 		System.out.println("Darknet Client initialised");
 		System.out.println("Connecting to " + hostname + ":" + port);
@@ -53,6 +53,7 @@ public class Connection {
 			
 			this.id = id;
 			write(id);
+			write("" + setnode);
 			String nodeMessage = read();
 			node = Integer.parseInt(nodeMessage);
 			System.out.println("node: " + node);
@@ -125,6 +126,11 @@ public class Connection {
 		} catch (IOException e) {
 			System.out.println("IOException: " + e);
 		}
+	}
+
+	public int getInet() {
+		
+		return 0;
 	}
 
 }

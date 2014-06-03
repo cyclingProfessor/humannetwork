@@ -1,5 +1,6 @@
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -19,14 +20,19 @@ public class Route extends Thread {
 		}
 	}
 
-	public void addConnection(OutputStreamWriter osw,	InputStreamReader isr){
+	public void addConnection(OutputStreamWriter osw,	InputStreamReader isr, InetAddress a){
 		Connection c = new Connection(osw,isr);
 		String id = c.read();
+		int setnode = Integer.parseInt(c.read());
+		if(setnode == 0){
+			byte[] address = a.getAddress();
+			setnode = address[3];
+		}
 		boolean found = false;
 		for (int i = 0; i < connections.size(); i++) {
 			Connection cc = connections.get(i);
-			System.out.println("Checking " + cc.id);
-			if(cc.id.equals(id)){
+			System.out.println("Checking " + cc.id + "/" + cc.node);
+			if(cc.node == setnode){
 				c.setNode(cc.node);
 				System.out.println(id + " is playing existing node " + c.node);
 				c.write("" + c.node);
@@ -36,7 +42,7 @@ public class Route extends Thread {
 			}
 		}
 		if (!found){
-			int node = newNode();
+			int node = setnode;
 			c.node = node;
 			c.id = id;
 			c.write("" + node);

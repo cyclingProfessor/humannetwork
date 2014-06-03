@@ -42,17 +42,26 @@ public class Client {
 		String host = "stafflinux.cs.rhul.ac.uk";
 		/** Define a port */
 		int port = 10000;
+		int node = 0;
 		
-		/** Each has an id */
-		if (args.length > 1){
-			host = args[0];
-			port = Integer.parseInt(args[1]);
+		/** Each has an group id */
+		try{
+			if (args.length > 1){
+				host = args[0];
+				port = Integer.parseInt(args[1]);
+			}
+			if (args.length > 2){
+				node = Integer.parseInt(args[2]);
+			}
+		} catch (Exception e){
+			e.printStackTrace();
+			System.exit(0);
 		}
-		/** Connect */
 
+		/** Connect */
 		String id = (String) JOptionPane.showInputDialog("What is your group?");
 		if (id == null){ id = ""; }
-		c = new Connection(host, port, id);
+		c = new Connection(host, port, id, node);
 		
 		/** Receive messages */
 		final MessageList messages = new MessageList();
