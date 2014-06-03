@@ -1,5 +1,3 @@
-package org.humannetwork;
-
 import java.io.*;
 import java.net.*;
 

@@ -1,5 +1,3 @@
-package org.humannetwork;
-
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Random;

@@ -1,5 +1,3 @@
-package org.humannetwork;
-
 import javax.swing.DefaultListModel;
 
 
