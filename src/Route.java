@@ -79,17 +79,6 @@ public class Route extends Thread {
 	}
 	
 	
-	public boolean isNeighbour(int nodeA, int nodeB){
-		// Check in links
-		String link1 = nodeA + "" + (char) 13 + nodeB;
-		String link2 = nodeB + "" + (char) 13 + nodeA;
-		for (int i = 0; i< links.size(); i++) {
-			if(link1.equals(links.get(i)) || link2.equals(links.get(i))){
-				return true;
-			}
-		}
-		return false;
-	}
 	
 	public void route(String message, int fromNode){
 		String[] pieces = message.split(String.valueOf((char)13));
@@ -105,13 +94,13 @@ public class Route extends Thread {
 				System.out.println("Broadcasting");
 				for(int i = 0; i < connections.size(); i++) {
 					Connection c = connections.get(i);
-					if(isNeighbour(fromNode,c.node)) {
+					if(links.isNeighbour(fromNode,c.node)) {
 						send(c,pieces[1],fromNode,toNode);
 					}
 				}
 			} else {
 				Connection c = getByNode(toNode);
-				if (c == null || !isNeighbour(fromNode, toNode)){
+				if (c == null || !links.isNeighbour(fromNode, toNode)){
 					// node does not exist or is not connected
 					//messages.addElement("" + fromNode + (char) 13 + message + "dropped(unreachable)");
 					System.out.println("Unreacheable node");

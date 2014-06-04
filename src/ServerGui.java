@@ -52,7 +52,7 @@ public class ServerGui {
 		scrollPaneLinks.setBounds(204, 12, 180, 374);
 		frmDarknetServer.getContentPane().add(scrollPaneLinks);
 		
-		final JList<String> listLinks = new JList<String>(links);
+		final JList<Link> listLinks = new JList<Link>(links);
 		scrollPaneLinks.setViewportView(listLinks);
 		
 		JScrollPane scrollPanePackets = new JScrollPane();
@@ -71,17 +71,17 @@ public class ServerGui {
 					int nodeA = connections.get(selected[0]).node;
 					int nodeB = connections.get(selected[selected.length-1]).node;
 					System.out.println("Create link between "+nodeA+" and "+nodeB);
-					String id = connections.get(selected[0]).group;
-					if(id.equals(connections.get(selected[selected.length-1]).group)){
-						links.addElement(id + (char) 13 + nodeA + (char) 13 + nodeB);
+					String group = connections.get(selected[0]).group;
+					if(group.equals(connections.get(selected[selected.length-1]).group)){
+						links.addElement(new Link(nodeA, nodeB, group));
 					}
 					for(int i = 0; i < selected.length - 1; i++){
 						int node1 = connections.get(selected[i]).node;
 						int node2 = connections.get(selected[i+1]).node;
 						System.out.println("Create link between "+node1+" and "+node2);
-						String idl = connections.get(selected[i]).group;
-						if(id.equals(connections.get(selected[i]).group)){
-							links.addElement(idl + (char) 13 + node1 + (char) 13 + node2);
+						String group1 = connections.get(selected[i]).group;
+						if(group1.equals(connections.get(selected[i+1]).group)){
+							links.addElement(new Link(node1, node2, group1));
 						}
 					}
 					
@@ -150,9 +150,9 @@ public class ServerGui {
 					int nodeA = connections.get(selected[0]).node;
 					int nodeB = connections.get(selected[1]).node;
 					System.out.println("Create link between "+nodeA+" and "+nodeB);
-					String id = connections.get(selected[1]).group;
-					if(id.equals(connections.get(selected[0]).group)){
-						links.addElement(id + (char) 13 + nodeA + (char) 13 + nodeB);
+					String group = connections.get(selected[0]).group;
+					if(group.equals(connections.get(selected[0]).group)){
+						links.addElement(new Link(nodeA, nodeB, group));
 					}
 				}
 			}
