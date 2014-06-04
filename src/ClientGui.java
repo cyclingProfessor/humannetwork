@@ -23,7 +23,7 @@ public class ClientGui {
 	}
 
 	/**
-	 * Initialize the contents of the frame.
+	 * Initialise the contents of the frame.
 	 */
 	private void initialize(Connection c, MessageList messages) {
 		frmDarknet = new JFrame();
