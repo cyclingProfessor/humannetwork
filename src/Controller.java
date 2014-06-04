@@ -147,7 +147,7 @@ public class Controller {
 			public void actionPerformed(ActionEvent arg0) {
 				System.out.println("Merge clicked");
 				int[] selected = list.getSelectedIndices();
-				String[] pieces = new String[selected.length];
+				//String[] pieces = new String[selected.length];
 				System.out.println("Selected " + selected.length);
 				/*
 				String nonce = null;

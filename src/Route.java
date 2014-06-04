@@ -156,7 +156,7 @@ public class Route extends Thread {
 				int delay = (links.delay > 0) ? rand.nextInt(links.delay) : 0;
 				System.out.println("Adding delay "+delay);
 				queue.add(new DelayedMessage(c,toSend,delay));
-				String delayed = (delay != 0) ? ("delayed " + delay) : "";
+				//String delayed = (delay != 0) ? ("delayed " + delay) : "";
 				//messages.addElement(toSend + delayed);
 			} else {
 				System.out.println("dropped (no WHOIS) ");
