@@ -60,6 +60,7 @@ public class ServerGui {
 		frmDarknetServer.getContentPane().add(scrollPanePackets);
 		
 		JList<String> listPackets = new JList<String>(messages);
+		listPackets.setVisibleRowCount(20);
 		scrollPanePackets.setViewportView(listPackets);
 		
 		JButton btnCircular = new JButton("Create Circular links");
@@ -171,11 +172,11 @@ public class ServerGui {
 			}
 		});
 		
-		final JLabel lblCorruptionRate = new JLabel("Corruption rate:");
+		JLabel lblCorruptionRate = new JLabel("Corruption rate:");
 		lblCorruptionRate.setBounds(204, 457, 118, 15);
 		frmDarknetServer.getContentPane().add(lblCorruptionRate);
 		
-		JLabel labelCorruption = new JLabel("0 %");
+		final JLabel labelCorruption = new JLabel("0 %");
 		labelCorruption.setHorizontalAlignment(SwingConstants.RIGHT);
 		labelCorruption.setBounds(294, 457, 90, 15);
 		frmDarknetServer.getContentPane().add(labelCorruption);
@@ -189,7 +190,7 @@ public class ServerGui {
 			public void stateChanged(ChangeEvent arg0) {
 				int val = (Integer) sliderCorruption.getValue();
 				links.setCorruption(val);
-				lblCorruptionRate.setText(val + "%");
+				labelCorruption.setText(val + "%");
 			}
 		});
 		

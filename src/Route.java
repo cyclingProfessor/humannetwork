@@ -98,6 +98,7 @@ public class Route extends Thread {
 			messages.addElement("" + fromNode + (char) 13 + message + "dropped(ill-formed)");
 			System.out.println("Ill-formed message");
 		} else {
+			messages.addElement("" + fromNode + (char) 13 + message);
 			int toNode = Integer.parseInt(pieces[0]);
 			if (toNode == 0){
 				// Broadcast
@@ -112,7 +113,7 @@ public class Route extends Thread {
 				Connection c = getByNode(toNode);
 				if (c == null || !isNeighbour(fromNode, toNode)){
 					// node does not exist or is not connected
-					messages.addElement("" + fromNode + (char) 13 + message + "dropped(unreachable)");
+					//messages.addElement("" + fromNode + (char) 13 + message + "dropped(unreachable)");
 					System.out.println("Unreacheable node");
 				} else {
 					// send to toNode the original message
@@ -125,25 +126,24 @@ public class Route extends Thread {
 	public void send(Connection c, String message, int fromNode, int toNode){
 		System.out.println("Attempting to send "+message);
 		int drop = rand.nextInt(100);
-		if (drop >= links.dropRate){
+		if (drop >= links.dropRate || links.dropRate == 0){
 			String content = message;
 			boolean whois = links.checkwhois; // Only whois allowed
 			whois = !whois || ((content.length() > 12) && 
 					(content.substring(0,12).equals("WHOIS(Query,") ||
 					 content.subSequence(0, 13).equals("WHOIS(Answer,")));
 			if(whois){
-				String toSend = fromNode + "" + (char) 13 + toNode + (char) 13 + content;
 				// Corruption
 				int corr = rand.nextInt(100);
-				if(corr >= links.corruptionRate){
+				if(corr < links.corruptionRate){
 					StringBuilder s = new StringBuilder();
 					for (char d : content.toCharArray()){
 						if(d < '0' || d > '9'){
 							s.append(d);
 						} else {
-							if (rand.nextInt(10) == 0){
+							if (rand.nextInt(3) == 0){
 								System.out.println("Digit flipped!");
-								s.append('0' + rand.nextInt(10));
+								s.append((char) ((int) '0' + rand.nextInt(10)));
 							} else {
 								s.append(d);
 							}
@@ -151,14 +151,16 @@ public class Route extends Thread {
 					}
 					content = s.toString();
 				}
+				String toSend = fromNode + "" + (char) 13 + toNode + (char) 13 + content;
 				// Network delay
-				int delay = rand.nextInt(links.delay);
+				int delay = (links.delay > 0) ? rand.nextInt(links.delay) : 0;
 				System.out.println("Adding delay "+delay);
 				queue.add(new DelayedMessage(c,toSend,delay));
 				String delayed = (delay != 0) ? ("delayed " + delay) : "";
-				messages.addElement(toSend + delayed);
+				//messages.addElement(toSend + delayed);
 			} else {
-				messages.addElement(content + " dropped(no WHOIS)");
+				System.out.println("dropped (no WHOIS) ");
+				//messages.addElement(content + " dropped(no WHOIS)");
 			}
 		}
 	}

@@ -77,10 +77,6 @@ public class Server {
 				}
 			}
 		});
-		// TODO read network topology
-		// TODO listen to network connections
-		// TODO setup routing
-		// TODO interface to see messages
 
 	}
 
