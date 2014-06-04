@@ -115,13 +115,13 @@ public class ClientGui {
 		btnDecrypt.setBounds(570, 450, 212, 25);
 		frmDarknet.getContentPane().add(btnDecrypt);
 		
-		Controller control = new Controller(c, messages);
+		ServerController control = new ServerController(c, messages);
 		control.bind(txtMessage, list, btnAdd, btnSend, btnNonce, btnSplit,
 				btnMerge, btnAddCheck, btnDelete, btnVerifyChecksum, btnMoveUp, 
 				btnMoveDown, btnEncrypt, btnDecrypt);
 		
-		JLabel lblNode = new JLabel("Node: " + c.node);
-		lblNode.setBounds(12, 14, 70, 15);
+		JLabel lblNode = new JLabel("Group: " + c.group + " Node: " + c.node);
+		lblNode.setBounds(12, 14, 546, 15);
 		frmDarknet.getContentPane().add(lblNode);
 		
 		

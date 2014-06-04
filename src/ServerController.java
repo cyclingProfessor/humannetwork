@@ -10,13 +10,13 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 
-public class Controller {
+public class ServerController {
 
 	Random rand = new Random();
 	MessageList messages;
 	Connection c;
 	
-	public Controller (Connection c, MessageList messages){
+	public ServerController (Connection c, MessageList messages){
 		this.messages = messages;
 		this.c = c;
 	}
