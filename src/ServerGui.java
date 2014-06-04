@@ -105,21 +105,21 @@ public class ServerGui {
 
 		
 		final JLabel lblRandomDelay = new JLabel("Random delay (s):");
-		lblRandomDelay.setBounds(204, 474, 118, 15);
+		lblRandomDelay.setBounds(204, 506, 118, 15);
 		frmDarknetServer.getContentPane().add(lblRandomDelay);
 		
 		JLabel lblDropRate = new JLabel("Drop rate:");
 		lblDropRate.setBounds(204, 403, 118, 15);
 		frmDarknetServer.getContentPane().add(lblDropRate);
 
-		final JLabel labelDrop = new JLabel("33 %");
+		final JLabel labelDrop = new JLabel("0 %");
 		labelDrop.setHorizontalAlignment(SwingConstants.RIGHT);
 		labelDrop.setBounds(294, 403, 90, 15);
 		frmDarknetServer.getContentPane().add(labelDrop);
 		
 		final JSlider sliderFailure = new JSlider();
-		sliderFailure.setValue(33);
-		sliderFailure.setBounds(200, 435, 184, 25);
+		sliderFailure.setValue(0);
+		sliderFailure.setBounds(204, 415, 184, 25);
 		sliderFailure.addChangeListener(new ChangeListener(){
 			public void stateChanged(ChangeEvent arg0) {
 				int val = sliderFailure.getValue();
@@ -131,7 +131,7 @@ public class ServerGui {
 		
 		final JSpinner spinner = new JSpinner();
 		spinner.setModel(new SpinnerNumberModel(0, 0, 60, 1));
-		spinner.setBounds(340, 472, 44, 20);
+		spinner.setBounds(340, 504, 44, 20);
 		frmDarknetServer.getContentPane().add(spinner);
 		
 		spinner.addChangeListener(new ChangeListener(){
@@ -161,7 +161,7 @@ public class ServerGui {
 		frmDarknetServer.getContentPane().add(btnCreateLink);
 		
 		final JCheckBox chckbxWhoisOnly = new JCheckBox("Whois only");
-		chckbxWhoisOnly.setBounds(204, 497, 180, 23);
+		chckbxWhoisOnly.setBounds(204, 529, 180, 23);
 		frmDarknetServer.getContentPane().add(chckbxWhoisOnly);
 		
 		chckbxWhoisOnly.addChangeListener(new ChangeListener(){
@@ -171,16 +171,28 @@ public class ServerGui {
 			}
 		});
 		
-		final JCheckBox chckbxNodeCorruption = new JCheckBox("Content corruption");
-		chckbxNodeCorruption.setBounds(204, 524, 160, 23);
-		frmDarknetServer.getContentPane().add(chckbxNodeCorruption);
+		final JLabel lblCorruptionRate = new JLabel("Corruption rate:");
+		lblCorruptionRate.setBounds(204, 457, 118, 15);
+		frmDarknetServer.getContentPane().add(lblCorruptionRate);
 		
-		chckbxNodeCorruption.addChangeListener(new ChangeListener(){
+		JLabel labelCorruption = new JLabel("0 %");
+		labelCorruption.setHorizontalAlignment(SwingConstants.RIGHT);
+		labelCorruption.setBounds(294, 457, 90, 15);
+		frmDarknetServer.getContentPane().add(labelCorruption);
+		
+		final JSlider sliderCorruption = new JSlider();
+		sliderCorruption.setValue(0);
+		sliderCorruption.setBounds(204, 469, 184, 25);
+		frmDarknetServer.getContentPane().add(sliderCorruption);
+
+		sliderCorruption.addChangeListener(new ChangeListener(){
 			public void stateChanged(ChangeEvent arg0) {
-				boolean b = chckbxNodeCorruption.isSelected();
-				links.setCorruption(b);
+				int val = (Integer) sliderCorruption.getValue();
+				links.setCorruption(val);
+				lblCorruptionRate.setText(val + "%");
 			}
 		});
+		
 		
 	}
 }

@@ -1,6 +1,7 @@
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.InetAddress;
+import java.util.ArrayList;
 import java.util.Random;
 
 public class Route extends Thread {
@@ -9,6 +10,7 @@ public class Route extends Thread {
 	MessageList messages;
 	LinkList links;
 	Random rand = new Random();
+	ArrayList<DelayedMessage> queue = new ArrayList<DelayedMessage>();
 	
 	public Route(ConnectionList connections, LinkList links, MessageList messages){
 		this.connections = connections;
@@ -93,11 +95,13 @@ public class Route extends Thread {
 		String[] pieces = message.split(String.valueOf((char)13));
 		if(pieces.length != 2){
 			// Silently drop the message
+			messages.addElement("" + fromNode + (char) 13 + message + "dropped(ill-formed)");
 			System.out.println("Ill-formed message");
 		} else {
 			int toNode = Integer.parseInt(pieces[0]);
 			if (toNode == 0){
 				// Broadcast
+				System.out.println("Broadcasting");
 				for(int i = 0; i < connections.size(); i++) {
 					Connection c = connections.get(i);
 					if(isNeighbour(fromNode,c.node)) {
@@ -108,6 +112,7 @@ public class Route extends Thread {
 				Connection c = getByNode(toNode);
 				if (c == null || !isNeighbour(fromNode, toNode)){
 					// node does not exist or is not connected
+					messages.addElement("" + fromNode + (char) 13 + message + "dropped(unreachable)");
 					System.out.println("Unreacheable node");
 				} else {
 					// send to toNode the original message
@@ -118,6 +123,7 @@ public class Route extends Thread {
 	}
 	
 	public void send(Connection c, String message, int fromNode, int toNode){
+		System.out.println("Attempting to send "+message);
 		int drop = rand.nextInt(100);
 		if (drop >= links.dropRate){
 			String content = message;
@@ -126,16 +132,54 @@ public class Route extends Thread {
 					(content.substring(0,12).equals("WHOIS(Query,") ||
 					 content.subSequence(0, 13).equals("WHOIS(Answer,")));
 			if(whois){
-				c.write(fromNode + "" + (char) 13 + toNode + (char) 13 + content);
+				String toSend = fromNode + "" + (char) 13 + toNode + (char) 13 + content;
+				// Corruption
+				int corr = rand.nextInt(100);
+				if(corr >= links.corruptionRate){
+					StringBuilder s = new StringBuilder();
+					for (char d : content.toCharArray()){
+						if(d < '0' || d > '9'){
+							s.append(d);
+						} else {
+							if (rand.nextInt(10) == 0){
+								System.out.println("Digit flipped!");
+								s.append('0' + rand.nextInt(10));
+							} else {
+								s.append(d);
+							}
+						}
+					}
+					content = s.toString();
+				}
+				// Network delay
+				int delay = rand.nextInt(links.delay);
+				System.out.println("Adding delay "+delay);
+				queue.add(new DelayedMessage(c,toSend,delay));
+				String delayed = (delay != 0) ? ("delayed " + delay) : "";
+				messages.addElement(toSend + delayed);
+			} else {
+				messages.addElement(content + " dropped(no WHOIS)");
 			}
 		}
 	}
 	
+	public void sendNow(){
+		for(int i = queue.size()-1; i >= 0; i--){
+			DelayedMessage m = queue.get(i);
+			if(m.ready()){
+				m.send();
+				queue.remove(i);
+			} else {
+				m.decr();
+			}
+		}
+	}
 	
 	@Override
 	public void run() {
 		 try{
 			 while(true){
+				 sendNow();
 				 int l = connections.size();
 				 for (int i = 0 ; i < l ; i++){
 					 Connection c = connections.get(i);
@@ -143,7 +187,6 @@ public class Route extends Thread {
 						 System.out.println("Received message from "+i);
 						 String message = c.read();
 						 System.out.println(message);
-						 messages.addElement("" + c.node + (char) 13 + message);
 						 route(message,c.node);
 					 }
 				 }

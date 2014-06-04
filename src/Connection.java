@@ -68,7 +68,6 @@ public class Connection {
 		}
 	}
 	
-	
 	/**
 	 * Sends a message through that connection
 	 * @param s the message
