@@ -11,7 +11,7 @@ public class Connection {
 	String hostname = "localhost";
 	OutputStreamWriter osw;
 	InputStreamReader isr;
-	String id = "server";
+	String group = "server";
 	int node = 1000;
 
 	/**
@@ -51,7 +51,7 @@ public class Connection {
 					getInputStream());
 			isr = new InputStreamReader(bis, "US-ASCII");
 			
-			this.id = id;
+			this.group = id;
 			write(id);
 			write("" + setnode);
 			String nodeMessage = read();
@@ -133,7 +133,7 @@ public class Connection {
 	}
 	
 	public String toString(){
-		return (" [" + id + "] " + node );
+		return (" [" + group + "] " + node );
 	}
 
 }

@@ -27,7 +27,7 @@ public class ClientGui {
 	 */
 	private void initialize(Connection c, MessageList messages) {
 		frmDarknet = new JFrame();
-		frmDarknet.setTitle(c.id + " @ DarkNet node " + c.node);
+		frmDarknet.setTitle(c.group + " @ DarkNet node " + c.node);
 		frmDarknet.setBounds(100, 100, 800, 600);
 		frmDarknet.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmDarknet.getContentPane().setLayout(null);

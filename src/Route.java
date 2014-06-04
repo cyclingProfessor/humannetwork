@@ -33,12 +33,12 @@ public class Route extends Thread {
 		int setnode = Integer.parseInt(c.read());
 		if(setnode == 0){
 			byte[] address = a.getAddress();
-			setnode = address[3];
+			setnode = address[2] + 257 + address[3];
 		}
 		boolean found = false;
 		for (int i = 0; i < connections.size(); i++) {
 			Connection cc = connections.get(i);
-			System.out.println("Checking " + cc.id + "/" + cc.node);
+			System.out.println("Checking " + cc.group + "/" + cc.node);
 			if(cc.node == setnode){
 				c.setNode(cc.node);
 				System.out.println(id + " is playing existing node " + c.node);
@@ -48,10 +48,10 @@ public class Route extends Thread {
 				break;
 			}
 		}
+		c.group = id;
 		if (!found){
 			int node = setnode;
 			c.node = node;
-			c.id = id;
 			c.write("" + node);
 			System.out.println(id + " is playing new node " + node);
 			connections.addElement(c);

@@ -59,9 +59,9 @@ public class Client {
 		}
 
 		/** Connect */
-		String id = (String) JOptionPane.showInputDialog("What is your group?");
-		if (id == null){ id = ""; }
-		c = new Connection(host, port, id, node);
+		String group = (String) JOptionPane.showInputDialog("What is your group?");
+		if (group == null){ group = ""; }
+		c = new Connection(host, port, group, node);
 		
 		/** Receive messages */
 		final MessageList messages = new MessageList();
