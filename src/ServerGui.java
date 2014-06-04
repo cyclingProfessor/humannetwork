@@ -168,7 +168,7 @@ public class ServerGui {
 		chckbxWhoisOnly.addChangeListener(new ChangeListener(){
 			public void stateChanged(ChangeEvent arg0) {
 				boolean b = chckbxWhoisOnly.isSelected();
-				links.setWhois(b);
+				links.setCheckwhois(b);
 			}
 		});
 		
@@ -189,7 +189,7 @@ public class ServerGui {
 		sliderCorruption.addChangeListener(new ChangeListener(){
 			public void stateChanged(ChangeEvent arg0) {
 				int val = (Integer) sliderCorruption.getValue();
-				links.setCorruption(val);
+				links.setCorruptionRate(val);
 				labelCorruption.setText(val + "%");
 			}
 		});

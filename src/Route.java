@@ -126,16 +126,16 @@ public class Route extends Thread {
 	public void send(Connection c, String message, int fromNode, int toNode){
 		System.out.println("Attempting to send "+message);
 		int drop = rand.nextInt(100);
-		if (drop >= links.dropRate || links.dropRate == 0){
+		if (drop >= links.getDropRate() || links.getDropRate() == 0){
 			String content = message;
-			boolean whois = links.checkwhois; // Only whois allowed
+			boolean whois = links.isCheckwhois(); // Only whois allowed
 			whois = !whois || ((content.length() > 12) && 
 					(content.substring(0,12).equals("WHOIS(Query,") ||
 					 content.subSequence(0, 13).equals("WHOIS(Answer,")));
 			if(whois){
 				// Corruption
 				int corr = rand.nextInt(100);
-				if(corr < links.corruptionRate){
+				if(corr < links.getCorruptionRate()){
 					StringBuilder s = new StringBuilder();
 					for (char d : content.toCharArray()){
 						if(d < '0' || d > '9'){
@@ -153,7 +153,7 @@ public class Route extends Thread {
 				}
 				String toSend = fromNode + "" + (char) 13 + toNode + (char) 13 + content;
 				// Network delay
-				int delay = (links.delay > 0) ? rand.nextInt(links.delay) : 0;
+				int delay = (links.getDelay() > 0) ? rand.nextInt(links.getDelay()) : 0;
 				System.out.println("Adding delay "+delay);
 				queue.add(new DelayedMessage(c,toSend,delay));
 				//String delayed = (delay != 0) ? ("delayed " + delay) : "";
