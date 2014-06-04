@@ -27,7 +27,7 @@ public class ClientGui {
 	 */
 	private void initialize(Connection c, MessageList messages) {
 		frmDarknet = new JFrame();
-		frmDarknet.setTitle(c.group + " @ DarkNet node " + c.node);
+		frmDarknet.setTitle("[" + c.group + "] Node " + c.node + " @ HumanNetwork");
 		frmDarknet.setBounds(100, 100, 800, 600);
 		frmDarknet.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmDarknet.getContentPane().setLayout(null);
@@ -45,6 +45,7 @@ public class ClientGui {
 		
 		//MessageList listModel = new MessageList();
 		final JList<String> list = new JList<String>(messages);
+		list.setToolTipText("Messages built, sent and received");
 		scrollPane.setViewportView(list);
 
 		JButton btnAdd = new JButton("Add");
@@ -120,9 +121,13 @@ public class ClientGui {
 				btnMerge, btnAddCheck, btnDelete, btnVerifyChecksum, btnMoveUp, 
 				btnMoveDown, btnEncrypt, btnDecrypt);
 		
-		JLabel lblNode = new JLabel("Group: " + c.group + " Node: " + c.node);
-		lblNode.setBounds(12, 14, 546, 15);
-		frmDarknet.getContentPane().add(lblNode);
+		JLabel lblGroup = new JLabel("Group: " + c.group);
+		lblGroup.setBounds(12, 14, 274, 15);
+		frmDarknet.getContentPane().add(lblGroup);
+		
+		JLabel lblNode_1 = new JLabel("Node: " + c.node);
+		lblNode_1.setBounds(298, 14, 260, 15);
+		frmDarknet.getContentPane().add(lblNode_1);
 		
 		
 	}
