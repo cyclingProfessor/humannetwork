@@ -66,14 +66,15 @@ public class Client {
 		/** Receive messages */
 		final MessageList messages = new MessageList();
 		listen(messages);
+		final ClientController controller = new ClientController(c, messages);
 		
 		final Scanner scanner = new Scanner(System.in);
 
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					ClientGui window = new ClientGui(c, messages);
-					window.frmDarknet.setVisible(true);
+					ClientGui window = new ClientGui(c, messages, controller);
+					window.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
 					scanner.close();
