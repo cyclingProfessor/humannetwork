@@ -66,12 +66,13 @@ public class Server {
 		route = new Route(connections, links, messages);
 		route.start();
 		listen(port);
+		final ServerController controller = new ServerController(messages, links, connections);
 
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					ServerGui window = new ServerGui(port, route, connections, links, messages);
-					window.frmDarknetServer.setVisible(true);
+					ServerGui window = new ServerGui(port, route, connections, links, messages, controller);
+					window.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
