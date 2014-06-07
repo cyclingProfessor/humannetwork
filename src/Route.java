@@ -84,11 +84,11 @@ public class Route extends Thread {
 		String[] pieces = message.split(String.valueOf((char)13));
 		if(pieces.length != 2){
 			// Silently drop the message
-			messages.addElement("" + fromNode + (char) 13 + message + "dropped(ill-formed)");
+			messages.addMessage("From " + fromNode + ": " + message + "dropped(ill-formed)");
 			System.out.println("Ill-formed message");
 		} else {
-			messages.addElement("" + fromNode + (char) 13 + message);
 			int toNode = Integer.parseInt(pieces[0]);
+			messages.addMessage(fromNode, toNode, 0, message);
 			if (toNode == 0){
 				// Broadcast
 				System.out.println("Broadcasting");

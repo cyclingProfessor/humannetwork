@@ -56,7 +56,7 @@ public class ServerGui {
 		JScrollPane scrollPanePackets = new JScrollPane();
 		scrollPanePackets.setBounds(396, 12, 386, 549);
 		frame.getContentPane().add(scrollPanePackets);
-		JList<String> listPackets = new JList<String>(messages);
+		JList<Message> listPackets = new JList<Message>(messages);
 		listPackets.setVisibleRowCount(20);
 		scrollPanePackets.setViewportView(listPackets);
 		

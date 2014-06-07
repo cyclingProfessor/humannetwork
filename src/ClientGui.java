@@ -5,10 +5,6 @@ import javax.swing.JButton;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.JList;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-
-
 
 public class ClientGui {
 
@@ -48,7 +44,7 @@ public class ClientGui {
 		frame.getContentPane().add(scrollPane);
 		
 		//MessageList listModel = new MessageList();
-		final JList<String> list = new JList<String>(messages);
+		final JList<Message> list = new JList<Message>(messages);
 		list.setToolTipText("Messages built, sent and received");
 		scrollPane.setViewportView(list);
 
@@ -59,10 +55,6 @@ public class ClientGui {
 		
 		JButton btnSend = new JButton("Send");
 		btnSend.setToolTipText("Press to send the current message to someone on the network");
-		btnSend.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-			}
-		});
 		btnSend.setBounds(570, 9, 212, 25);
 		frame.getContentPane().add(btnSend);
 		

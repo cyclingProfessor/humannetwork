@@ -1,45 +1,39 @@
 import javax.swing.DefaultListModel;
 
 
-public class MessageList extends DefaultListModel<String> {
+public class MessageList extends DefaultListModel<Message> {
 
 	private static final long serialVersionUID = 6152415102958990076L;
 
 	public MessageList(){
 		super();
 	}
-	
-	public void addElement(String message){
-		String[] parts = message.split("" + (char) 13);
-		if(parts.length > 2){
-			String to = (parts[1].equals("0")) ? "all" : parts[1];
-			super.addElement("From "+ parts[0] +" to "+ to + ": " + (char) 13 + parts[2]);
-		} else {
-			super.addElement(message);
-		}
-		
+
+	public void addMessage(int from, int to, int pov, String s){
+		Message m = new Message(from, to, pov, s);
+		super.addElement(m);
+	}
+
+	public void addMessage(String s, int pov){
+		Message m = new Message(s, pov);
+		super.addElement(m);
 	}
 	
-	public String get(int index){
-		String message = super.get(index);
-		String[] parts = message.split("" + (char) 13);
-		if(parts.length > 1){
-		return parts[1];
-		} else {
-			return message;
-		}
+	public void addMessage(String s){
+		Message m = new Message(s);
+		super.addElement(m);
 	}
 
 	public void moveUp(int i) {
-		String a = super.get(i);
-		String b = super.get(i-1);
+		Message a = super.get(i);
+		Message b = super.get(i-1);
 		super.set(i, b);
 		super.set(i-1, a);
 	}
 
 	public void moveDown(int i) {
-		String a = super.get(i);
-		String b = super.get(i+1);
+		Message a = super.get(i);
+		Message b = super.get(i+1);
 		super.set(i, b);
 		super.set(i+1, a);
 	}

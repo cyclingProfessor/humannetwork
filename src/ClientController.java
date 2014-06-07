@@ -64,17 +64,16 @@ public class ClientController {
 		}
 	}
 	
-	public void bind(final JTextField txtMessage, final JList<String> list,
+	public void bind(final JTextField txtMessage, final JList<Message> list,
 			JButton btnAdd, JButton btnSend, JButton btnNonce,
 			JButton btnSplit, JButton btnMerge, JButton btnAddCheck,
 			JButton btnDelete, JButton btnVerifyChecksum, JButton btnMoveUp, 
 			JButton btnMoveDown, JButton btnEncrypt, JButton btnDecrypt){
-		
+
 
 		list.addListSelectionListener(new ListSelectionListener(){
 			@Override
 			public void valueChanged(ListSelectionEvent arg0) {
-				// TODO Auto-generated method stub
 				int[] array = list.getSelectedIndices();
 				System.out.print("Selected rows: ");
 				for(int i : array){
@@ -83,7 +82,7 @@ public class ClientController {
 				System.out.println();
 				
 				if(array.length == 1){
-					txtMessage.setText(messages.get(array[0]));
+					txtMessage.setText(messages.get(array[0]).getContent());
 				}
 			}
 		});
@@ -92,7 +91,7 @@ public class ClientController {
 			public void actionPerformed(ActionEvent arg0) {
 				String message = txtMessage.getText();
 				System.out.println("Add clicked "+ txtMessage.getText());
-				messages.addElement(message);
+				messages.addMessage(message);
 			}
 		});
 
@@ -108,7 +107,7 @@ public class ClientController {
 						JOptionPane.showMessageDialog(txtMessage, "Message is too long!");
 					} else {
 						c.write(rawMessage);
-						messages.addElement("me" + (char) 13 + rawMessage);
+						messages.addMessage(c.node, toNode, c.node, message);
 						System.out.println("Sent:" + rawMessage);
 					}
 				}
@@ -138,7 +137,7 @@ public class ClientController {
 				for(int i = 0 ; i < 1 + length / size; i++){
 					int end = ((i+1)*size <= length) ? (i+1)*size : length;
 					//String part = chunk(i+1, 1+length/size);
-					messages.addElement(message.substring(i*size, end));
+					messages.addMessage(message.substring(i*size, end));
 				}
 			}
 		});
@@ -149,54 +148,11 @@ public class ClientController {
 				int[] selected = list.getSelectedIndices();
 				//String[] pieces = new String[selected.length];
 				System.out.println("Selected " + selected.length);
-				/*
-				String nonce = null;
-				for(int i : selected){
-					String message = messages.get(i);
-					System.out.println("Looking at chunk: " + message);
-					String[] parts = message.split("%");
-					if(parts.length > 1){
-						String content = parts[0];
-						String rest = parts[parts.length - 1];
-						System.out.println("rest is: " + rest);
-						String[] noncebit = rest.split("<");
-						if(noncebit.length > 1){
-							String nb = noncebit[0];
-							System.out.println("nonce is: " + nb);
-							if (nonce == null) { nonce = nb; }
-							if (!nonce.equals(nb)) { break; }
-							String count = noncebit[1];
-							System.out.println("count is: " + count);
-							int total = totalFromChunk(count);
-							int piece = pieceFromChunk(count);
-							System.out.println("Chunck " + piece + " out of " + total);
-							if(total > 0 && total == selected.length) {
-								pieces[piece-1] = content;
-							}
-						} else {
-							break;
-						}
-					} else {
-						break;
-					}
-				}
-				boolean success = true;
-				for(String s : pieces){
-					success = success && s != null;
-				}
-				if(success){
-					String message = "";
-					for(String s : pieces){
-						message = message + s;
-					}
-					messages.addElement(message);
-				}
-			*/
 				String message = "";
 				for(int i = 0; i< selected.length; i++){
-					message = message + messages.get(selected[i]);
+					message = message + messages.get(selected[i]).getContent();
 				}
-				messages.addElement(message);
+				messages.addMessage(message);
 			}
 		});
 		

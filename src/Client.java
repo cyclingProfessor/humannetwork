@@ -20,7 +20,7 @@ public class Client {
 						 if (c != null && c.ready()){
 							 String message = c.read();
 							 System.out.println(message);
-							 messages.addElement(message);
+							 messages.addMessage(message,c.node);
 							 }
 						 Thread.sleep(1000L);
 						 //System.out.print('.');
