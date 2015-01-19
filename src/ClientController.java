@@ -26,19 +26,19 @@ public class ClientController {
 	}
 	
 	public static int totalFromChunk(String s){
-		System.out.println("Chunk " + s);
+		//System.out.println("Chunk " + s);
 		String[] parts = s.split("/");
 		if (parts.length < 2){
 			return 0;
 		} else {
 			String half = parts[1];
-			System.out.println("Half " + half);
+			//System.out.println("Half " + half);
 			if (half.length() < 1){
 				return 0;
 			} else {
 				try {
 					String total = half.substring(0, half.length()-1);
-					System.out.println("Total " + total);
+					//System.out.println("Total " + total);
 					return Integer.parseInt(total);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -49,7 +49,7 @@ public class ClientController {
 	}
 	
 	public static int pieceFromChunk(String s){
-		System.out.println("Chunk " + s);
+		//System.out.println("Chunk " + s);
 		String[] parts = s.split("/");
 		if (parts.length < 2){
 			return 0;
@@ -75,11 +75,11 @@ public class ClientController {
 			@Override
 			public void valueChanged(ListSelectionEvent arg0) {
 				int[] array = list.getSelectedIndices();
-				System.out.print("Selected rows: ");
-				for(int i : array){
-					System.out.print(i + " ");
-				}
-				System.out.println();
+				//System.out.print("Selected rows: ");
+				//for(int i : array){
+					//System.out.print(i + " ");
+				//}
+				//System.out.println();
 				
 				if(array.length == 1){
 					txtMessage.setText(messages.get(array[0]).getContent());
@@ -90,7 +90,7 @@ public class ClientController {
 		btnAdd.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				String message = txtMessage.getText();
-				System.out.println("Add clicked "+ txtMessage.getText());
+				//System.out.println("Add clicked "+ txtMessage.getText());
 				messages.addMessage(message);
 			}
 		});
@@ -108,7 +108,7 @@ public class ClientController {
 					} else {
 						c.write(rawMessage);
 						messages.addMessage(c.node, toNode, c.node, message);
-						System.out.println("Sent:" + rawMessage);
+						//System.out.println("Sent:" + rawMessage);
 					}
 				}
 				catch(Exception ex){
@@ -119,7 +119,7 @@ public class ClientController {
 		
 		btnNonce.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				System.out.println("Nonce clicked");
+				//System.out.println("Nonce clicked");
 				String message = txtMessage.getText();
 				txtMessage.setText(message + "|" + (1000 + rand.nextInt(9000)));
 			}
@@ -128,12 +128,12 @@ public class ClientController {
 		btnSplit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				String message = txtMessage.getText();
-				System.out.println("Split clicked with " + message);
+				//System.out.println("Split clicked with " + message);
 				//String nonce = "%" + (1000 + rand.nextInt(9000));
 				int length = message.length();
 				int size = 30;
-				System.out.println("Length is " + length);
-				System.out.println("Splitting in " + (1 + length/size));
+				//System.out.println("Length is " + length);
+				//System.out.println("Splitting in " + (1 + length/size));
 				for(int i = 0 ; i < 1 + length / size; i++){
 					int end = ((i+1)*size <= length) ? (i+1)*size : length;
 					//String part = chunk(i+1, 1+length/size);
@@ -144,10 +144,10 @@ public class ClientController {
 
 		btnMerge.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				System.out.println("Merge clicked");
+				//System.out.println("Merge clicked");
 				int[] selected = list.getSelectedIndices();
 				//String[] pieces = new String[selected.length];
-				System.out.println("Selected " + selected.length);
+				//System.out.println("Selected " + selected.length);
 				String message = "";
 				for(int i = 0; i< selected.length; i++){
 					message = message + messages.get(selected[i]).getContent();
@@ -158,7 +158,7 @@ public class ClientController {
 		
 		btnAddCheck.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
-					System.out.println("Add Checksum clicked");
+					//System.out.println("Add Checksum clicked");
 					String message = txtMessage.getText();
 					int sum = 0 ;
 					for (char c : message.toCharArray()){
@@ -170,7 +170,7 @@ public class ClientController {
 
 		btnVerifyChecksum.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				System.out.println("Verify Checksum clicked");
+				//System.out.println("Verify Checksum clicked");
 				String message = txtMessage.getText();
 				boolean correct = false;
 				if(message.length()>3){
@@ -183,7 +183,7 @@ public class ClientController {
 						int checksum = Integer.parseInt(message.substring(message.length()-2, message.length()));
 						correct = sum == checksum;
 					} catch (Exception e){
-						System.out.println("Incorrect checksum");
+						//System.out.println("Incorrect checksum");
 					}
 				}
 				if(correct){
@@ -197,7 +197,7 @@ public class ClientController {
 		btnMoveUp.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				int[] array = list.getSelectedIndices();
-				System.out.println("MoveUp clicked");
+				//System.out.println("MoveUp clicked");
 				if(array.length == 1 && array[0] != 0){
 					messages.moveUp(array[0]);
 					list.setSelectedIndex(array[0]-1);
@@ -208,7 +208,7 @@ public class ClientController {
 		btnMoveDown.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				int[] array = list.getSelectedIndices();
-				System.out.println("MoveDown clicked");
+				//System.out.println("MoveDown clicked");
 				if(array.length == 1 && array[0] != messages.size()-1){
 					messages.moveDown(array[0]);
 					list.setSelectedIndex(array[0]+1);
@@ -246,7 +246,7 @@ public class ClientController {
 		btnDelete.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				int[] array = list.getSelectedIndices();
-				System.out.println("Delete clicked");
+				//System.out.println("Delete clicked");
 				for(int i : array){
 					messages.remove(i);
 				}

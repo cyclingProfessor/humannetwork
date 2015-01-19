@@ -2,32 +2,40 @@ import java.awt.EventQueue;
 import java.util.Scanner;
 
 import javax.swing.JOptionPane;
+import java.io.IOException;
 
 public class Client {
 
 	// Client connection to the server
-	static Connection c;
+	static Connection c = null;
 	static String id = "toto";
+	final static String USAGE = "java Client [serverAddress] [Node]";
+	static Thread listen = null;
+	final static MessageList  messages = new MessageList();
 	
 	/**
 	 * Thread listening for incoming messages
+	 * For user sanity read only one message a second.
 	 */
 	public static void listen(final MessageList messages){
-		 Thread listen = new Thread(){
-			 public void run(){
-				 try{
-					 while(true){
-						 if (c != null && c.ready()){
-							 String message = c.read();
-							 System.out.println(message);
-							 messages.addMessage(message,c.node);
-							 }
-						 Thread.sleep(1000L);
-						 //System.out.print('.');
+		listen = new Thread(){
+			public void run(){
+				try{
+					while(true){
+						if (c != null && c.ready()){
+							final String message = c.read();
+							//System.out.println(message);
+							EventQueue.invokeLater(new Runnable() {
+								public void run() {
+							 		messages.addMessage(message,c.node);
+								}
+							});
+						}
+						Thread.sleep(1000L);
+						//System.out.print('.');
 					 }
 				 }
 				 catch (InterruptedException e){
-					 
 				 }
 			 }
 		 };
@@ -44,7 +52,7 @@ public class Client {
 		int port = 10000;
 		int node = 0;
 		
-		/** Each has an group id */
+		/** Each client has a group id */
 		try{
 			if (args.length > 1){
 				host = args[0];
@@ -54,17 +62,19 @@ public class Client {
 				node = Integer.parseInt(args[2]);
 			}
 		} catch (Exception e){
-			e.printStackTrace();
+                        System.err.println(USAGE);
 			System.exit(0);
 		}
 
 		/** Connect */
-		String group = (String) JOptionPane.showInputDialog("What is your group?");
-		if (group == null){ group = ""; }
+		String [] possibleGroups = {"A", "B", "C"};
+		String group = (String) JOptionPane.showInputDialog(null, "What is your group?", "Choose Your Network", JOptionPane.DEFAULT_OPTION, null, possibleGroups, possibleGroups[0]);
+		if (group == null) {
+			group = "A";
+		}
 		c = new Connection(host, port, group, node);
 		
 		/** Receive messages */
-		final MessageList messages = new MessageList();
 		listen(messages);
 		final ClientController controller = new ClientController(c, messages);
 		
@@ -76,17 +86,21 @@ public class Client {
 					ClientGui window = new ClientGui(c, messages, controller);
 					window.setVisible(true);
 				} catch (Exception e) {
+					// Close resources - will cause read input loop to terminate gracefully
 					e.printStackTrace();
 					scanner.close();
+					listen.interrupt();
+					c.close();
 				}
 			}
 		});
 		
-		while(true){
+		boolean connected = true;
+		while(connected && listen.getState() != Thread.State.TERMINATED){
 			String message = scanner.nextLine();
-			System.out.print("To whom: ");
+			//System.out.print("To whom: ");
 			String to = scanner.nextLine();
-			c.write(to + (char) 13 + message);
+			connected = c.write(to + (char) 13 + message);
 		}
 		
 		// TODO GUI for building message

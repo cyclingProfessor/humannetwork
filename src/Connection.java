@@ -36,14 +36,14 @@ public class Connection {
 	 */
 	public Connection(String hostname, int port, String id, int setnode){
 
-		System.out.println("Darknet Client initialised");
-		System.out.println("Connecting to " + hostname + ":" + port);
+		//System.out.println("Darknet Client initialised");
+		//System.out.println("Connecting to " + hostname + ":" + port);
 		try {
 			/** Obtain an address object of the server */
 			InetAddress address = InetAddress.getByName(hostname);
 			/** Establish a socket connection */
 			connection = new Socket(address, port);
-			System.out.println("Client connected");
+			//System.out.println("Client connected");
 			BufferedOutputStream bos = new BufferedOutputStream(connection.
 					getOutputStream());
 			osw = new OutputStreamWriter(bos, "US-ASCII");
@@ -56,15 +56,15 @@ public class Connection {
 			write("" + setnode);
 			String nodeMessage = read();
 			node = Integer.parseInt(nodeMessage);
-			System.out.println("node: " + node);
-			System.out.println("id: " + id);
+			//System.out.println("node: " + node);
+			//System.out.println("id: " + id);
 		}
 		catch (IOException f) {
-			System.out.println("IOException: " + f);
+			System.err.println("IOException: " + f);
 			System.exit(0);
 		}
 		catch (Exception g) {
-			System.out.println("Exception: " + g);
+			System.err.println("Exception: " + g);
 		}
 	}
 	
@@ -80,7 +80,7 @@ public class Connection {
 			osw.flush();
 		}
 		catch (IOException f) {
-			System.out.println("IOException: " + f);
+			System.err.println("IOException: " + f);
 			result = false;
 		}
 		return result;
@@ -98,7 +98,7 @@ public class Connection {
 				instr.append( (char) c);
 		}
 		catch (IOException f) {
-			System.out.println("IOException: " + f);
+			System.err.println("IOException: " + f);
 		}
 		return instr.toString();
 	}
@@ -111,7 +111,7 @@ public class Connection {
 		try {
 			return isr.ready();
 		} catch (IOException e) {
-			System.out.println("IOException: " + e);
+			System.err.println("IOException: " + e);
 			return false;
 		}
 	}
@@ -123,7 +123,7 @@ public class Connection {
 		try {
 			connection.close();
 		} catch (IOException e) {
-			System.out.println("IOException: " + e);
+			System.err.println("IOException: " + e);
 		}
 	}
 
