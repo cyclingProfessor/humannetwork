@@ -1,3 +1,4 @@
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.Rectangle;
@@ -6,6 +7,7 @@ import java.awt.Toolkit;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -13,6 +15,7 @@ import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.plaf.FontUIResource;
@@ -22,13 +25,14 @@ public class ClientGui extends JFrame {
 	private final static float BTN_WIDTH = 25/100f;
 	private final static float BTN_LEFT = 71/100f;
 	private final static float BORDER = 1.5f/100f;
-	private final static float BTN_HEIGHT = 30/100f;
+	private final static float BTN_HEIGHT = 3/100f;
 	private final static float BTN_TOTAL_HEIGHT = BTN_HEIGHT + BORDER;
+	private static final float STATUS_HEIGHT = 1/10f;
+	private static final float MSG_WIDTH = 11/100f;
+	private static final float MSG_HEIGHT = 3/100f;
 	private static int INITIAL_WIDTH = 800;
-
-	private final float TOP_CONTENT = 0f;
 	
-	private static float posn = 1/100f;
+	private static float posn = STATUS_HEIGHT + 2 * BORDER;
 	private enum BTN_DETAILS {
 		SEND     (posn, "Send", "Press to send the current message to someone on the network", 1), 
 		ADD      (posn,"Add","Press to add the message content to the list of messages", 2),
@@ -58,14 +62,13 @@ public class ClientGui extends JFrame {
 		public float offset() { return offset; }
 	}
 	
-	private JTextField txtMessage;
+	private JTextField txtMessage = new JTextField();
 	private JScrollPane scrollPane = new JScrollPane();
 
 	private JLabel lblMessage = new JLabel("Message: ");
-	private JLabel lblGroup;
-	private JLabel lblNode_1;
 	private JList<Message> list;
-
+	private JLabel status ;
+	
 	/**
 	 * Create the application.
 	 */
@@ -78,10 +81,10 @@ public class ClientGui extends JFrame {
 	 */
 	private void initialize(Connection c, MessageList messages, ClientController control) {
 		setTitle("[" + c.group + "] Node " + c.node + " @ HumanNetwork");
-		setBounds(100, 100, INITIAL_WIDTH, (INITIAL_WIDTH * 4) / 3);
+		setBounds(100, 100, INITIAL_WIDTH, (INITIAL_WIDTH * 350) / 400);
 		final int SCREEN_HEIGHT = (int) (Toolkit.getDefaultToolkit().getScreenSize().getHeight());
 		final int SCREEN_WIDTH = (int) (Toolkit.getDefaultToolkit().getScreenSize().getWidth());
-                final int MAX_WIDTH = (4 * SCREEN_HEIGHT) / 3;
+    final int MAX_WIDTH = (4 * SCREEN_HEIGHT) / 3;
 		final Rectangle maxRect = new Rectangle((SCREEN_WIDTH - MAX_WIDTH) / 2, 0, MAX_WIDTH, SCREEN_HEIGHT);
 		final Dimension maxSize = new Dimension(MAX_WIDTH, SCREEN_HEIGHT);
 		setMaximumSize(maxSize);
@@ -93,15 +96,11 @@ public class ClientGui extends JFrame {
 			JButton next = btn.button();
 			next.setToolTipText(btn.toolTip());
 			getContentPane().add(next);
-		}
+		}		
 		
-		txtMessage = new JTextField();
 		txtMessage.setToolTipText("Enter your new message here");
 		getContentPane().add(txtMessage);
-		txtMessage.setColumns(10);
 		
-		lblGroup = new JLabel("Group: " + c.group);
-		lblNode_1 = new JLabel("Node: " + c.node);
 		
 		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		getContentPane().add(scrollPane);
@@ -110,10 +109,19 @@ public class ClientGui extends JFrame {
 		list = new JList<Message>(messages);
 		list.setToolTipText("Messages built, sent and received");
 		scrollPane.setViewportView(list);
-		
+
+		StringBuffer initialMessage = new StringBuffer();
+		initialMessage.append("<html><head><style type='text/css'>");
+		initialMessage.append("body { color: #4444ff; font-weight: normal;}");
+		initialMessage.append("div { width: 100%; text-align: center}");
+		initialMessage.append("<div>Welcome to the DarkNet.  <br>" +
+		    "You are in group: " + c.group + ". Your node number is " + c.node + ".<br>" + 
+				"Please wait for instruction.</div>");
+		status = new JLabel(initialMessage + "",  SwingConstants.CENTER);
+		status.setBorder(BorderFactory.createLineBorder(Color.red));
+
 		getContentPane().add(lblMessage);
-		getContentPane().add(lblGroup);
-		getContentPane().add(lblNode_1);
+		getContentPane().add(status);
     setSizes();
     
 		control.bind(txtMessage, list, 
@@ -162,11 +170,11 @@ public class ClientGui extends JFrame {
 			JButton next = btn.button();
 			setRelativeBounds(next, BTN_LEFT, btn.offset(), BTN_WIDTH, BTN_HEIGHT);
 		}
-		setRelativeBounds(scrollPane, BORDER, 1/10f, BTN_LEFT - 2 * BORDER, 3/5f);
-		setRelativeBounds(lblMessage, BORDER, 6/100f, 1/10f, 2/100f);
-		setRelativeBounds(lblGroup, BORDER, 2/100f, 1/3f, 2/100f);
-		setRelativeBounds(lblNode_1, 3/8f, 2/100f, 1/3f, 2/100f);
-		setRelativeBounds(txtMessage, 14/100f, 56/100f, 55/100f, 3/100f);
+		float h_offset = BORDER;
+		setRelativeBounds(status, BORDER, h_offset, BTN_LEFT + BTN_WIDTH - BORDER, STATUS_HEIGHT); h_offset += STATUS_HEIGHT + BORDER;
+		setRelativeBounds(lblMessage, BORDER, h_offset, MSG_WIDTH, MSG_HEIGHT); 
+		setRelativeBounds(txtMessage, MSG_WIDTH, h_offset, BTN_LEFT - BORDER, MSG_HEIGHT); h_offset += MSG_HEIGHT + BORDER;
+		setRelativeBounds(scrollPane, BORDER, h_offset, BTN_LEFT - 3 * BORDER, BTN_DETAILS.DELETE.offset() + BTN_HEIGHT - h_offset);
 	}
 	
 	private void setRelativeBounds(Component c, float x, float y, float width, float height) {
