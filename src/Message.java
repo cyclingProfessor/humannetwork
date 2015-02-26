@@ -7,7 +7,6 @@ public class Message {
 	private String content;
 
 	public Message(int from, int to, int pov, String content) {
-		super();
 		this.from = from;
 		this.to = to;
 		this.pov = pov;

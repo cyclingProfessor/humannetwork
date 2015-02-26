@@ -1,5 +1,6 @@
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Observer;
 import java.util.Random;
 
 import javax.swing.JButton;
@@ -253,5 +254,4 @@ public class ClientController {
 			}
 		});
 	}
-	
 }

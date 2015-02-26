@@ -17,15 +17,6 @@ public class Route extends Thread {
 		this.messages = messages;
 		this.links = links;
 	}
-	
-	public int newNode(){
-		while(true) {
-			int node = rand.nextInt(900) + 100; // node number is between 100 and 999
-			if (getByNode(node) == null) {
-				return node;
-			}
-		}
-	}
 
 	public void addConnection(OutputStreamWriter osw,	InputStreamReader isr, InetAddress a){
 		Connection c = new Connection(osw,isr);
@@ -140,7 +131,7 @@ public class Route extends Thread {
 					}
 					content = s.toString();
 				}
-				String toSend = fromNode + "" + (char) 13 + toNode + (char) 13 + content;
+				String toSend = "M:" + fromNode + (char) 13 + toNode + (char) 13 + content;
 				// Network delay
 				int delay = (links.getDelay() > 0) ? rand.nextInt(links.getDelay()) : 0;
 				System.out.println("Adding delay "+delay);

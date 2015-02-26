@@ -1,7 +1,9 @@
 import java.awt.EventQueue;
 import java.util.Scanner;
 
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+
 import java.io.IOException;
 
 public class Client {
@@ -17,17 +19,25 @@ public class Client {
 	 * Thread listening for incoming messages
 	 * For user sanity read only one message a second.
 	 */
-	public static void listen(final MessageList messages){
+	public static void listen(final MessageList messages, final JLabel status){
 		listen = new Thread(){
 			public void run(){
 				try{
 					while(true){
 						if (c != null && c.ready()){
-							final String message = c.read();
-							//System.out.println(message);
+							final Notification message = new Notification(c.read());
 							EventQueue.invokeLater(new Runnable() {
 								public void run() {
-							 		messages.addMessage(message,c.node);
+							    switch(message.getType()) {
+								    case STATUS:
+								    	if (status != null) {
+  									    status.setText(message.getText());
+								    	}
+									    break;
+								    case MESSAGE:
+								    	messages.addMessage(message.getText(), c.node);
+								    	break;
+							    }
 								}
 							});
 						}
@@ -75,36 +85,31 @@ public class Client {
 		c = new Connection(host, port, group, node);
 		
 		/** Receive messages */
-		listen(messages);
 		final ClientController controller = new ClientController(c, messages);
+		final ClientGui window = new ClientGui();
 		
-		final Scanner scanner = new Scanner(System.in);
-
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					ClientGui window = new ClientGui(c, messages, controller);
+					window.initialize(c, messages, controller);
 					window.setVisible(true);
 				} catch (Exception e) {
 					// Close resources - will cause read input loop to terminate gracefully
 					e.printStackTrace();
-					scanner.close();
-					listen.interrupt();
 					c.close();
 				}
 			}
 		});
 		
+		final Scanner scanner = new Scanner(System.in);
+		listen(messages, window.getStatusField());
 		boolean connected = true;
 		while(connected && listen.getState() != Thread.State.TERMINATED){
 			String message = scanner.nextLine();
-			//System.out.print("To whom: ");
 			String to = scanner.nextLine();
 			connected = c.write(to + (char) 13 + message);
 		}
-		
-		// TODO GUI for building message
-
+		scanner.close();
 	}	
 
 }
