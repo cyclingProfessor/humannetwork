@@ -72,7 +72,7 @@ public class ClientGui extends JFrame {
 	/**
 	 * Initialise the contents of the 
 	 */
-	private void initialize(Connection c, MessageList messages, ClientController control) {
+	public void initialize(Connection c, MessageList messages, ClientController control) {
 		setTitle("[" + c.group + "] Node " + c.node + " @ HumanNetwork");
 		setBounds(100, 100, INITIAL_WIDTH, (INITIAL_WIDTH * 350) / 400);
 		final int SCREEN_HEIGHT = (int) (Toolkit.getDefaultToolkit().getScreenSize().getHeight());
@@ -174,6 +174,9 @@ public class ClientGui extends JFrame {
 		int w = getWidth();
 		c.setBounds(Math.round(w * x), Math.round(w * y), Math.round(w * width), Math.round(w * height));
 	}
+	public JLabel getStatusField() {
+          return status;
+        }
 
 
 }
