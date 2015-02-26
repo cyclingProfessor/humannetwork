@@ -1,5 +1,6 @@
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Random;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -13,12 +14,13 @@ import javax.swing.event.ChangeListener;
 
 public class ServerController {
 
-	MessageList messages;
-	LinkList links;
-	ConnectionList connections;
+//	private MessageList messages;
+	private LinkList links;
+	private ConnectionList connections;
+	private Random rand = new Random();
 	
 	public ServerController(MessageList messages, LinkList links, ConnectionList connections){
-		this.messages = messages;
+//		this.messages = messages;
 		this.connections = connections;
 		this.links = links;
 	}
@@ -47,21 +49,27 @@ public class ServerController {
 			public void actionPerformed(ActionEvent arg0) {
 				int[] selected = listNodes.getSelectedIndices();
 				if(selected.length > 2){
+					String group = connections.get(selected[0]).group;
+					for(int i = 1; i < selected.length; i++){
+						if(!group.equals(connections.get(selected[i]).group)){
+							System.out.println("No cycle created - more than one group selected.");
+						}
+					}
+					for (int index = selected.length - 1 ; index > 0  ; index--) {
+						int other = rand.nextInt(index);
+						int temp = selected[other];
+						selected[other] = selected[index];
+						selected[index] = temp;
+					}
 					int nodeA = connections.get(selected[0]).node;
 					int nodeB = connections.get(selected[selected.length-1]).node;
 					System.out.println("Create link between "+nodeA+" and "+nodeB);
-					String group = connections.get(selected[0]).group;
-					if(group.equals(connections.get(selected[selected.length-1]).group)){
-						links.addElement(new Link(nodeA, nodeB, group));
-					}
+					links.addElement(new Link(nodeA, nodeB, group));
 					for(int i = 0; i < selected.length - 1; i++){
 						int node1 = connections.get(selected[i]).node;
 						int node2 = connections.get(selected[i+1]).node;
 						System.out.println("Create link between "+node1+" and "+node2);
-						String group1 = connections.get(selected[i]).group;
-						if(group1.equals(connections.get(selected[i+1]).group)){
-							links.addElement(new Link(node1, node2, group1));
-						}
+						links.addElement(new Link(node1, node2, group));
 					}
 					
 				}
