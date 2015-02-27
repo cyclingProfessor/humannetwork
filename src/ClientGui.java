@@ -109,7 +109,7 @@ public class ClientGui extends JFrame {
 		initialMessage.append("div { width: 100%; text-align: center}");
 		initialMessage.append("<div>Welcome to the DarkNet.  <br>" +
 		    "You are in group: " + c.group + ". Your node number is " + c.node + ".<br>" + 
-				"Please wait for instruction.</div>");
+				"Please wait for instructions.</div>");
 		status = new JLabel(initialMessage + "",  SwingConstants.CENTER);
 		status.setBorder(BorderFactory.createLineBorder(Color.red));
 

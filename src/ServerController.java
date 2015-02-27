@@ -18,17 +18,20 @@ public class ServerController {
 	private LinkList links;
 	private ConnectionList connections;
 	private Random rand = new Random();
+	private Route route;
 	
-	public ServerController(MessageList messages, LinkList links, ConnectionList connections){
+	public ServerController(MessageList messages, LinkList links, ConnectionList connections, Route route){
 //		this.messages = messages;
 		this.connections = connections;
 		this.links = links;
+		this.route = route;
 	}
 	
 	public void bind(final JList<Connection> listNodes, final JList<Link> listLinks,
 			JButton btnCircular, JButton btnDeleteLink, final JLabel labelDrop,
-			final JSlider sliderFailure, final JSpinner spinner, JButton btnCreateLink,
-			final JCheckBox chckbxWhoisOnly, final JLabel labelCorruption, final JSlider sliderCorruption){
+			final JSlider sliderFailure, final JSpinner spinDelay, JButton btnCreateLink,
+			final JCheckBox chckbxWhoisOnly, final JLabel labelCorruption, final JSlider sliderCorruption,
+			final JButton btnNextStage, final JSpinner spinOffset){
 		
 		btnCreateLink.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -94,12 +97,21 @@ public class ServerController {
 			}
 		});
 		
-		spinner.addChangeListener(new ChangeListener(){
+		spinDelay.addChangeListener(new ChangeListener(){
 			public void stateChanged(ChangeEvent arg0) {
-				int val = (Integer) spinner.getValue();
+				int val = (Integer) spinDelay.getValue();
 				links.setDelay(val);
 			}
 		});
+		
+		
+		spinOffset.addChangeListener(new ChangeListener(){
+			public void stateChanged(ChangeEvent arg0) {
+				int val = (Integer) spinDelay.getValue();
+				links.setOffset(val);
+			}
+		});
+
 		
 		chckbxWhoisOnly.addChangeListener(new ChangeListener(){
 			public void stateChanged(ChangeEvent arg0) {
@@ -113,6 +125,15 @@ public class ServerController {
 				int val = (Integer) sliderCorruption.getValue();
 				links.setCorruptionRate(val);
 				labelCorruption.setText(val + "%");
+			}
+		});
+		
+
+		btnNextStage.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				System.out.println("Send Status Out");
+				// clear message queue and send new status messages
+				route.updateStatus();
 			}
 		});
 		

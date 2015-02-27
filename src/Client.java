@@ -19,7 +19,7 @@ public class Client {
 	 * Thread listening for incoming messages
 	 * For user sanity read only one message a second.
 	 */
-	public static void listen(final MessageList messages, final JLabel status){
+	public static void listen(final MessageList messages, final ClientGui window){
 		listen = new Thread(){
 			public void run(){
 				try{
@@ -30,7 +30,8 @@ public class Client {
 								public void run() {
 							    switch(message.getType()) {
 								    case STATUS:
-								    	if (status != null) {
+								    	JLabel status = window.getStatusField();
+											if (status != null) {
   									    status.setText(message.getText());
 								    	}
 									    break;
@@ -102,7 +103,7 @@ public class Client {
 		});
 		
 		final Scanner scanner = new Scanner(System.in);
-		listen(messages, window.getStatusField());
+		listen(messages, window);
 		boolean connected = true;
 		while(connected && listen.getState() != Thread.State.TERMINATED){
 			String message = scanner.nextLine();

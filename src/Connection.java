@@ -4,11 +4,9 @@ import java.net.*;
 
 public class Connection {
 
-	ServerSocket socket1;
-	protected int port = 19999;
 	Socket connection;
-	StringBuffer process;
 	String hostname = "localhost";
+
 	OutputStreamWriter osw;
 	InputStreamReader isr;
 	String group = "server";
@@ -22,6 +20,14 @@ public class Connection {
 	public Connection(OutputStreamWriter osw,	InputStreamReader isr){
 		this.isr = isr;
 		this.osw = osw;
+	}
+	
+	public String getHostname() {
+		return hostname;
+	}
+
+	public void setName() {
+		this.hostname = Texts.choose_name(node);
 	}
 	
 	public void setNode (int node){

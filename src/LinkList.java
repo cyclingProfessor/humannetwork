@@ -9,6 +9,11 @@ public class LinkList extends DefaultListModel<Link> {
 	private int corruptionRate = 0;
 	private int delay = 0;
 	private boolean checkwhois = false;
+	private int offset = 0;
+
+	public int getOffset() {
+		return offset;
+	}
 
 	public LinkList() {
 		super();
@@ -55,5 +60,9 @@ public class LinkList extends DefaultListModel<Link> {
 
 	public void setCheckwhois(boolean checkwhois) {
 		this.checkwhois = checkwhois;
+	}
+
+	public void setOffset(int val) {
+		this.offset = val;
 	}
 }

@@ -4,11 +4,13 @@ public class DelayedMessage {
 	private int delay = 0;
 	private String message = "";
 	private Connection connection;
+	private long time;
 	
 	public DelayedMessage(Connection connection, String message, int delay){
 		this.delay = delay;
 		this.message = message;
 		this.connection = connection;
+		time = System.currentTimeMillis();
 	}
 	
 	public void decr(){
@@ -20,6 +22,11 @@ public class DelayedMessage {
 	}
 
 	public void send(){
+		System.out.println("About to send the message: " + message);
 		connection.write(message);
+	}
+
+	public boolean current(long startTime) {
+		return time > startTime;
 	}
 }

@@ -46,13 +46,6 @@ public class Server {
 		 listen.start();
 	 }
 	 
-	 /*
-	  * Routing thread
-	  */
-	 public static void route(){
-		 route.start();
-	 }
-	 
 	/**
 	 * @param args
 	 */
@@ -64,14 +57,14 @@ public class Server {
 		final LinkList links = new LinkList();
 		final MessageList messages = new MessageList();
 		route = new Route(connections, links, messages);
-		route.start();
 		listen(port);
-		final ServerController controller = new ServerController(messages, links, connections);
+		final ServerController controller = new ServerController(messages, links, connections, route);
+		route.start();
 
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					ServerGui window = new ServerGui(port, route, connections, links, messages, controller);
+					ServerGui window = new ServerGui(port, connections, links, messages, controller);
 					window.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
