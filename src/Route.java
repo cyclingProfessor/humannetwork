@@ -4,8 +4,6 @@ import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.Set;
-import java.util.SortedSet;
 import java.util.TreeSet;
 
 public class Route extends Thread {
@@ -250,7 +248,6 @@ public class Route extends Thread {
 		int nodeCount = 0;
 		String g = connections.get(nodeIndex).getGroup();
 	  for (int index = 0 ; index < connections.size() ; index++) {
-	  	  Connection c = connections.get(index);
   		  if (g.equals(connections.get(index).getGroup())) {
   			  nodeCount++;
 		    }
