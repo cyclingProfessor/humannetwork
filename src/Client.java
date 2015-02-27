@@ -1,10 +1,9 @@
 import java.awt.EventQueue;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Scanner;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-
-import java.io.IOException;
 
 public class Client {
 
@@ -19,7 +18,7 @@ public class Client {
 	 * Thread listening for incoming messages
 	 * For user sanity read only one message a second.
 	 */
-	public static void listen(final MessageList messages, final ClientGui window){
+	public static void listen(final MessageList messages, final JLabel status){
 		listen = new Thread(){
 			public void run(){
 				try{
@@ -30,13 +29,11 @@ public class Client {
 								public void run() {
 							    switch(message.getType()) {
 								    case STATUS:
-								    	JLabel status = window.getStatusField();
-											if (status != null) {
-  									    status.setText(message.getText());
-								    	}
+								    	System.out.println("New Status:" + message.getText());
+  									  status.setText(message.getText());
 									    break;
 								    case MESSAGE:
-								    	messages.addMessage(message.getText(), c.node);
+								    	messages.addMessage(message.getText(), c.getNode());
 								    	break;
 							    }
 								}
@@ -89,21 +86,28 @@ public class Client {
 		final ClientController controller = new ClientController(c, messages);
 		final ClientGui window = new ClientGui();
 		
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					window.initialize(c, messages, controller);
-					window.setVisible(true);
-				} catch (Exception e) {
-					// Close resources - will cause read input loop to terminate gracefully
-					e.printStackTrace();
-					c.close();
+		// Wait for GUI since we need to access it in the message Thread.
+		try {
+			EventQueue.invokeAndWait(new Runnable() {
+				public void run() {
+					try {
+						window.initialize(c, messages, controller);
+						window.setVisible(true);
+					} catch (Exception e) {
+						// Close resources - will cause read input loop to terminate gracefully
+						e.printStackTrace();
+						c.close();
+					}
 				}
-			}
-		});
+			});
+		} catch (InvocationTargetException e) {
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		
 		final Scanner scanner = new Scanner(System.in);
-		listen(messages, window);
+		listen(messages, window.getStatusField());
 		boolean connected = true;
 		while(connected && listen.getState() != Thread.State.TERMINATED){
 			String message = scanner.nextLine();

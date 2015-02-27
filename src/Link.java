@@ -32,6 +32,6 @@ public class Link {
 
 	@Override
 	public String toString() {
-		return "[" + group + "] " + nodeA + " -> " + nodeB;
+		return "[" + group + "] " + nodeA + " <-> " + nodeB;
 	}
 }

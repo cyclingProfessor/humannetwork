@@ -7,14 +7,13 @@ import java.util.Random;
 
 public class Route extends Thread {
 
-	long startTime = -1; 
-	ConnectionList connections;
-	MessageList messages;
-	LinkList links;
-	Random rand = new Random();
-	List<DelayedMessage> queue = new ArrayList<DelayedMessage>();
+	private long startTime = -1; 
+	private ConnectionList connections;
+	private MessageList messages;
+	private LinkList links;
+	private Random rand = new Random();
+	private List<DelayedMessage> queue = new ArrayList<DelayedMessage>();
 	List<DelayedMessage> statusMessages = new ArrayList<DelayedMessage>();
-	private Object lock = new Object();
 	
 	public Route(ConnectionList connections, LinkList links, MessageList messages){
 		this.connections = connections;
@@ -33,22 +32,25 @@ public class Route extends Thread {
 		boolean found = false;
 		for (int i = 0; i < connections.size(); i++) {
 			Connection cc = connections.get(i);
-			System.out.println("Checking " + cc.group + "/" + cc.node);
-			if(cc.node == setnode){
-				c.setNode(cc.node);
-				System.out.println(id + " is playing existing node " + c.node);
-				c.write("" + c.node);
+			System.out.println("Checking " + cc.getGroup() + "/" + cc.getNode());
+			if(cc.getNode() == setnode){
+				c.setNode(cc.getNode());
+				System.out.println(id + " is playing existing node " + c.getNode());
+				c.write("" + c.getNode());
+				// Keep old node Name
+				c.setHostname(cc.getHostname());
 				connections.set(i, c);
 				found = true;
 				break;
 			}
 		}
-		c.group = id;
+		c.setGroup(id);
 		if (!found){
 			int node = setnode;
-			c.node = node;
+			c.setNode(node);
 			c.write("" + node);
-			System.out.println(id + " is playing new node " + node);
+			c.pickName();
+			System.out.println(id + " is playing new node " + node + " with name: " + c.getHostname());
 			connections.addElement(c);
 		}
 	}
@@ -56,7 +58,7 @@ public class Route extends Thread {
 	private Connection getByNode(int node){
 		for(int i = 0; i < connections.size(); i++) {
 			Connection c = connections.get(i);
-			if (c.node == node) {
+			if (c.getNode() == node) {
 				return c;
 			}
 		}
@@ -66,7 +68,7 @@ public class Route extends Thread {
 	public int nodeToIndex(int node){
 		int l = connections.size();
 		for(int j = 0 ; j < l ; j++){
-			 if (connections.get(j).node == node){
+			 if (connections.get(j).getNode() == node){
 				 return j;
 			 }
 		}
@@ -87,7 +89,7 @@ public class Route extends Thread {
 				System.out.println("Broadcasting");
 				for(int i = 0; i < connections.size(); i++) {
 					Connection c = connections.get(i);
-					if(links.isNeighbour(fromNode,c.node)) {
+					if(links.isNeighbour(fromNode,c.getNode())) {
 						send(c,pieces[1],fromNode,toNode);
 					}
 				}
@@ -165,7 +167,7 @@ public class Route extends Thread {
 						 System.out.println("Received message from "+i);
 						 String message = c.read();
 						 System.out.println(message);
-  					 route(message,c.node);
+  					 route(message,c.getNode());
 					 }
 				 }
 				 Thread.sleep(1000L);
@@ -177,13 +179,16 @@ public class Route extends Thread {
 	}
 
 	public void updateStatus() {
+		startTime = System.currentTimeMillis(); // mark any current messages out of date
+
 		int l = connections.size();
 		List<String> texts = null;
 		// Link to running Thread by using an indicator variable
     StringBuilder str = new StringBuilder();
     str.append("<html><head><style type='text/css'>");
 		str.append("body { color: #4444ff; font-weight: normal;}");
-		str.append("div { width: 100%; text-align: center}");
+		str.append("div { width: 100%; text-align: center;}");
+		str.append(".message: {font-weight: bold; color: black;}");
 		if (links.getOffset() == 0) {
 			str.append("<div>Your task is to find the network topology.  <br>" +
 			    "You have to find all of the connections in your network.<br>" + 
@@ -202,15 +207,15 @@ public class Route extends Thread {
 					str.append(" delivered out of order");
 			  }
 			  if (links.getCorruptionRate() > 0) {
-					str.append(((badCount++ > 0) ? "or " : " ") + "altered by the network");
+					str.append(((badCount++ > 0) ? " or " : " ") + "altered by the network");
 			  }
 			  if (links.getDropRate() > 0) {
-					str.append(((badCount++ > 0) ? "or " : " ") + "lost by the network");
+					str.append(((badCount++ > 0) ? " or " : " ") + "lost by the network");
 			  }
 			  str.append(".<br>");
 			}
 		}
-		startTime = System.currentTimeMillis();
+		
 		synchronized (statusMessages) {
 			for (int i = 0; i < l; i++) {
 				Connection c = connections.get(i);
@@ -222,15 +227,14 @@ public class Route extends Thread {
 							str.append("Your node name is: " + c.getHostname() + "<br>");
 							str.append("You must find out the node number of the node with name: " + connections.get(recipient).getHostname());
 						} else {
-							str.append("You are to send the message: <br>");
+							str.append("You are to send the message: <span class='message'>");
 							str.append(texts.get(i));
-							str.append("to node: " + recipient);							
+							str.append("</span> to node: " + recipient);							
 						}
 					}
 
-					DelayedMessage status = new DelayedMessage(c, "S:Start Now!", 0);
-					// Check whether messages are needed
-					statusMessages.add(status);
+					// Set delay to -1 so that the message is sent out straight away.
+					statusMessages.add(new DelayedMessage(c, "S:" + str, -1));
 				}
 			}
 		}

@@ -4,13 +4,13 @@ import java.net.*;
 
 public class Connection {
 
-	Socket connection;
-	String hostname = "localhost";
+	private Socket connection;
+	private String hostname = "localhost";
 
-	OutputStreamWriter osw;
-	InputStreamReader isr;
-	String group = "server";
-	int node = 1000;
+	private OutputStreamWriter osw;
+	private InputStreamReader isr;
+	private String group = "server";
+	private int node = 1000;
 
 	/**
 	 * Constructor for the Server
@@ -26,7 +26,7 @@ public class Connection {
 		return hostname;
 	}
 
-	public void setName() {
+	public void pickName() {
 		this.hostname = Texts.choose_name(node);
 	}
 	
@@ -139,7 +139,23 @@ public class Connection {
 	}
 	
 	public String toString(){
-		return (" [" + group + "] " + node );
+		return ("[" + group + "] " + node);
+	}
+
+	public void setGroup(String id) {
+		group = id;
+	}
+
+	public int getNode() {
+		return node;
+	}
+
+	public String getGroup() {
+		return group;
+	}
+
+	public void setHostname(String name) {
+		hostname = name;
 	}
 
 }

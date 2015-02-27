@@ -1,6 +1,5 @@
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Observer;
 import java.util.Random;
 
 import javax.swing.JButton;
@@ -108,7 +107,7 @@ public class ClientController {
 						JOptionPane.showMessageDialog(txtMessage, "Message is too long!");
 					} else {
 						c.write(rawMessage);
-						messages.addMessage(c.node, toNode, c.node, message);
+						messages.addMessage(c.getNode(), toNode, c.getNode(), message);
 						//System.out.println("Sent:" + rawMessage);
 					}
 				}

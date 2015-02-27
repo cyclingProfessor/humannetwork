@@ -1,14 +1,15 @@
-import javax.swing.JFrame;
-import javax.swing.JScrollPane;
-import javax.swing.JList;
-import javax.swing.JButton;
+import java.util.Formatter;
 
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JSpinner;
-import javax.swing.JLabel;
-import javax.swing.SwingConstants;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingConstants;
 
 public class ServerGui {
 
@@ -60,7 +61,7 @@ public class ServerGui {
 		listPackets.setVisibleRowCount(20);
 		scrollPanePackets.setViewportView(listPackets);
 		
-		JButton btnCircular = new JButton("Create Circular links");
+		JButton btnCircular = new JButton("Create Node Cycle");
 		btnCircular.setBounds(12, 398, 180, 25);
 		frame.getContentPane().add(btnCircular);
 		
@@ -73,7 +74,7 @@ public class ServerGui {
 		frame.getContentPane().add(btnNextStage);
 		
 		JLabel lblRandomDelay = new JLabel("Random delay (s):");
-		lblRandomDelay.setBounds(204, 480, 118, 15);
+		lblRandomDelay.setBounds(204, 480, 140, 15);
 		frame.getContentPane().add(lblRandomDelay);
 		
 		JSpinner spinDelay = new JSpinner();
@@ -82,7 +83,7 @@ public class ServerGui {
 		frame.getContentPane().add(spinDelay);
 		
 		JLabel lblRecipientOffset = new JLabel("Recipient Offset:");
-		lblRecipientOffset.setBounds(204, 508, 118, 15);
+		lblRecipientOffset.setBounds(204, 508, 140, 15);
 		frame.getContentPane().add(lblRecipientOffset);
 
 		JSpinner spinOffset = new JSpinner();
@@ -105,12 +106,12 @@ public class ServerGui {
 		sliderFailure.setBounds(204, 408, 184, 25);
 		frame.getContentPane().add(sliderFailure);
 	
-		JButton btnCreateLink = new JButton("Create link");
+		JButton btnCreateLink = new JButton("Connect Two Nodes");
 		btnCreateLink.setBounds(12, 432, 180, 25);
 		frame.getContentPane().add(btnCreateLink);
 		
 		JCheckBox chckbxWhoisOnly = new JCheckBox("Whois only");
-		chckbxWhoisOnly.setBounds(230, 534, 180, 23);
+		chckbxWhoisOnly.setBounds(230, 534, 140, 23);
 		frame.getContentPane().add(chckbxWhoisOnly);
 		
 		JLabel lblCorruptionRate = new JLabel("Corruption rate:");
@@ -126,9 +127,23 @@ public class ServerGui {
 		sliderCorruption.setValue(0);
 		sliderCorruption.setBounds(204, 448, 184, 25);
 		frame.getContentPane().add(sliderCorruption);
+
+		Formatter f = new Formatter();
+		f.format("<html><head><style type='text/css'>");
+		f.format("body { color: #4444ff; font-weight: bold;}");
+		f.format("table { border-collapse: collapse;}");
+		f.format("span.value {color: black; }");
+		f.format("table td { padding-left:6mm; padding-right: 6mm; border: 1px solid black; text-align: center}");
+		String serverStatusLike = "<table><tr><td>#msgs( <span class='value'>%04d</span> )</td><td>delay( <span class='value'>%02d</span> )</td><td> drop( <span class='value'>%02d%%</span> ) </td><td> corruption( <span class='value'>%02d%%</span> )</td><td>offset( <span class='value'>%02d</span> ) </td><td> whois( <span class='value'>%.1B</span> )</td></tr></table></html>";
+		f.format(serverStatusLike,  messages.size(), links.getDelay(), links.getDropRate(), links.getCorruptionRate(), links.getOffset(), links.isCheckwhois());
+		JLabel serverStatus = new JLabel(f.toString(), SwingConstants.CENTER);
+		f.close();
+
+		serverStatus.setBounds(12, 572, 800 - 24, 25);
+		frame.getContentPane().add(serverStatus);
 		
 		controller.bind(listNodes, listLinks, btnCircular, btnDeleteLink, labelDrop, sliderFailure, spinDelay, btnCreateLink, 
-				chckbxWhoisOnly, labelCorruption, sliderCorruption, btnNextStage, spinOffset);
+				chckbxWhoisOnly, labelCorruption, sliderCorruption, btnNextStage, spinOffset, serverStatus);
 		
 	}
 }

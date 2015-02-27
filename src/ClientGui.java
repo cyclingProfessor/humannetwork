@@ -1,8 +1,8 @@
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Rectangle;
-import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
@@ -21,6 +21,10 @@ import javax.swing.UIManager;
 import javax.swing.plaf.FontUIResource;
 
 public class ClientGui extends JFrame {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	// LAYOUT - set up constants which can be multiplied by window width
 	private final static float BTN_WIDTH = 25/100f;
 	private final static float BTN_LEFT = 71/100f;
@@ -73,7 +77,7 @@ public class ClientGui extends JFrame {
 	 * Initialise the contents of the 
 	 */
 	public void initialize(Connection c, MessageList messages, ClientController control) {
-		setTitle("[" + c.group + "] Node " + c.node + " @ HumanNetwork");
+		setTitle("[" + c.getGroup() + "] Node " + c.getNode() + " @ HumanNetwork");
 		setBounds(100, 100, INITIAL_WIDTH, (INITIAL_WIDTH * 350) / 400);
 		final int SCREEN_HEIGHT = (int) (Toolkit.getDefaultToolkit().getScreenSize().getHeight());
 		final int SCREEN_WIDTH = (int) (Toolkit.getDefaultToolkit().getScreenSize().getWidth());
@@ -108,7 +112,7 @@ public class ClientGui extends JFrame {
 		initialMessage.append("body { color: #4444ff; font-weight: normal;}");
 		initialMessage.append("div { width: 100%; text-align: center}");
 		initialMessage.append("<div>Welcome to the DarkNet.  <br>" +
-		    "You are in group: " + c.group + ". Your node number is " + c.node + ".<br>" + 
+		    "You are in group: " + c.getGroup() + ". Your node number is " + c.getNode() + ".<br>" + 
 				"Please wait for instructions.</div>");
 		status = new JLabel(initialMessage + "",  SwingConstants.CENTER);
 		status.setBorder(BorderFactory.createLineBorder(Color.red));
@@ -163,11 +167,11 @@ public class ClientGui extends JFrame {
 			JButton next = btn.button();
 			setRelativeBounds(next, BTN_LEFT, btn.offset(), BTN_WIDTH, BTN_HEIGHT);
 		}
-		float h_offset = BORDER;
-		setRelativeBounds(status, BORDER, h_offset, BTN_LEFT + BTN_WIDTH - BORDER, STATUS_HEIGHT); h_offset += STATUS_HEIGHT + BORDER;
-		setRelativeBounds(lblMessage, BORDER, h_offset, MSG_WIDTH, MSG_HEIGHT); 
-		setRelativeBounds(txtMessage, MSG_WIDTH, h_offset, BTN_LEFT - BORDER, MSG_HEIGHT); h_offset += MSG_HEIGHT + BORDER;
-		setRelativeBounds(scrollPane, BORDER, h_offset, BTN_LEFT - 3 * BORDER, BTN_DETAILS.DELETE.offset() + BTN_HEIGHT - h_offset);
+		float v_offset = BORDER;
+		setRelativeBounds(status, BORDER, v_offset, BTN_LEFT + BTN_WIDTH - BORDER, STATUS_HEIGHT); v_offset += STATUS_HEIGHT + BORDER;
+		setRelativeBounds(lblMessage, BORDER, v_offset, MSG_WIDTH, MSG_HEIGHT); 
+		setRelativeBounds(txtMessage, MSG_WIDTH, v_offset, BTN_LEFT - 2 * BORDER - MSG_WIDTH, MSG_HEIGHT); v_offset += MSG_HEIGHT + BORDER;
+		setRelativeBounds(scrollPane, BORDER, v_offset, BTN_LEFT - 3 * BORDER, BTN_DETAILS.DELETE.offset() + BTN_HEIGHT - v_offset);
 	}
 	
 	private void setRelativeBounds(Component c, float x, float y, float width, float height) {

@@ -1,6 +1,12 @@
 
 public class DelayedMessage {
 	
+	@Override
+	public String toString() {
+		return "DelayedMessage [delay=" + delay + ", message=" + message
+				+ ", connection=" + connection + ", time=" + time + "]";
+	}
+
 	private int delay = 0;
 	private String message = "";
 	private Connection connection;
@@ -27,6 +33,6 @@ public class DelayedMessage {
 	}
 
 	public boolean current(long startTime) {
-		return time > startTime;
+		return time >= startTime;
 	}
 }
