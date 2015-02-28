@@ -9,7 +9,6 @@ import javax.swing.JTextField;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-
 public class ClientController {
 
 	Random rand = new Random();
@@ -107,7 +106,7 @@ public class ClientController {
 						JOptionPane.showMessageDialog(txtMessage, "Message is too long!");
 					} else {
 						c.write(rawMessage);
-						messages.addMessage(c.getNode(), toNode, c.getNode(), message);
+						messages.addMessage(c.getNode(), toNode, message);
 						//System.out.println("Sent:" + rawMessage);
 					}
 				}

@@ -84,7 +84,7 @@ public class Route extends Thread {
 			System.out.println("Ill-formed message");
 		} else {
 			int toNode = Integer.parseInt(pieces[0]);
-			messages.addMessage(fromNode, toNode, 0, message);
+			messages.addMessage(fromNode, toNode, message);
 			if (toNode == 0){
 				// Broadcast
 				System.out.println("Broadcasting");
@@ -218,23 +218,25 @@ public class Route extends Thread {
 		}
 		
 		synchronized (statusMessages) {
+			StringBuilder connectionMessage;
 			for (int i = 0; i < l; i++) {
+				connectionMessage = new StringBuilder(str);
 				Connection c = connections.get(i);
 				if (c != null) {
 					if (links.getOffset() > 0) {
 						int recipient = find(i, links.getOffset());
 						if (links.isCheckwhois()) {
-							str.append("Your node name is: " + c.getHostname() + "<br>");
-							str.append("You must find out the node number of the node with name: " + connections.get(recipient).getHostname());
+							connectionMessage.append("Your node name is: " + c.getHostname() + "<br>");
+							connectionMessage.append("You must find out the node number of the node with name: " + connections.get(recipient).getHostname());
 						} else {
-							str.append("You are to send the message: <div class='message'>");
-							str.append(texts.get(i));
-							str.append("</div> to node: " + recipient);							
+							connectionMessage.append("You are to send the message: <div class='message'>");
+							connectionMessage.append(texts.get(i));
+							connectionMessage.append("</div> to node: " + recipient);							
 						}
 					}
 
 					// Set delay to -1 so that the message is sent out straight away.
-					statusMessages.add(new DelayedMessage(c, "S:" + str + "</div></body></html>", -1));
+					statusMessages.add(new DelayedMessage(c, "S:" + connectionMessage + "</div></body></html>", -1));
 				}
 			}
 		}

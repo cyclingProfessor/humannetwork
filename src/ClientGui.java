@@ -42,7 +42,7 @@ public class ClientGui extends JFrame {
 		ADD      (posn,"Add","Press to add the message content to the list of messages", 2),
 		MOVE_UP  (posn, "Move Up", "Press to make the currently selected message move up in the list", 1), 
 		MOVE_DOWN(posn, "Move Down", "Press to make the currently selected message move down in the list", 2), 
-		MERGE    (posn, "", "Press to merge the selected messages", 1),
+		MERGE    (posn, "Combine", "Press to merge the selected messages", 1),
 		SPLIT    (posn, "Split", "Press to split the message into small chunks", 2), 
 		ADD_CHECK(posn, "Add Checksum", "Press to add a checksum at the end of the current messsage", 1), 
 		VERIFY   (posn, "Verify Checksum", "Press to verify if the checksum of the current message is correct", 1), 

@@ -9,16 +9,11 @@ public class MessageList extends DefaultListModel<Message> {
 		super();
 	}
 
-	public void addMessage(int from, int to, int pov, String s){
-		Message m = new Message(from, to, pov, s);
+	public void addMessage(int from, int to, String s){
+		Message m = new Message(from, to, s);
 		super.addElement(m);
 	}
 
-	public void addMessage(String s, int pov){
-		Message m = new Message(s, pov);
-		super.addElement(m);
-	}
-	
 	public void addMessage(String s){
 		Message m = new Message(s);
 		super.addElement(m);

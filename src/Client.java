@@ -1,6 +1,5 @@
 import java.awt.EventQueue;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Scanner;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -33,7 +32,7 @@ public class Client {
   									  status.setText(message.getText());
 									    break;
 								    case MESSAGE:
-								    	messages.addMessage(message.getText(), c.getNode());
+								    	messages.addMessage(message.getText());
 								    	break;
 							    }
 								}
@@ -82,7 +81,6 @@ public class Client {
 		}
 		c = new Connection(host, port, group, node);
 		
-		/** Receive messages */
 		final ClientController controller = new ClientController(c, messages);
 		final ClientGui window = new ClientGui();
 		
@@ -106,15 +104,8 @@ public class Client {
 			e.printStackTrace();
 		}
 		
-		final Scanner scanner = new Scanner(System.in);
+		/** Receive messages */
 		listen(messages, window.getStatusField());
-		boolean connected = true;
-		while(connected && listen.getState() != Thread.State.TERMINATED){
-			String message = scanner.nextLine();
-			String to = scanner.nextLine();
-			connected = c.write(to + (char) 13 + message);
-		}
-		scanner.close();
-	}	
+	}
 
 }
