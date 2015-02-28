@@ -4,6 +4,7 @@ import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.TreeSet;
 
 public class Route extends Thread {
 
@@ -190,14 +191,15 @@ public class Route extends Thread {
 		List<String> texts = null;
 		// Link to running Thread by using an indicator variable
     StringBuilder str = new StringBuilder();
-    str.append("<html><head><style type='text/css'>");
-		str.append("body { color: #4444ff; font-weight: normal;}");
-		str.append("div { width: 100%; text-align: center;}");
-		str.append(".message: {font-weight: bold; color: black;}");
+    str.append("<html><head><style type='text/css'>\n");
+		str.append("body { color: #4444ff; font-weight: normal;}\n");
+		str.append("div { width: 100%; text-align: center;}\n");
+		str.append(".message { font-weight: bold; color: black;}\n");
+    str.append("</style></head>\n<body><div>");
 		if (links.getOffset() == 0) {
-			str.append("<div>Your task is to find the network topology.  <br>" +
+			str.append("Your task is to find the network topology.  <br>" +
 			    "You have to find all of the connections in your network.<br>" + 
-					"You should also decide the first step for any recipient.</div>");
+					"You should also decide the first step for any recipient.");
 		} else {
 			// Now we will be sending a message
 			texts = new ArrayList<String>();
@@ -226,24 +228,67 @@ public class Route extends Thread {
 				Connection c = connections.get(i);
 				if (c != null) {
 					if (links.getOffset() > 0) {
-						// TODO
-						int recipient = 1;// Find an appropriate node in either dirction -2 and 2 should get different answers.
+						int recipient = find(i, links.getOffset());
 						if (links.isCheckwhois()) {
 							str.append("Your node name is: " + c.getHostname() + "<br>");
 							str.append("You must find out the node number of the node with name: " + connections.get(recipient).getHostname());
 						} else {
-							str.append("You are to send the message: <span class='message'>");
+							str.append("You are to send the message: <div class='message'>");
 							str.append(texts.get(i));
-							str.append("</span> to node: " + recipient);							
+							str.append("</div> to node: " + recipient);							
 						}
 					}
 
 					// Set delay to -1 so that the message is sent out straight away.
-					statusMessages.add(new DelayedMessage(c, "S:" + str, -1));
+					statusMessages.add(new DelayedMessage(c, "S:" + str + "</div></body></html>", -1));
 				}
 			}
 		}
 		
 	}
+	public int find(int nodeIndex, int offset) {
+		// incrementally find all nodes at distance 1,2,3 etc.,
+		// find closest numerical node (either + or - depending on sign of offset
+		
+		int nodeCount = 0;
+		String g = connections.get(nodeIndex).getGroup();
+	  for (int index = 0 ; index < connections.size() ; index++) {
+  		  if (g.equals(connections.get(index).getGroup())) {
+  			  nodeCount++;
+		    }
+	  }
+		TreeSet<Integer> reached = new TreeSet<Integer>();
+		TreeSet<Integer> adjacent = new TreeSet<Integer>();
+		adjacent.add(nodeIndex);
 
+		int distance = 0;
+		int target = Math.abs(offset);
+		while (distance < target && reached.size() + adjacent.size() < nodeCount) {
+			reached = adjacent;
+			adjacent = new TreeSet<Integer>();
+  		for (int n : reached) {
+			  int current = connections.get(n).getNode();
+			  for (int index = 0 ; index < connections.size() ; index++) {
+  			  int node = connections.get(index).getNode();
+  			  if (links.isNeighbour(current, node)) {
+  				  adjacent.add(index);
+  			  }
+  		  }
+		  }
+  		distance++;
+		}
+		Integer retval = null;
+		if (offset > 0) {
+		  retval = adjacent.higher(nodeIndex);
+		  if (retval == null) {
+			  retval = adjacent.first();
+		  }
+		}else {
+		  retval = adjacent.lower(nodeIndex);
+		  if (retval == null) {
+			  retval = adjacent.last();
+		  }
+		}
+		return retval;
+	}
 }
