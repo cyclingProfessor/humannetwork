@@ -121,7 +121,7 @@ public class Route extends Thread {
 				// TODO Change so that Names and Times are replaced.
 				int corr = rand.nextInt(100);
 				if(corr < links.getCorruptionRate()){
-					content = corrupt(content);
+					content = Texts.corrupt(content);
 				}
 				String toSend = "M:" + fromNode + (char) 13 + toNode + (char) 13 + content;
 				// Network delay
@@ -136,13 +136,7 @@ public class Route extends Thread {
 			}
 		}
 	}
-	
-	private String corrupt(String text) {
-		text = Texts.change_name(text);
-		text = Texts.change_place(text);
-		text = Texts.change_time(text);
-		return text;
-	}
+
 
 	public void sendNow(List<DelayedMessage> messageList){
 		for(int i = messageList.size()-1; i >= 0; i--){

@@ -55,4 +55,21 @@ public class TextsTest {
 			assertTrue(texts.get(index).length() < 80);
 		}
 	}
+	
+	@Test 
+	public void test5() {
+	  	for (int index = 0 ; index < COUNT ; index++) {
+	  		String text = Texts.corrupt(messages.get(index));
+	  		System.out.println("Orig: " + messages.get(index));
+	  		System.out.println("Corr: " + text);
+	  		
+	  		assertFalse(messages.get(index).contains("Beelzebub"));
+	  		assertTrue(text.contains("Beelzebub"));
+	  		assertFalse(messages.get(index).contains("Hell"));
+	  		assertTrue(text.contains("Hell"));
+	  		assertFalse(messages.get(index).contains("11:59"));
+	  		assertTrue(text.contains("11:59"));
+	  	}
+	}
+	
 }

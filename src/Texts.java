@@ -116,6 +116,10 @@ public class Texts {
     return;		
 	}
 	
+	public static String corrupt(String text) {
+		return (change_name(change_time(change_place(text))));
+	}
+	
 	public static String change_name(String text) {
 		return change(text, name_list, "Beelzebub");
 	}
@@ -127,14 +131,13 @@ public class Texts {
 	}
 	
 	private static String change(String text, String[] list, String replacement) {
-	for (int index = 0 ; index < list.length ; index++) {
-		int where = text.indexOf(list[index]);
-		if (where > 0) {
-			text.replace(list[index], replacement);
-			return text;
+		for (int index = 0; index < list.length; index++) {
+			int where = text.indexOf(list[index]);
+			if (where >= 0) {
+				return text.replace(list[index], replacement);
+			}
 		}
-	}
-	return text;
+		return text;
 	}
 	
 }
