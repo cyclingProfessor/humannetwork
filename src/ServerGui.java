@@ -13,6 +13,7 @@ import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 
+@SuppressWarnings("serial")
 public class ServerGui extends JFrame {
 
 	/**
