@@ -33,6 +33,9 @@ public class Network {
 	}
 
 	private boolean build_hamiltonian_cycle() {
+		if (nodeCount < 3) {
+			return false;
+		}
 		Arrays.fill(next, -1);
 		for (int lastIndex = 1; lastIndex < nodeCount; lastIndex++) {
 			if (links.isNeighbour(groupNodes.get(0), groupNodes.get(lastIndex))) {

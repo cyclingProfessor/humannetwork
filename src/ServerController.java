@@ -85,7 +85,7 @@ public class ServerController {
   					addLink(selected[i],selected[i+1], group);
 					}
 					if (selected.length > 2) {
-  					addLink(selected[0],selected[selected.length - 1], group);
+  					addLink(selected[selected.length - 1], selected[0], group);
 					}					
 				}
 			}

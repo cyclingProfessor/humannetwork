@@ -60,11 +60,13 @@ public class Server {
 		listen(port);
 		final ServerController controller = new ServerController(messages, links, connections, route);
 		route.start();
+		final ServerGui window = new ServerGui();
+
 
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					ServerGui window = new ServerGui(port, connections, links, messages, controller);
+					window.initialize(port, connections, links, messages, controller);
 					window.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();

@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
+import javax.swing.JOptionPane;
+
 public class Route extends Thread {
 
 	private long startTime = -1; 
@@ -182,7 +184,6 @@ public class Route extends Thread {
 	}
 
 	public void updateStatus() {
-		startTime = System.currentTimeMillis(); // mark any current messages out of date
 		Map<String, Network> cycles = new HashMap<String, Network>();
 		int l = connections.size();
 		List<String> texts = null;
@@ -202,6 +203,10 @@ public class Route extends Thread {
 			for (String group: findGroups()) {
 				Network groupCycle = new Network(links, group, connections);
 				if (!groupCycle.hamiltonian()) {
+					// Don't change status - needs a popup.
+					JOptionPane.showMessageDialog(null, "The " + group + " group has no (complete) cycle so message recipients cannot be calculated.\n" +
+					"Please create a cycle for this network in order to move to one of the message sending tasks (offset <> 0)");
+					return;
 				}
 				cycles.put(group, groupCycle);
 			}
@@ -225,6 +230,7 @@ public class Route extends Thread {
 			  str.append(".<br>");
 			}
 		}
+		startTime = System.currentTimeMillis(); // mark any current messages out of date
 		
 		synchronized (statusMessages) {
 			StringBuilder connectionMessage;
@@ -232,7 +238,7 @@ public class Route extends Thread {
 				connectionMessage = new StringBuilder(str);
 				Connection c = connections.get(i);
 				if (c != null) {
-					if (links.getOffset() > 0) {
+					if (links.getOffset() != 0) {
 						int recipient = cycles.get(c.getGroup()).offsetNode(c.getNode(),links.getOffset());
 						if (links.isCheckwhois()) {
 							connectionMessage.append("Your node name is: " + c.getHostname() + "<br>");
