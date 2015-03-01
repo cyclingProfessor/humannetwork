@@ -3,7 +3,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.util.TreeSet;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -93,53 +92,5 @@ public class RouteTest {
 	  assertTrue(maxLength < 600);
 	}
 	
-	@Test
-	public void testFind() {
-		for (int index = 0; index < 50 ; index++) {
-				assertTrue(linkList.isNeighbour(index, r.find(index, 1)));
-		}
-	}
-	
-	@Test
-	public void testFind2() {
-		for (int index = 0; index < 50 ; index++) {
-				assertFalse(linkList.isNeighbour(index, r.find(index, 2)));
-		}
-	}
-	
-	@Test
-	public void testFind3() {
-		for (int index = 0; index < 50 ; index++) {
-			for (int distance = 1; distance < 10 ; distance++) { 
-				assertFalse(r.find(index, distance) == r.find(r.find(index,  distance), distance));
-			}
-		}
-	}
-
-	@Test
-	public void testFind4() {
-		TreeSet<Integer> answers = new TreeSet<Integer>();
-		for (int index = 0; index < 70 ; index++) {
-				assertFalse(answers.contains(r.find(index, 1)));
-				answers.add(r.find(index, 1));
-			}
-		}
-
-	@Test
-	public void testFind5() {
-		TreeSet<Integer> answers = new TreeSet<Integer>();
-		for (int index = 0; index < 70 ; index++) {
-				assertFalse(answers.contains(r.find(index, 3)));
-				answers.add(r.find(index, 3));
-			}
-		}
-	@Test
-	public void testFind6() {
-		TreeSet<Integer> answers = new TreeSet<Integer>();
-		for (int index = 0; index < 70 ; index++) {
-				assertFalse(answers.contains(r.find(index, -3)));
-				answers.add(r.find(index, -3));
-			}
-		}
 	}
 	
