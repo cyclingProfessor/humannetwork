@@ -2,9 +2,12 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.InetAddress;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
-import java.util.TreeSet;
+import java.util.Set;
 
 public class Route extends Thread {
 
@@ -86,7 +89,7 @@ public class Route extends Thread {
 			int toNode = Integer.parseInt(pieces[0]);
 			messages.addMessage(fromNode, toNode, 0, message);
 			if (toNode == 0){
-				// Broadcast
+				// Broadcastections
 				System.out.println("Broadcasting");
 				for(int i = 0; i < connections.size(); i++) {
 					Connection c = connections.get(i);
@@ -180,7 +183,7 @@ public class Route extends Thread {
 
 	public void updateStatus() {
 		startTime = System.currentTimeMillis(); // mark any current messages out of date
-
+		Map<String, Network> cycles = new HashMap<String, Network>();
 		int l = connections.size();
 		List<String> texts = null;
 		// Link to running Thread by using an indicator variable
@@ -196,6 +199,12 @@ public class Route extends Thread {
 					"You should also decide the first step for any recipient.");
 		} else {
 			// Now we will be sending a message
+			for (String group: findGroups()) {
+				Network groupCycle = new Network(links, group, connections);
+				if (!groupCycle.hamiltonian()) {
+				}
+				cycles.put(group, groupCycle);
+			}
 			texts = new ArrayList<String>();
 			Texts.choose_messages(texts, l, links.getCorruptionRate() > 0);
 			
@@ -222,7 +231,7 @@ public class Route extends Thread {
 				Connection c = connections.get(i);
 				if (c != null) {
 					if (links.getOffset() > 0) {
-						int recipient = find(i, links.getOffset());
+						int recipient = cycles.get(c.getGroup()).offsetNode(c.getNode(),links.getOffset());
 						if (links.isCheckwhois()) {
 							str.append("Your node name is: " + c.getHostname() + "<br>");
 							str.append("You must find out the node number of the node with name: " + connections.get(recipient).getHostname());
@@ -237,51 +246,14 @@ public class Route extends Thread {
 					statusMessages.add(new DelayedMessage(c, "S:" + str + "</div></body></html>", -1));
 				}
 			}
-		}
-		
+		}		
 	}
-	public int find(int nodeIndex, int offset) {
-		// incrementally find all nodes at distance 1,2,3 etc.,
-		// find closest numerical node (either + or - depending on sign of offset
-		
-		int nodeCount = 0;
-		String g = connections.get(nodeIndex).getGroup();
-	  for (int index = 0 ; index < connections.size() ; index++) {
-  		  if (g.equals(connections.get(index).getGroup())) {
-  			  nodeCount++;
-		    }
-	  }
-		TreeSet<Integer> reached = new TreeSet<Integer>();
-		TreeSet<Integer> adjacent = new TreeSet<Integer>();
-		adjacent.add(nodeIndex);
 
-		int distance = 0;
-		int target = Math.abs(offset);
-		while (distance < target && reached.size() + adjacent.size() < nodeCount) {
-			reached = adjacent;
-			adjacent = new TreeSet<Integer>();
-  		for (int n : reached) {
-			  int current = connections.get(n).getNode();
-			  for (int index = 0 ; index < connections.size() ; index++) {
-  			  int node = connections.get(index).getNode();
-  			  if (links.isNeighbour(current, node)) {
-  				  adjacent.add(index);
-  			  }
-  		  }
-		  }
-  		distance++;
-		}
-		Integer retval = null;
-		if (offset > 0) {
-		  retval = adjacent.higher(nodeIndex);
-		  if (retval == null) {
-			  retval = adjacent.first();
-		  }
-		}else {
-		  retval = adjacent.lower(nodeIndex);
-		  if (retval == null) {
-			  retval = adjacent.last();
-		  }
+	private Set<String> findGroups() {
+		Set<String> retval = new HashSet<String>();
+	  int l = connections.size();
+		for (int i = 0 ; i < l ; i++){
+			retval.add(connections.get(i).getGroup());
 		}
 		return retval;
 	}
