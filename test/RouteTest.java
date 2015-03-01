@@ -17,6 +17,8 @@ public class RouteTest {
 	private Map<String, Network> cycles = new HashMap<String, Network>();
 	private static Route r;
 	private static final int COUNT = 5;
+	private final static int NUM_GROUPS = 3;
+	private final static int NUM_NODES = 23;
 	
 	@Before
 	public void setUpBefore() throws Exception {
@@ -24,15 +26,15 @@ public class RouteTest {
 		linkList = new LinkList();
 		r = new Route(connList,linkList,msgList);
 
-	  for (int index = 0 ; index < 70; index++) {
+	  for (int index = 0 ; index < NUM_GROUPS * NUM_NODES; index++) {
 		  Connection conn = new Connection(new OutputStreamWriter(System.out), new InputStreamReader(System.in));
 		  conn.setNode(index);
-		  conn.setGroup("Group" + (index % 3));
+		  conn.setGroup("Group" + (index % NUM_GROUPS));
 		  conn.pickName();
    		connList.addElement(conn);
-  	  linkList.addElement(new Link(index, (index + 3) % 70, "Group" + (index % 3)));
+  	  linkList.addElement(new Link(index, (index + NUM_GROUPS) % (NUM_GROUPS * NUM_NODES), "Group" + (index % NUM_GROUPS)));
 		}
-	  for (int groupNo = 0 ; groupNo < 3 ; groupNo++) {
+	  for (int groupNo = 0 ; groupNo < NUM_GROUPS ; groupNo++) {
 	  	String group = "Group" + groupNo;
   		Network groupCycle = new Network(linkList, group , connList);
 			cycles.put(group, groupCycle);
@@ -56,7 +58,6 @@ public class RouteTest {
 		assertFalse(r.statusMessages.get(0).toString().contains("topology"));
 	}
 	
-
 	@Test
 	public void testCorruptSend() {
 		linkList.setCheckwhois(false);
@@ -69,6 +70,7 @@ public class RouteTest {
 		System.out.println("CORR:" + r.statusMessages.get(0));
 		assertFalse(r.statusMessages.get(0).toString().contains("topology"));
 	}
+	
 	@Test
 	public void testSend() {
 		linkList.setCheckwhois(false);
@@ -100,5 +102,5 @@ public class RouteTest {
 	  assertTrue(maxLength < 600);
 	}
 	
-	}
+}
 	
