@@ -2,14 +2,9 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.InetAddress;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.Set;
-
-import javax.swing.JOptionPane;
 
 public class Route extends Thread {
 
@@ -183,8 +178,7 @@ public class Route extends Thread {
 		 }
 	}
 
-	public void updateStatus() {
-		Map<String, Network> cycles = new HashMap<String, Network>();
+	public void updateStatus(Map<String, Network> cycles) {
 		int l = connections.size();
 		List<String> texts = null;
 		// Link to running Thread by using an indicator variable
@@ -200,16 +194,6 @@ public class Route extends Thread {
 					"You should also decide the first step for any recipient.");
 		} else {
 			// Now we will be sending a message
-			for (String group: findGroups()) {
-				Network groupCycle = new Network(links, group, connections);
-				if (!groupCycle.hamiltonian()) {
-					// Don't change status - needs a popup.
-					JOptionPane.showMessageDialog(null, "The " + group + " group has no (complete) cycle so message recipients cannot be calculated.\n" +
-					"Please create a cycle for this network in order to move to one of the message sending tasks (offset <> 0)");
-					return;
-				}
-				cycles.put(group, groupCycle);
-			}
 			texts = new ArrayList<String>();
 			Texts.choose_messages(texts, l, links.getCorruptionRate() > 0);
 			
@@ -255,14 +239,5 @@ public class Route extends Thread {
 				}
 			}
 		}		
-	}
-
-	private Set<String> findGroups() {
-		Set<String> retval = new HashSet<String>();
-	  int l = connections.size();
-		for (int i = 0 ; i < l ; i++){
-			retval.add(connections.get(i).getGroup());
-		}
-		return retval;
 	}
 }

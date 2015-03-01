@@ -73,4 +73,7 @@ public class LinkList extends DefaultListModel<Link> {
 	public int getOffset() {
 		return offset[0];
 	}
+	public boolean nextHasMessages() {
+		return offset[1] != 0;
+	}
 }

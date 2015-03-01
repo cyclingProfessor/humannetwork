@@ -1,12 +1,17 @@
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Formatter;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JSlider;
 import javax.swing.JSpinner;
 import javax.swing.event.ChangeEvent;
@@ -139,11 +144,23 @@ public class ServerController {
 			}
 		});
 		
-
 		btnNextStage.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				System.out.println("Send Status Out");
+				Map<String, Network> cycles = new HashMap<String, Network>();
+				if (links.nextHasMessages()) {
+	  			for (String group: findGroups()) {
+		  			Network groupCycle = new Network(links, group, connections);
+			  		if (!groupCycle.hamiltonian()) {
+				  		JOptionPane.showMessageDialog(null, "The " + group + " group has no (complete) cycle so message recipients cannot be calculated.\n" +
+					  	"Please create a cycle for this network in order to move to one of the message sending tasks (offset <> 0)");
+						  return;
+					  }
+					  cycles.put(group, groupCycle);
+				  }
+				}
+
 				// clear message queue and send new status messages
+				System.out.println("Send Status Out");
 				links.nextStage(); // move on all indicators.
 				Formatter f = new Formatter();
 				f.format("<html><head><style type='text/css'>");
@@ -155,11 +172,20 @@ public class ServerController {
 				f.format(serverStatusLike,  messages.size(), links.getDelay(), links.getDropRate(), links.getCorruptionRate(), links.getOffset(), links.isCheckwhois());
 				serverStatus.setText(f.toString());
 				f.close();
-				route.updateStatus();
+				route.updateStatus(cycles);
 			}
 		});
 		
 	}
-	
+
+	private Set<String> findGroups() {
+		Set<String> retval = new HashSet<String>();
+	  int l = connections.size();
+		for (int i = 0 ; i < l ; i++){
+			retval.add(connections.get(i).getGroup());
+		}
+		return retval;
+	}
+
 	
 }
