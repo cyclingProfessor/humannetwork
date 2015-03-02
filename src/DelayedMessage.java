@@ -1,6 +1,5 @@
-
 public class DelayedMessage {
-	
+
 	@Override
 	public String toString() {
 		return "DelayedMessage [delay=" + delay + ", message=" + message
@@ -11,23 +10,23 @@ public class DelayedMessage {
 	private String message = "";
 	private Connection connection;
 	private long time;
-	
-	public DelayedMessage(Connection connection, String message, int delay){
+
+	public DelayedMessage(Connection connection, String message, int delay) {
 		this.delay = delay;
 		this.message = message;
 		this.connection = connection;
 		time = System.currentTimeMillis();
 	}
-	
-	public void decr(){
+
+	public void decr() {
 		delay--;
 	}
-	
-	public boolean ready(){
+
+	public boolean ready() {
 		return delay < 0;
 	}
 
-	public void send(){
+	public void send() {
 		System.out.println("About to send the message: " + message);
 		connection.write(message);
 	}

@@ -1,20 +1,20 @@
 import javax.swing.DefaultListModel;
 
 public class LinkList extends DefaultListModel<Link> {
-	
+
 	private static final long serialVersionUID = -7404443000138807591L;
-	
+
 	// Each value has a current rate and the rate for the next stage.
-	private int[] dropRate = {0,0};
-	private int[] corruptionRate = {0,0};
-	private int[] delay = {0,0};
-	private boolean[] checkwhois = {false, false};
-	private int[] offset = {0,0};
+	private int[] dropRate = { 0, 0 };
+	private int[] corruptionRate = { 0, 0 };
+	private int[] delay = { 0, 0 };
+	private boolean[] checkwhois = { false, false };
+	private int[] offset = { 0, 0 };
 
 	public LinkList() {
 		super();
 	}
-	
+
 	public void nextStage() {
 		dropRate[0] = dropRate[1];
 		corruptionRate[0] = corruptionRate[1];
@@ -22,12 +22,12 @@ public class LinkList extends DefaultListModel<Link> {
 		checkwhois[0] = checkwhois[1];
 		offset[0] = offset[1];
 	}
-	
-	public boolean isNeighbour(int nodeA, int nodeB){
-		for (int i = 0; i< size(); i++) {
+
+	public boolean isNeighbour(int nodeA, int nodeB) {
+		for (int i = 0; i < size(); i++) {
 			Link l = get(i);
-			if((l.getNodeA() == nodeA && l.getNodeB() == nodeB) || 
-					(l.getNodeA() == nodeB && l.getNodeB() == nodeA)){
+			if ((l.getNodeA() == nodeA && l.getNodeB() == nodeB)
+					|| (l.getNodeA() == nodeB && l.getNodeB() == nodeA)) {
 				return true;
 			}
 		}
@@ -73,6 +73,7 @@ public class LinkList extends DefaultListModel<Link> {
 	public int getOffset() {
 		return offset[0];
 	}
+
 	public boolean nextHasMessages() {
 		return offset[1] != 0;
 	}

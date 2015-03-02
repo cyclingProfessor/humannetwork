@@ -1,8 +1,7 @@
-
 public class Notification {
 	String text;
 	MSG_TYPE type;
-	
+
 	public Notification(String read) {
 		System.out.println("Received: " + read);
 		switch (read.charAt(0)) {
@@ -16,7 +15,8 @@ public class Notification {
 				break;
 			default:
 				// MUST not occur
-				type = MSG_TYPE.STATUS;;
+				type = MSG_TYPE.STATUS;
+				;
 				text = "BAD Notification type from server";
 				break;
 		}
@@ -27,7 +27,6 @@ public class Notification {
 	}
 
 	public String getText() {
-		// TODO Auto-generated method stub
 		return text;
 	}
 
