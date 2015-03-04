@@ -238,7 +238,7 @@ public class Route extends Thread {
 									+ "<br>");
 							connectionMessage
 									.append("You must find out the node number of the node with name: "
-											+ connections.get(recipient).getHostname());
+											+ connections.get(nodeToIndex(recipient)).getHostname());
 						} else {
 							connectionMessage
 									.append("You are to send the message: <div class='message'>");
