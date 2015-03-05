@@ -76,13 +76,15 @@ public class Texts {
 		String retval = null;
 		while (retval == null || memory.contains(retval)) {
 			int firstIndex = rand.nextInt(name_list.length);
-			int secondIndex = rand.nextInt(name_list.length);
-			while (secondIndex == firstIndex) {
-				secondIndex = (secondIndex + 1) % name_list.length;
-			}
+			// int secondIndex = rand.nextInt(name_list.length);
+			//while (secondIndex == firstIndex) {
+			//	secondIndex = (secondIndex + 1) % name_list.length;
+			//}
 			retval = title_list[rand.nextInt(title_list.length)] + " "
-					+ name_list[firstIndex] + " " + name_list[secondIndex] + " "
-					+ surname_list[rand.nextInt(surname_list.length)] + "'s computer";
+					+ name_list[firstIndex] 
+				  // + " " + name_list[secondIndex] + " "
+					+ surname_list[rand.nextInt(surname_list.length)]; 
+					// + "'s computer";
 		}
 		memory.add(retval);
 		return retval;

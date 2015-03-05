@@ -234,6 +234,8 @@ public class Route extends Thread {
 							connectionMessage
 									.append("</span> Find the  number of the node with name: <span class='message'>"
 											+ connections.get(nodeToIndex(recipient)).getHostname() + "</span>");
+							connectionMessage
+							.append("You can only send WHOIS(Query,...) and WHOIS(Answer, ...) messages");
 						} else {
 							connectionMessage
 									.append("You are to send the message: <div class='message'>");
