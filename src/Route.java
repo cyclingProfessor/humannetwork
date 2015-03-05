@@ -118,10 +118,9 @@ public class Route extends Thread {
 		if (drop >= links.getDropRate() || links.getDropRate() == 0) {
 			String content = message;
 			// TODO Change to only allowed matched responses.
-			boolean shouldSend = !links.isCheckwhois()
-					|| ((content.length() > 12) && (content.substring(0, 12).equals(
-							"WHOIS(Query,") || content.subSequence(0, 13).equals(
-							"WHOIS(Answer,")));
+			boolean shouldSend = (links.getOffset() == 0) || (!links.isCheckwhois())
+					|| ((content.length() > 12) && (content.substring(0, 12).equals("WHOIS(Query,") 
+					|| content.subSequence(0, 13).equals("WHOIS(Answer,")));
 			if (shouldSend) {
 				// Corruption
 				int corr = rand.nextInt(100);
@@ -223,18 +222,18 @@ public class Route extends Thread {
 				Connection c = connections.get(i);
 				if (c != null) {
 					if (links.getOffset() == 0) {
-						str.append("Your task is to find the network topology.  <br>"
+						str.append("<div class='message'>Your task is to find the network topology.</div>"
 								+ "You have to find all of the connections in your network.<br>"
 								+ "You should also decide the first step for any recipient.");
 					} else {
 						int recipient = cycles.get(c.getGroup()).offsetNode(c.getNode(),
 								links.getOffset());
 						if (links.isCheckwhois()) {
-							connectionMessage.append("Your node name is: " + c.getHostname()
+							connectionMessage.append("Your node name is: <span class='message'>" + c.getHostname()
 									+ "<br>");
 							connectionMessage
-									.append("You must find out the node number of the node with name: "
-											+ connections.get(nodeToIndex(recipient)).getHostname());
+									.append("</span> You must find out the node number of the node with name: <span class='message'>"
+											+ connections.get(nodeToIndex(recipient)).getHostname() + "</span>");
 						} else {
 							connectionMessage
 									.append("You are to send the message: <div class='message'>");
