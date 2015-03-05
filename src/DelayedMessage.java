@@ -27,7 +27,7 @@ public class DelayedMessage {
 	}
 
 	public void send() {
-		System.out.println("About to send the message: " + message);
+		// System.out.println("About to send the message: " + message);
 		connection.write(message);
 	}
 
