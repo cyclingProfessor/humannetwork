@@ -113,7 +113,7 @@ public class Route extends Thread {
 	}
 
 	public void send(Connection c, String message, int fromNode, int toNode) {
-		System.out.println("Attempting to send " + message);
+		// System.out.println("Attempting to send " + message);
 		int drop = rand.nextInt(100);
 		if (drop >= links.getDropRate() || links.getDropRate() == 0) {
 			String content = message;
@@ -131,12 +131,12 @@ public class Route extends Thread {
 						+ content;
 				// Network delay
 				int delay = (links.getDelay() > 0) ? rand.nextInt(links.getDelay()) : 0;
-				System.out.println("Adding delay " + delay);
+				// System.out.println("Adding delay " + delay);
 				queue.add(new DelayedMessage(c, toSend, delay));
 				// String delayed = (delay != 0) ? ("delayed " + delay) : "";
 				// messages.addElement(toSend + delayed);
 			} else {
-				System.out.println("dropped (no WHOIS) ");
+				// System.out.println("dropped (no WHOIS) ");
 				// messages.addElement(content + " dropped(no WHOIS)");
 			}
 		}
@@ -168,9 +168,9 @@ public class Route extends Thread {
 				for (int i = 0; i < l; i++) {
 					Connection c = connections.get(i);
 					if (c != null && c.ready()) {
-						System.out.println("Received message from " + i);
+						// System.out.println("Received message from " + i);
 						String message = c.read();
-						System.out.println(message);
+						// System.out.println(message);
 						route(message, c.getNode());
 					}
 				}
@@ -222,9 +222,9 @@ public class Route extends Thread {
 				Connection c = connections.get(i);
 				if (c != null) {
 					if (links.getOffset() == 0) {
-						str.append("<div class='message'>Your task is to find the network topology.</div>"
+						connectionMessage.append("<div class='message'>Your task is to find the network topology.</div>"
 								+ "You have to find all of the connections in your network.<br>"
-								+ "You should also decide the first step for any recipient.");
+								+ "You should also <span class='message'>decide the first step for any recipient.</span>");
 					} else {
 						int recipient = cycles.get(c.getGroup()).offsetNode(c.getNode(),
 								links.getOffset());
@@ -232,7 +232,7 @@ public class Route extends Thread {
 							connectionMessage.append("Your node name is: <span class='message'>" + c.getHostname()
 									+ "<br>");
 							connectionMessage
-									.append("</span> You must find out the node number of the node with name: <span class='message'>"
+									.append("</span> Find the  number of the node with name: <span class='message'>"
 											+ connections.get(nodeToIndex(recipient)).getHostname() + "</span>");
 						} else {
 							connectionMessage

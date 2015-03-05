@@ -3,7 +3,7 @@ public class Notification {
 	MSG_TYPE type;
 
 	public Notification(String read) {
-		System.out.println("Received: " + read);
+		// System.out.println("Received: " + read);
 		switch (read.charAt(0)) {
 			case 'S':
 				type = MSG_TYPE.STATUS;

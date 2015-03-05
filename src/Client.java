@@ -28,7 +28,7 @@ public class Client {
 								public void run() {
 							    switch(message.getType()) {
 								    case STATUS:
-								    	System.out.println("New Status:" + message.getText());
+								    	// System.out.println("New Status:" + message.getText());
   									  status.setText(message.getText());
 									    break;
 								    case MESSAGE:
