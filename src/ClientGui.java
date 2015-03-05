@@ -23,38 +23,40 @@ import javax.swing.plaf.FontUIResource;
 @SuppressWarnings("serial")
 public class ClientGui extends JFrame {
 	// LAYOUT - set up constants which can be multiplied by window width
-	private final static float BTN_WIDTH = 25 / 100f;
-	private final static float BTN_LEFT = 71 / 100f;
 	private final static float BORDER = 1.5f / 100f;
+
+	private final static float BTN_WIDTH = 25 / 100f;
 	private final static float BTN_HEIGHT = 3 / 100f;
 	private final static float BTN_TOTAL_HEIGHT = BTN_HEIGHT + BORDER;
+	
 	private static final float STATUS_HEIGHT = 1 / 10f;
-	private static final float MSG_WIDTH = 11 / 100f;
+	
+	private static final float MSG_WIDTH = 15 / 100f;
 	private static final float MSG_HEIGHT = 3 / 100f;
+	private final static float TXT_WIDTH = 1.0f - MSG_WIDTH;
+
+	private final static float STATUS_TOP = BORDER;
+	private final static float MSG_TOP = STATUS_TOP + STATUS_HEIGHT + BORDER;
+	private final static float LIST_TOP = MSG_TOP + MSG_HEIGHT + BORDER;
+	
 	private static int INITIAL_WIDTH = 800;
+	private static int INITIAL_HEIGHT = 680;
 
 	private static float posn = STATUS_HEIGHT + 2 * BORDER;
 
 	private enum BTN_DETAILS {
-		SEND(posn, "Send",
-				"Press to send the current message to someone on the network", 1), ADD(
-				posn, "Add",
-				"Press to add the message content to the list of messages", 2), MOVE_UP(
-				posn, "Move Up",
-				"Press to make the currently selected message move up in the list", 1), MOVE_DOWN(
-				posn, "Move Down",
-				"Press to make the currently selected message move down in the list", 2), MERGE(
-				posn, "Combine", "Press to merge the selected messages", 1), SPLIT(
-				posn, "Split", "Press to split the message into small chunks", 2), ADD_CHECK(
-				posn, "Add Checksum",
-				"Press to add a checksum at the end of the current messsage", 1), VERIFY(
-				posn, "Verify Checksum",
-				"Press to verify if the checksum of the current message is correct", 1), ENCRYPT(
-				posn, "Encrypt", "Press to encrypt the current message", 1), DECRYPT(
-				posn, "Decrypt", "Press to decrypt the current message", 1), NONCE(
-				posn, "Add Random Number",
-				"Press to add a random number to the current message", 2), DELETE(posn,
-				"Delete", "Press to delete the selected messages", 1);
+		SEND(posn, "Send","Press to send the current message to someone on the network", 1), 
+		ADD(posn, "Add","Press to add the message content to the list of messages", 2),
+		MOVE_UP(posn, "Move Up","Press to make the currently selected message move up in the list", 1),
+		MOVE_DOWN(posn, "Move Down","Press to make the currently selected message move down in the list", 2),
+		MERGE(posn, "Combine", "Press to merge the selected messages", 1),
+		SPLIT(posn, "Split", "Press to split the message into small chunks", 2),
+		ADD_CHECK(posn, "Add Checksum","Press to add a checksum at the end of the current messsage", 1),
+		VERIFY(posn, "Verify Checksum","Press to verify if the checksum of the current message is correct", 1),
+		ENCRYPT(posn, "Encrypt", "Press to encrypt the current message", 1),
+		DECRYPT(posn, "Decrypt", "Press to decrypt the current message", 1),
+		NONCE(posn, "Add Random Number","Press to add a random number to the current message", 2),
+		DELETE(posn,"Delete", "Press to delete the selected messages", 1);
 
 		private float offset;
 		private JButton button;
@@ -93,17 +95,9 @@ public class ClientGui extends JFrame {
 	public void initialize(Connection c, MessageList messages,
 			ClientController control) {
 		setTitle("[" + c.getGroup() + "] Node " + c.getNode() + " @ HumanNetwork");
-		setBounds(100, 100, INITIAL_WIDTH, (INITIAL_WIDTH * 350) / 400);
-		final int SCREEN_HEIGHT = (int) (Toolkit.getDefaultToolkit()
-				.getScreenSize().getHeight());
-		final int SCREEN_WIDTH = (int) (Toolkit.getDefaultToolkit().getScreenSize()
-				.getWidth());
-		final int MAX_WIDTH = (4 * SCREEN_HEIGHT) / 3;
-		final Rectangle maxRect = new Rectangle((SCREEN_WIDTH - MAX_WIDTH) / 2, 0,
-				MAX_WIDTH, SCREEN_HEIGHT);
-		final Dimension maxSize = new Dimension(MAX_WIDTH, SCREEN_HEIGHT);
-		setMaximumSize(maxSize);
-		setMaximizedBounds(maxRect);
+		setBounds(100, 100, INITIAL_WIDTH, INITIAL_HEIGHT);
+		setMinimumSize(new Dimension(INITIAL_WIDTH, INITIAL_HEIGHT));
+		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		getContentPane().setLayout(null);
 
@@ -156,7 +150,8 @@ public class ClientGui extends JFrame {
 	}
 
 	private void setSizes() {
-		float size = (12f * getWidth() / INITIAL_WIDTH);
+		// Set all fonts relative to window height
+		float size = (12f * getHeight() / INITIAL_HEIGHT);
 
 		Font f = BTN_DETAILS.ADD.button().getFont();
 		UIManager.put("Button.font", new FontUIResource(f.deriveFont(size)));
@@ -165,38 +160,42 @@ public class ClientGui extends JFrame {
 		UIManager.put("Label.font", new FontUIResource(f.deriveFont(size)));
 
 		f = UIManager.getFont("ToolTip.font");
-		UIManager.getLookAndFeelDefaults().put("ToolTip.font",
-				new FontUIResource(f.deriveFont(size)));
+		UIManager.getLookAndFeelDefaults().put("ToolTip.font", new FontUIResource(f.deriveFont(size)));
 
 		SwingUtilities.updateComponentTreeUI(this);
 
 		f = txtMessage.getFont();
-		size = (12f * getWidth() / 800);
 		final Font res = f.deriveFont(size);
 		list.setFont(res);
 		txtMessage.setFont(res);
 
+		// set all button positions and sizes relative to window height
 		for (BTN_DETAILS btn : BTN_DETAILS.values()) {
 			JButton next = btn.button();
-			setRelativeBounds(next, BTN_LEFT, btn.offset(), BTN_WIDTH, BTN_HEIGHT);
+			setButtonBounds(next, btn.offset());
 		}
-		float v_offset = BORDER;
-		setRelativeBounds(status, BORDER, v_offset, BTN_LEFT + BTN_WIDTH - BORDER,
-				STATUS_HEIGHT);
-		v_offset += STATUS_HEIGHT + BORDER;
-		setRelativeBounds(lblMessage, BORDER, v_offset, MSG_WIDTH, MSG_HEIGHT);
-		setRelativeBounds(txtMessage, MSG_WIDTH, v_offset, BTN_LEFT - 2 * BORDER
-				- MSG_WIDTH, MSG_HEIGHT);
-		v_offset += MSG_HEIGHT + BORDER;
-		setRelativeBounds(scrollPane, BORDER, v_offset, BTN_LEFT - 3 * BORDER,
-				BTN_DETAILS.DELETE.offset() + BTN_HEIGHT - v_offset);
+		setStatusBounds(status);
+		setRelativeBounds(lblMessage, 0, MSG_TOP, MSG_WIDTH, MSG_HEIGHT);
+		setRelativeBounds(txtMessage, MSG_WIDTH, MSG_TOP, TXT_WIDTH, MSG_HEIGHT);
+		setRelativeBounds(scrollPane, 0, LIST_TOP, 1.0f,	BTN_DETAILS.DELETE.offset() + BTN_HEIGHT - LIST_TOP);
 	}
 
-	private void setRelativeBounds(Component c, float x, float y, float width,
-			float height) {
-		int w = getWidth();
-		c.setBounds(Math.round(w * x), Math.round(w * y), Math.round(w * width),
-				Math.round(w * height));
+	private void setButtonBounds(JButton b, float y) {
+		float h_factor = 1.14f * getHeight();
+		int left = Math.round(getWidth() - h_factor * (2 * BORDER + BTN_WIDTH));
+		b.setBounds(left, Math.round(h_factor * y), Math.round(h_factor * BTN_WIDTH), Math.round(h_factor * BTN_HEIGHT));
+	}
+
+	private void setRelativeBounds(Component c, float x, float y, float width, float height) {
+		float h_factor = 1.14f * getHeight();
+		float w_factor = getWidth() - h_factor * (4 * BORDER + BTN_WIDTH);
+		c.setBounds(Math.round(h_factor * BORDER + w_factor * x), Math.round(h_factor * y), Math.round(w_factor * width), Math.round(h_factor * height));
+	}
+
+	private void setStatusBounds(Component c) {
+		float h_factor = 1.14f * getHeight();
+		int border = Math.round(h_factor * STATUS_TOP);
+		c.setBounds(border, border, getWidth() - 3 * border, Math.round(h_factor * STATUS_HEIGHT));
 	}
 
 	public JLabel getStatusField() {
