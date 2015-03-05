@@ -193,33 +193,25 @@ public class Route extends Thread {
 		str.append("div { width: 100%; text-align: center;}\n");
 		str.append(".message { font-weight: bold; color: black;}\n");
 		str.append("</style></head>\n<body><div>");
-		if (links.getOffset() == 0) {
-			str.append("Your task is to find the network topology.  <br>"
-					+ "You have to find all of the connections in your network.<br>"
-					+ "You should also decide the first step for any recipient.");
-		} else {
-			// Now we will be sending a message
+		if (links.getOffset() != 0) {
 			texts = new ArrayList<String>();
 			Texts.choose_messages(texts, l, links.getCorruptionRate() > 0);
-
-			// Check delay, drop rate, corruption rate and whois
-			if (links.getDelay() > 0 || links.getCorruptionRate() > 0
-					|| links.getDropRate() > 0) {
-				str.append("Packets (fragments) may be");
-				int badCount = 0;
-				if (links.getDelay() > 0) {
-					badCount++;
-					str.append(" delivered out of order");
-				}
-				if (links.getCorruptionRate() > 0) {
-					str.append(((badCount++ > 0) ? " or " : " ")
-							+ "altered by the network");
-				}
-				if (links.getDropRate() > 0) {
-					str.append(((badCount++ > 0) ? " or " : " ") + "lost by the network");
-				}
-				str.append(".<br>");
+		}
+		// Check delay, drop rate, corruption rate and whois
+		if (links.getDelay() > 0 || links.getCorruptionRate() > 0 || links.getDropRate() > 0) {
+			str.append("Packets (fragments) may be");
+			int badCount = 0;
+			if (links.getDelay() > 0) {
+				badCount++;
+				str.append(" delivered out of order");
 			}
+			if (links.getCorruptionRate() > 0) {
+				str.append(((badCount++ > 0) ? " or " : " ") + "altered by the network");
+			}
+			if (links.getDropRate() > 0) {
+				str.append(((badCount++ > 0) ? " or " : " ") + "lost by the network");
+			}
+			str.append(".<br>");
 		}
 		startTime = System.currentTimeMillis(); // mark any current messages out of
 																						// date
@@ -230,7 +222,11 @@ public class Route extends Thread {
 				connectionMessage = new StringBuilder(str);
 				Connection c = connections.get(i);
 				if (c != null) {
-					if (links.getOffset() != 0) {
+					if (links.getOffset() == 0) {
+						str.append("Your task is to find the network topology.  <br>"
+								+ "You have to find all of the connections in your network.<br>"
+								+ "You should also decide the first step for any recipient.");
+					} else {
 						int recipient = cycles.get(c.getGroup()).offsetNode(c.getNode(),
 								links.getOffset());
 						if (links.isCheckwhois()) {
