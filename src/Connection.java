@@ -1,5 +1,10 @@
-import java.io.*;
-import java.net.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.net.InetAddress;
+import java.net.Socket;
 
 public class Connection {
 
@@ -132,11 +137,6 @@ public class Connection {
 		} catch (IOException e) {
 			System.err.println("IOException: " + e);
 		}
-	}
-
-	public int getInet() {
-
-		return 0;
 	}
 
 	public String toString() {
