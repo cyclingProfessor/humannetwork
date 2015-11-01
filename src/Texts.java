@@ -50,7 +50,7 @@ public class Texts {
 			"The Most Revd", "The Rt Revd", "The Revd Canon", "The Revd",
 			"The Rt Revd Professor", "The Ven", "The Most Revd Dr", "Rabbi", "Canon",
 			"Chief", "Reverend", "Major", "Cllr", "Sir", "Rt Hon Lord", "Rt Hon",
-			"The Lord", "Viscount", "Captain", "Master", "Very Revd" };
+			"Lord", "Viscount", "Captain", "Master", "Very Revd" };
 
 	static Set<String> memory = new TreeSet<String>();
 
@@ -81,7 +81,7 @@ public class Texts {
 			//	secondIndex = (secondIndex + 1) % name_list.length;
 			//}
 			retval = title_list[rand.nextInt(title_list.length)] + " "
-					+ name_list[firstIndex] 
+					+ name_list[firstIndex] + " "
 				  // + " " + name_list[secondIndex] + " "
 					+ surname_list[rand.nextInt(surname_list.length)]; 
 					// + "'s computer";
