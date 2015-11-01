@@ -1,4 +1,4 @@
 public enum MSG_TYPE {
-	STATUS, MESSAGE
+  STATUS, MESSAGE
 
 }

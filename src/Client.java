@@ -26,6 +26,7 @@ public class Client {
 							final Notification message = new Notification(c.read());
 							EventQueue.invokeLater(new Runnable() {
 								public void run() {
+									synchronized (messages) {
 							    switch(message.getType()) {
 								    case STATUS:
 								    	// System.out.println("New Status:" + message.getText());
@@ -34,7 +35,7 @@ public class Client {
 								    case MESSAGE:
 								    	messages.addMessage(message.getText());
 								    	break;
-							    }
+							    }}
 								}
 							});
 						}
@@ -107,5 +108,4 @@ public class Client {
 		/** Receive messages */
 		listen(messages, window.getStatusField());
 	}
-
 }

@@ -72,6 +72,7 @@ public class ClientController {
 		list.addListSelectionListener(new ListSelectionListener() {
 			@Override
 			public void valueChanged(ListSelectionEvent arg0) {
+				synchronized (messages) {
 				int[] array = list.getSelectedIndices();
 				// System.out.print("Selected rows: ");
 				// for(int i : array){
@@ -82,6 +83,7 @@ public class ClientController {
 				if (array.length == 1) {
 					txtMessage.setText(messages.get(array[0]).getContent());
 				}
+				}
 			}
 		});
 
@@ -89,7 +91,9 @@ public class ClientController {
 			public void actionPerformed(ActionEvent arg0) {
 				String message = txtMessage.getText();
 				// System.out.println("Add clicked "+ txtMessage.getText());
+				synchronized (messages) {
 				messages.addMessage(message);
+				}
 			}
 		});
 
@@ -106,7 +110,9 @@ public class ClientController {
 						JOptionPane.showMessageDialog(txtMessage, "Message is too long!");
 					} else {
 						c.write(rawMessage);
+						synchronized (messages) {
 						messages.addMessage(c.getNode(), toNode, message);
+						}
 						// System.out.println("Sent:" + rawMessage);
 					}
 				} catch (Exception ex) {
@@ -132,10 +138,12 @@ public class ClientController {
 				int size = 30;
 				// System.out.println("Length is " + length);
 				// System.out.println("Splitting in " + (1 + length/size));
+				synchronized (messages) {
 				for (int i = 0; i < 1 + length / size; i++) {
 					int end = ((i + 1) * size <= length) ? (i + 1) * size : length;
 					// String part = chunk(i+1, 1+length/size);
 					messages.addMessage(message.substring(i * size, end));
+					}
 				}
 			}
 		});
@@ -143,6 +151,7 @@ public class ClientController {
 		btnMerge.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				// System.out.println("Merge clicked");
+				synchronized (messages) {
 				int[] selected = list.getSelectedIndices();
 				// String[] pieces = new String[selected.length];
 				// System.out.println("Selected " + selected.length);
@@ -151,6 +160,7 @@ public class ClientController {
 					message = message + messages.get(selected[i]).getContent();
 				}
 				messages.addMessage(message);
+				}
 			}
 		});
 
@@ -195,22 +205,26 @@ public class ClientController {
 
 		btnMoveUp.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
+				synchronized (messages) {
 				int[] array = list.getSelectedIndices();
 				// System.out.println("MoveUp clicked");
 				if (array.length == 1 && array[0] != 0) {
 					messages.moveUp(array[0]);
 					list.setSelectedIndex(array[0] - 1);
 				}
+				}
 			}
 		});
 
 		btnMoveDown.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
+				synchronized (messages) {
 				int[] array = list.getSelectedIndices();
 				// System.out.println("MoveDown clicked");
 				if (array.length == 1 && array[0] != messages.size() - 1) {
 					messages.moveDown(array[0]);
 					list.setSelectedIndex(array[0] + 1);
+				}
 				}
 			}
 		});
@@ -244,10 +258,12 @@ public class ClientController {
 
 		btnDelete.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
+				synchronized (messages) {
 				int[] array = list.getSelectedIndices();
 				// System.out.println("Delete clicked");
 				for (int i : array) {
 					messages.remove(i);
+				}
 				}
 			}
 		});
