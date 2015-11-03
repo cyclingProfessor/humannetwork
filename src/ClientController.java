@@ -259,11 +259,11 @@ public class ClientController {
 		btnDelete.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				synchronized (messages) {
-				int[] array = list.getSelectedIndices();
-				// System.out.println("Delete clicked");
-				for (int i : array) {
-					messages.remove(i);
-				}
+					int[] array = list.getSelectedIndices();
+					// System.out.println("Delete clicked");
+					for (int i = array.length - 1 ; i >= 0 ; i--) {
+						messages.remove(array[i]);
+					}
 				}
 			}
 		});
