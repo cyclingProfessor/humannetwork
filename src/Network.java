@@ -1,9 +1,12 @@
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Network {
+    private static Map<String,String> colors = new HashMap<String,String>();
     // Begin with connections and links
-    // 1.Build graph for group A, B and C
+    // 1.Build graph
     // 2.Find Hamiltonian for each network
     private ArrayList<Integer> groupNodes;
     private LinkList links;
@@ -32,6 +35,12 @@ public class Network {
         }
     }
 
+    public static void addColour(String net, String htmlColor){
+        colors.put(net, htmlColor);
+    }
+    public static String getColor(String net) {
+        return colors.getOrDefault(net, "black");
+    }
     private boolean build_hamiltonian_cycle() {
         if (nodeCount < 3) {
             return false;

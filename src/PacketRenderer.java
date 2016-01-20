@@ -36,23 +36,20 @@ public class PacketRenderer extends JLabel implements ListCellRenderer<Packet> {
             final boolean isSelected,
             final boolean cellHasFocus) {
 
-        String color;
         if (item.getTo() == 0) {
-            color = "black";
+            setBackground(Color.PINK);
         } else {
-            color = "E0E0E0";
+            setBackground(Color.GRAY);
         }
-        setText("<html>"
-                + "<font color='"
-                + color
-                + "'>"
+        setText("<html> <font color="
+                + Network.getColor(item.getNetwork())
+                + ">"
                 + item.getFrom()
-                + "->"
+                + "-&gt;"
                 + item.getTo()
-                + "<strong>"
+                + "<strong> ("
                 + item.getText()
-                + "</strong> ("
-                + ")</font></html>");
+                + ") </strong></font></html>");
         return this;
     }
 }

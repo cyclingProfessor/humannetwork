@@ -5,11 +5,13 @@ public class Packet {
     private int from;
     private int to;
     private String text;
-    public Packet(int from, int to, String text) {
+    private String network;
+    public Packet(int from, int to, String text, String network) {
         super();
         this.from = from;
         this.to = to;
         this.text = text;
+        this.network = network;
     }
     public int getFrom() {
         return from;
@@ -19,6 +21,9 @@ public class Packet {
     }
     public String getText() {
         return text;
+    }
+    public String getNetwork() {
+        return network;
     }
   
 }

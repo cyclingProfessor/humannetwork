@@ -79,25 +79,6 @@ public class ServerController {
 
         btnNextStage.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                Map<String, Network> cycles = new HashMap<String, Network>();
-                if (links.nextHasMessages()) {
-                    for (String network : findNetworks()) {
-                        Network networkCycle = new Network(links, network,
-                                connections);
-                        if (!networkCycle.hamiltonian()) {
-                            JOptionPane
-                                    .showMessageDialog(
-                                            null,
-                                            "The "
-                                                    + network
-                                                    + " network has no (complete) cycle so message recipients cannot be calculated.\n"
-                                                    + "Please create a cycle for this network in order to move to one of the message sending tasks (offset <> 0)");
-                            return;
-                        }
-                        cycles.put(network, networkCycle);
-                    }
-                }
-
                 // clear message queue and send new status messages
                 System.out.println("Send Status Out");
                 links.nextStage(); // move on all indicators.
@@ -113,18 +94,9 @@ public class ServerController {
                         links.getOffset(), links.isCheckwhois());
                 serverStatus.setText(f.toString());
                 f.close();
-                route.updateStatus(cycles);
+                route.updateStatus();
             }
         });
 
-    }
-
-    private Set<String> findNetworks() {
-        Set<String> retval = new HashSet<String>();
-        int l = connections.size();
-        for (int i = 0; i < l; i++) {
-            retval.add(connections.get(i).getNetwork());
-        }
-        return retval;
     }
 }

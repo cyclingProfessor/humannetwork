@@ -8,8 +8,8 @@ public class PacketList extends DefaultListModel<Packet> {
         super();
     }
 
-    public void addPacket(int from, int to, String s) {
-        Packet m = new Packet(from, to, s);
+    public void addPacket(int from, int to, String s, String net) {
+        Packet m = new Packet(from, to, s, net);
         super.addElement(m);
     }
 }

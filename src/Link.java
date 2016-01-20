@@ -2,12 +2,12 @@ public class Link {
 
     private int nodeA;
     private int nodeB;
-    private String group;
+    private String network;
 
     public Link(int nodeA, int nodeB, String group) {
         this.nodeA = nodeA;
         this.nodeB = nodeB;
-        this.group = group;
+        this.network = group;
     }
 
     public int getNodeA() {
@@ -26,16 +26,16 @@ public class Link {
         this.nodeB = nodeB;
     }
 
-    public String getGroup() {
-        return group;
+    public String getNetwork() {
+        return network;
     }
 
-    public void setGroup(String group) {
-        this.group = group;
+    public void setNetwork(String group) {
+        this.network = group;
     }
 
     @Override
     public String toString() {
-        return "[" + group + "] " + nodeA + " <-> " + nodeB;
+        return "[" + network + "] " + nodeA + " <-> " + nodeB;
     }
 }

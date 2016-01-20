@@ -28,7 +28,7 @@ public class NetworkTest {
                     System.out), System.in);
             conn.setNode(12 * index);
             conn.setNetwork("Network" + (index % 3));
-            conn.pickName();
+            conn.setup(1234);
             connList.addElement(conn);
         }
         for (int nodeIndex = 0; nodeIndex < COUNT; nodeIndex++) {

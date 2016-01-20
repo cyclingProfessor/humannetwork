@@ -13,7 +13,6 @@ public class RouteTest {
     private static ConnectionList connList;
     private static LinkList linkList;
     private static PacketList msgList = new PacketList();
-    private Map<String, Network> cycles = new HashMap<String, Network>();
     private static Route r;
     private static final int COUNT = 5;
     private final static int NUM_GROUPS = 3;
@@ -23,28 +22,23 @@ public class RouteTest {
     public void setUpBefore() throws Exception {
         connList = new ConnectionList();
         linkList = new LinkList();
-        r = new Route(connList, linkList, msgList);
+        r = new Route(connList, linkList, msgList, 0);
 
         for (int index = 0; index < NUM_GROUPS * NUM_NODES; index++) {
             Connection conn = new Connection(new BufferedOutputStream(
                     System.out), System.in);
             conn.setNode(index);
             conn.setNetwork("Network" + (index % NUM_GROUPS));
-            conn.pickName();
+            conn.setup(1234);
             connList.addElement(conn);
             linkList.addElement(new Link(index, (index + NUM_GROUPS)
                     % (NUM_GROUPS * NUM_NODES), "Group" + (index % NUM_GROUPS)));
-        }
-        for (int groupNo = 0; groupNo < NUM_GROUPS; groupNo++) {
-            String group = "Group" + groupNo;
-            Network groupCycle = new Network(linkList, group, connList);
-            cycles.put(group, groupCycle);
         }
     }
 
     @Test
     public void testTopology() {
-        r.updateStatus(cycles);
+        r.updateStatus();
         System.out.println("TOP:" + r.queue.get(0));
         assertTrue(r.queue.get(0).toString().contains("topology"));
     }
@@ -54,7 +48,7 @@ public class RouteTest {
         linkList.setCheckwhois(true);
         linkList.setOffset(1);
         linkList.nextStage();
-        r.updateStatus(cycles);
+        r.updateStatus();
         System.out.println("WHO:" + r.queue.get(0));
         assertFalse(r.queue.get(0).toString().contains("topology"));
     }
@@ -67,7 +61,7 @@ public class RouteTest {
         linkList.setDropRate(20);
         linkList.setCorruptionRate(10);
         linkList.nextStage();
-        r.updateStatus(cycles);
+        r.updateStatus();
         System.out.println("CORR:" + r.queue.get(0));
         assertFalse(r.queue.get(0).toString().contains("topology"));
     }
@@ -80,7 +74,7 @@ public class RouteTest {
         linkList.setDropRate(0);
         linkList.setCorruptionRate(0);
         linkList.nextStage();
-        r.updateStatus(cycles);
+        r.updateStatus();
         System.out.println("SND:" + r.queue.get(0));
         assertFalse(r.queue.get(0).toString().contains("topology"));
     }
@@ -95,7 +89,7 @@ public class RouteTest {
         linkList.nextStage();
         int maxLength = 0;
         for (int index = 0; index < COUNT; index++) {
-            r.updateStatus(cycles);
+            r.updateStatus();
             maxLength = Math.max(maxLength, r.queue.get(0).toString().length());
             System.out.println("LENGTH TEST:  " + r.queue.get(0).toString());
             r.sendNow(r.queue);

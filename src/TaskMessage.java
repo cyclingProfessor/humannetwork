@@ -1,8 +1,6 @@
 import javax.json.Json;
 import javax.json.JsonObject;
 
-import netsim.TaskType;
-
 public class TaskMessage extends DelayedMessage {
 
     public TaskMessage(Connection c, int delay, LinkList links) {
@@ -13,7 +11,7 @@ public class TaskMessage extends DelayedMessage {
                 .add("PercentageDrop", 100 * links.getDropRate())
                 .add("randDelay", links.getDelay())
                 .add("name", c.getHostname())
-                .add("task", "TOLOPOLOGY")
+                .add("task", "TOPOLOGY")
                 .build();
         setPayload(encoding);
     }

@@ -12,8 +12,11 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Random;
 // The WebSocket code is modified from Anders (Andak Stackexchange, akre.it, - Christopher Price
 // Modified by Dave Cohen (cyclingProfessor on GitHub)
+import java.util.Set;
 
 import javax.json.Json;
 import javax.json.JsonObject;
@@ -21,7 +24,7 @@ import javax.json.JsonReader;
 import javax.json.JsonWriter;
 
 // The WebSocket used here can only accept text data and never longer than 125 bytes of payload
-// Possible future modification to accept fragmented frmes, PING, PONG and long payload data.
+// Possible future modification to accept fragmented frames, PING, PONG and long payload data.
 
 public class Connection {
 
@@ -29,15 +32,18 @@ public class Connection {
     private String hostname = null;
     private String network = null;
     private int node = 0;
+    private int session = 0;
 
     private BufferedOutputStream osw;
     private InputStream isr;
     private static final int SINGLE_FRAME_UNMASKED = 0x81;
     private static final int MASK_SIZE = 4;
+    private static int maxNode = 0;
+    private static Random rand = new Random();
 
     /**
      * Constructor for the Server
-     *  
+     * 
      * @param osw
      * @param isr
      */
@@ -46,14 +52,36 @@ public class Connection {
         this.isr = isr;
         this.osw = osw;
         doHandshake();
+        // Check that the first message is a HELLO message
+        JsonObject message = read();
+        if (message == null) {
+            throw new HandshakeException("Invalid client - no session message");
+        }
+        String type = message.getString("type");
+        if (!type.equals("HELLO")) {
+            close();
+            throw new HandshakeException("Invalid client - no session message");
+        }
+        node = message.getInt("node", -1);
+        session = message.getInt("session", -1);
+        if (node < 0 || session < 0) {
+            throw new HandshakeException("Invalid HELLO message");
+        }
     }
 
     public String getHostname() {
         return hostname;
     }
 
-    public void pickName() {
+    public int getSession() {
+        return session;
+    }
+
+    public void setup(int session) {
         this.hostname = Texts.choose_name(node);
+        this.node = maxNode + 1 + rand.nextInt(5);
+        maxNode = this.node;
+        this.session = session;
     }
 
     public void setNode(int node) {
@@ -74,9 +102,17 @@ public class Connection {
         JsonWriter writer = Json.createWriter(sw);
         writer.writeObject(msg);
         byte[] msgBytes = sw.toString().getBytes();
+        System.out.println("WS: Writing " + msgBytes.length);
         try {
             osw.write(SINGLE_FRAME_UNMASKED);
-            osw.write(msgBytes.length);
+            if (msgBytes.length > 125) {
+                // must write 126 and then two bytes of length
+                osw.write(126);
+                osw.write(msgBytes.length / 256);
+                osw.write(msgBytes.length % 256);
+            } else {
+                osw.write(msgBytes.length);
+            }
             osw.write(msgBytes);
             osw.flush();
         } catch (IOException f) {
@@ -93,21 +129,58 @@ public class Connection {
      */
 
     public JsonObject read() {
+        // Must deal with Pings!
+        byte[] buf;
         JsonObject retval = null;
+        boolean data = false;
         try {
-            byte[] buf = readBytes(2);
-            if ((buf[0] & 0x0F) != 8) { // Client does not want to close
-                                        // connection!
-                buf = readBytes(MASK_SIZE + ((buf[1] & 0xFF) - 0x80));
-                String message = unMask(Arrays.copyOfRange(buf, 0, 4),
-                        Arrays.copyOfRange(buf, 4, buf.length));
-                JsonReader jsonReader = Json.createReader(new StringReader(
-                        message));
-                retval = jsonReader.readObject();
-                jsonReader.close();
-            }
+            buf = readBytes(2);
         } catch (IOException e) {
+            System.out.println("Something has gone wrong!!" + e.getMessage());
+            return null;
         }
+        int type = buf[0] & 0x0F;
+        int length = buf[1] & 0x7F;
+        try {
+            if (length == 0x7E) {
+                buf = readBytes(2);
+                length = buf[0] << 8 + buf[1];
+            }
+            buf = readBytes(MASK_SIZE + length);
+        } catch (IOException e) {
+            System.out.println("Something has gone wrong!!" + e.getMessage());
+            return null;
+        }
+        byte[] payload = unMask(Arrays.copyOfRange(buf, 0, MASK_SIZE),
+                Arrays.copyOfRange(buf, MASK_SIZE, buf.length));
+        
+        switch (type) {
+        case 0x8: // close
+            System.out.println("WS:Close");
+            break;
+        case 0x0: // continuation frame
+            System.out.println("WS:Continuation");
+            break;
+        case 0x1: // binary
+            System.out.println("WS:Binary");
+            data = true;
+            break;
+        case 0x2: // data
+            System.out.println("WS:Text");
+            data = true;
+            break;
+        case 0x9: // Ping
+            System.out.println("WS:Ping");
+            // send back a masked Pong of payload
+            break;
+        }
+        if (!data) {
+            return null;
+        }
+        String text = new String(payload);
+        JsonReader jsonReader = Json.createReader(new StringReader(text));
+        retval = jsonReader.readObject();
+        jsonReader.close();
         return retval;
     }
 
@@ -117,11 +190,11 @@ public class Connection {
         return b;
     }
 
-    private static String unMask(byte[] mask, byte[] data) {
+    private static byte[] unMask(byte[] mask, byte[] data) {
         for (int i = 0; i < data.length; i++) {
             data[i] = (byte) (data[i] ^ mask[i % mask.length]);
         }
-        return new String(data);
+        return data;
     }
 
     /**
@@ -188,12 +261,10 @@ public class Connection {
 
         String hash = "";
         try {
-            hash = Base64
-                    .getEncoder()
-                    .encodeToString(
-                            MessageDigest
-                                    .getInstance("SHA-1")
-                                    .digest((keys.get("Sec-WebSocket-Key") + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11")
+            hash = Base64.getEncoder()
+                    .encodeToString(MessageDigest.getInstance("SHA-1")
+                            .digest((keys.get("Sec-WebSocket-Key")
+                                    + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11")
                                             .getBytes()));
         } catch (NoSuchAlgorithmException ex) {
             throw new HandshakeException("No Such Algorithm");
@@ -209,13 +280,5 @@ public class Connection {
 
         out.flush();
 
-        // Check that the first message is a HELLO message
-        JsonObject message = read();
-        String type = message.getString("type");
-        if (!type.equals("HELLO")) {
-            close();
-            throw new HandshakeException("Invalid client - no session message");
-        }
-        node = message.getInt("node");
     }
 }

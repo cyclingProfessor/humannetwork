@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Random;
 
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
@@ -41,12 +42,16 @@ public class Server {
                         BufferedOutputStream os = new BufferedOutputStream(
                                 socket.getOutputStream());
                         socket.setSoTimeout(HANDSHAKE_WAIT_TIME);
+                        try {
                         route.addConnection(os, socket.getInputStream(),
                                 socket.getInetAddress());
+                        } catch (HandshakeException e) {
+                            System.out.println("Failed to start connection for "+ id + ": " + e.getMessage());
+                        }
                     }
                 } catch (Exception e) {
-                    System.out.println("Closing server ...");
-                    e.printStackTrace();
+                    System.out.println("Failed to get Server Socket.  Closing server ...");
+                    System.exit(-1);
                 }
             }
         };
@@ -83,11 +88,12 @@ public class Server {
         final ConnectionList connections = new ConnectionList();
         final LinkList links = new LinkList();
         final PacketList messages = new PacketList();
-        route = new Route(connections, links, messages);
+        // TODO make the session work and be recoverable
+        Random rand = new Random(); int session = rand.nextInt();
+        route = new Route(connections, links, messages, session);
         listen(address, port);
         final ServerController controller = new ServerController(messages,
                 links, connections, route);
-        route.start();
         final ServerGui window = new ServerGui();
 
         final int actualPort = port;
