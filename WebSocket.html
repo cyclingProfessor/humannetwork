@@ -1,0 +1,178 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>Just a show for the new BYOI</title>
+<script
+    src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"
+></script>
+</head>
+<body>
+    <div id='buttons'>
+        <button
+            type="button"
+            id='connectButton'
+        >Connect</button>
+        <button
+            type="button"
+            id='closeButton'
+        >Close</button>
+        <button
+            type="button"
+            id='sendButton'
+        >Send Message</button>
+    </div>
+	<div id='stuff'>
+	    <div>
+	        <span>Message to send</span>
+	        <input id='msg'
+	            type="text"
+	        />
+	    </div>
+	    <div>
+	        <span>Recipient (Empty for Broadcast)</span>
+	        <input  id='recipient'
+	            type="number"
+	        />
+	    </div>
+	    <div id='messageList'>
+	    <strong>
+	    Messages sent and received
+	    </strong>
+	    </div>
+    </div>
+    <script>
+        var connection;
+        var myName;
+        var myNumber;
+        var mySession;
+
+		/*
+		We connect, get back a list of networks and a session key
+		If we have no cookie matching the session key, we choose a network and send a NETWORK message
+		If we have a cookie we send a RECOVER mesage
+		In either case we get backa  SETNAMES message and make the session active.
+		*/
+		function setCookie(cname, cvalue) {
+		    var d = new Date();
+		    d.setTime(d.getTime() + (24*60*60*1000));
+		    var expires = "expires="+d.toUTCString();
+		    document.cookie = cname + "=" + encodeURIComponent(cvalue) + "; " + expires;
+		}
+		function getCookie(cname) {
+		    var name = cname + "=";
+		    var ca = document.cookie.split(';');
+		    for(var i=0; i<ca.length; i++) {
+		        var c = ca[i];
+		        while (c.charAt(0)==' ') c = c.substring(1);
+		        if (c.indexOf(name) == 0) return c.substring(name.length,c.length);
+		    }
+		    return "";
+		}
+        $(document).ready(function() {
+            $('#stuff').hide();
+            $('#sendButton').hide();
+            $('#closeButton').hide();
+            if (! ("WebSocket" in window)) {
+                $('#buttons').hide();
+                $('body').append("<strong>Browser does not support Web Socket.</br>Please reload page in a modern Browser.</strong>");
+            }
+
+            $('#connectButton').click(function() {
+                $('#connectButton').hide();
+                connection = new WebSocket("ws://localhost:10000/");
+
+                connection.onmessage = function (e) {
+                    var received = JSON.parse(e.data);
+                    var type = received.type; // Could be instructions, broadcast, connected or message
+                    if (type == 'CONNECTED') {
+	                    mySession = received.session;
+
+                        if (getCookie("session" == mySession) {
+			                var message = {
+			                    name: getCookie("name"),
+			                    mode: getCookie("node"),
+			                    type: "RECOVER"
+			                };
+                        	connection.send(JSON.stringify(message));
+                        } else {
+                    		// extract network list....
+                    		var networks = received.networks;
+                    		for (int i = 0 ; i < networks.length ; i++) {
+                    			alert(networks[i].name)
+                    		}
+                    		// populate networks and show network selector
+                    		$('#chooseNetwork').hide();
+                    	}
+                    }
+                    if (type == 'SETNAMES') {
+                        myName = received.name;
+                        myNumber = received.node;
+                        setCookie("session", mySession);
+                        setCookie("node", myNode);
+                        setCookie("name", myName);
+                        $('#messageList').append("<div class=\"received.\"><span class=\"connected\">Node Number:  "+myNumber+"</span> : <span class=\"text\">Node name: "+myName+"</span></div>");
+	                    $('#stuff').show();
+	                    $('#sendButton').show();
+	                    $('#closeButton').show();
+                    }
+
+                    if (type == 'MESSAGE') {
+                        text = received.text;
+                        from = received.from;
+                        $('#messageList').append("<div class=\"received.\"><span class=\"node\" "+from+"</span> : <span class=\"text\">"+text+"</span></div>");
+                    }
+                    if (type == 'STATUS') {
+                    	// status is a string, describing how the network is behaving - does it drop packets, alter messages etc.,
+                    	// task is a JSON array, each object in the array has a kind: "info" or "instruction" or "next".
+                    	// Logically each info part should be highlighted, and each next makrs the beginning of a new paragraph. 
+                        status = received.status;
+                        task = received.task;
+                        $('#messageList').append("<div class=\"received.\"><span class=\"node\" "+from+"</span> : <span class=\"text\">"+text+"</span></div>");
+                    }
+                };
+                connection.onerror = function (e) {
+                    alert("Connection Error - Is the server running?");
+                };
+                connection.onclose = function (e) {
+                    $('#connectButton').show();
+                    $('#stuff').hide();
+                    $('#sendButton').hide();
+                    $('#closeButton').hide();
+                };
+            });
+
+			$("#chooseNetwok").click(function() {
+				$('#chooseNetwork').hide();
+                var message = {
+                    network:  $("#chooseNetwork").val(),
+                    type: "NETWORK"
+                };
+            	connection.send(JSON.stringify(message));
+			})
+            $('#sendButton').click(function() {
+                var contents = $("#msg").val();
+                var recipient = $("#recipient").val();
+                var message = {
+                    text: contents,
+                    from: myNumber,
+                    to: recipient,
+                    type: "MESSAGE",
+                    date: Date.now()
+                };
+                if (recipient == 0) { // BROADCAST
+                    $('#messageList').append("<div class=\"broadcast\">Broadcast <span class=\"text\"> Message: "+contents+"</span></div>");
+                } else {
+                    $('#messageList').append("<div class=\"sent.\">Send <span class=\"node\"> To:"+recipient+"</span> <span class=\"text\"> Message: "+contents+"</span></div>");
+                }
+                $("#msg").val("");
+                $("#recipient").val("");
+                connection.send(JSON.stringify(message));
+            });
+
+            $('#closeButton').click(function() {
+                connection.close();
+            });
+        });
+    </script>
+</body>
+</html>

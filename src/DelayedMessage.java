@@ -1,37 +1,45 @@
+import javax.json.JsonObject;
+
 public class DelayedMessage {
+    private int delay = 0;
+    private JsonObject payload;
+    private Connection connection;
+    private long time;
 
-  @Override
-  public String toString() {
-    return "DelayedMessage [delay=" + delay + ", message=" + message
-        + ", connection=" + connection + ", time=" + time + "]";
-  }
+    public DelayedMessage(Connection connection, JsonObject payload, int delay) {
+        this.delay = delay;
+        this.connection = connection;
+        time = System.currentTimeMillis();
+        this.payload = payload;
+    }
 
-  private int delay = 0;
-  private String message = "";
-  private Connection connection;
-  private long time;
+    protected DelayedMessage(Connection connection, int delay) {
+        this.delay = delay;
+        this.connection = connection;
+        time = System.currentTimeMillis();
+    }
+    
+    public void setPayload(JsonObject payload) {
+        this.payload = payload;
+    }
 
-  public DelayedMessage(Connection connection, String message, int delay) {
-    this.delay = delay;
-    this.message = message;
-    this.connection = connection;
-    time = System.currentTimeMillis();
-  }
+    public JsonObject getPayload() {
+        return payload;
+    }
 
-  public void decr() {
-    delay--;
-  }
+    public void decr() {
+        delay--;
+    }
 
-  public boolean ready() {
-    return delay < 0;
-  }
+    public boolean ready() {
+        return delay < 0;
+    }
 
-  public void send() {
-    // System.out.println("About to send the message: " + message);
-    connection.write(message);
-  }
+    public void send() {
+        connection.write(payload);
+    }
 
-  public boolean current(long startTime) {
-    return time >= startTime;
-  }
+    public boolean current(long startTime) {
+        return time >= startTime;
+    }
 }
