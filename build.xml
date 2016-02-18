@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="humannetwork" default="jar" basedir=".">
+  <property name="src-dir" location="src"/>
+  <property name="test-dir" location="test"/>
+  <property name="classes-dir" value="bin"/>
+  <property name="lib-dir" value="libs"/>
+  <property name="jar-dir" value="jar"/>
+
+  <path id="classpath.run">
+    <fileset dir="${lib-dir}" includes="*.jar"/>
+  </path>
+  		
+  <target name="compile" description="compile all source files">
+	<javac fork="true" srcdir="${src-dir}" destdir="${classes-dir}" classpathref="classpath" includeantruntime="false" includes="Server.java" />
+    <javac fork="true" srcdir="${test-dir}" destdir="${classes-dir}" classpathref="classpath" includeantruntime="false" includes="AllTests.java" />
+  </target>
+  	
+  <target name ="jar" depends="compile" description="Create a Server jar file">
+    <jar jarfile="${jar-dir}/HumanNetworkServer.jar">
+       <fileset dir="${classes-dir}" excludes="*Test*"/>
+       <fileset dir="." includes="proverbs.txt"/>
+
+	   <manifest>
+	     <attribute name="Main-Class" value="Server"/>
+	   </manifest>
+    	<zipgroupfileset dir="${lib-dir}" includes="jopt*.jar,*json*.jar"/>
+	</jar>
+  </target>
+
+  <target name="junit">
+	<junit printsummary="yes" haltonfailure="no">
+      <formatter type="plain"/>
+
+      <classpath>
+        <pathelement location="${classes-dir}"/>
+        <pathelement location="${lib-dir}/junit*.jar"/>
+        <pathelement location="${lib-dir}/hamcrest*.jar"/>
+      </classpath>
+      <test name="AllTests"/>
+    </junit>
+  </target>
+  	  	
+  
+</project>

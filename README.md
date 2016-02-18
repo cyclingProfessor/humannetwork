@@ -11,11 +11,13 @@ Usage
 -----
 Compilation can be done by going in the src directory and typing:
 
-> javac Server.java
+> ant jar
 
-The server can be started with:
+Ths creates an execuatble jar, HumanNetworkServer.jar, in the "jar" directory.
 
-> java Server
+The jar file is self contained and can be run anywhere.  The server can be started with:
+
+> java -jar HumanNetworkServer.jar
 
 The server has several optional arguments which are parsed in a standard way:
    "?", "Print a help message"
