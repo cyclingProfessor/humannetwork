@@ -1,5 +1,3 @@
-import javax.json.Json;
-import javax.json.JsonObject;
 
 public class Packet {
     private int from;

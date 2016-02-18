@@ -1,16 +1,11 @@
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Formatter;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JList;
-import javax.swing.JOptionPane;
 import javax.swing.JSlider;
 import javax.swing.JSpinner;
 import javax.swing.event.ChangeEvent;
@@ -20,14 +15,11 @@ public class ServerController {
 
     // private MessageList messages;
     private LinkList links;
-    private ConnectionList connections;
     private Route route;
     private PacketList messages;
 
     public ServerController(PacketList messages, LinkList links,
             ConnectionList connections, Route route) {
-        // this.messages = messages;
-        this.connections = connections;
         this.links = links;
         this.route = route;
         this.messages = messages;

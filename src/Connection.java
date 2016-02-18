@@ -12,16 +12,14 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Random;
-// The WebSocket code is modified from Anders (Andak Stackexchange, akre.it, - Christopher Price
-// Modified by Dave Cohen (cyclingProfessor on GitHub)
-import java.util.Set;
 
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
 import javax.json.JsonWriter;
+// The WebSocket code is modified from Anders (Andak Stackexchange, akre.it, - Christopher Price
+// Modified by Dave Cohen (cyclingProfessor on GitHub)
 
 // The WebSocket used here can only accept text data and never longer than 125 bytes of payload
 // Possible future modification to accept fragmented frames, PING, PONG and long payload data.
