@@ -50,7 +50,7 @@ public class Server {
                         }
                     }
                 } catch (Exception e) {
-                    System.out.println("Failed to get Server Socket.  Closing server ...");
+                    System.out.println("Failed to get Server Socket.  Closing server ... MSG: " + e.getMessage());
                     System.exit(-1);
                 }
             }
