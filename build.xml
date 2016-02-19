@@ -6,16 +6,18 @@
   <property name="lib-dir" value="libs"/>
   <property name="jar-dir" value="jar"/>
 
-  <path id="classpath.run">
+  <path id="classpath">
     <fileset dir="${lib-dir}" includes="*.jar"/>
   </path>
   		
   <target name="compile" description="compile all source files">
+  	<mkdir dir="${classes-dir}"/>
 	<javac fork="true" srcdir="${src-dir}" destdir="${classes-dir}" classpathref="classpath" includeantruntime="false" includes="Server.java" />
     <javac fork="true" srcdir="${test-dir}" destdir="${classes-dir}" classpathref="classpath" includeantruntime="false" includes="AllTests.java" />
   </target>
   	
   <target name ="jar" depends="compile" description="Create a Server jar file">
+  	<mkdir dir="${jar-dir}"/>
     <jar jarfile="${jar-dir}/HumanNetworkServer.jar">
        <fileset dir="${classes-dir}" excludes="*Test*"/>
        <fileset dir="." includes="proverbs.txt"/>
