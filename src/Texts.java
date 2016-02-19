@@ -1,6 +1,10 @@
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Formatter;
@@ -8,8 +12,11 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 public class Texts {
+    static final String fortune_file = "proverbs.txt";
+
     static String places[] = { "Plaza Bar", "Light Point Hotel",
             "Glorious Emperor Bar", "Double Star Hotel",
             "Southern Shield Hotel", "Royal Universe Hotel",
@@ -21,39 +28,38 @@ public class Texts {
             "Art", "Austin", "Benjamin", "Ben", "Blake", "Bobby", "Bob",
             "Brandon", "Brian", "Bruce", "Cameron", "Carl", "Charles",
             "Charlie", "Christopher", "Chris", "Cody", "Colin", "Connor",
-            "Corey", "Craig", "Daniel", "Dan", "David", "Dave", "Donald",
-            "Don", "Dylan", "Edward", "Ed", "Eric", "Elliot", "Eli", "Ethan",
-            "Evan", "Frank", "Frankie", "Freddie", "Fred", "Gabriel", "Gabe",
-            "Gary", "George", "Harry", "Henry", "Ian", "Isaac", "Jack",
-            "Jackson", "Jacob", "Jakob", "Jake", "James", "Jamie", "Jason",
-            "Jay", "Jeffrey", "Jeff", "Jeremy", "Jerry", "Gerry", "Joel",
-            "John", "Jonathan", "Jon", "Jordan", "Joseph", "Josef", "Joe",
-            "Joey", "Joshua", "Josh", "Justin", "Kenneth", "Ken", "Kevin",
-            "Kyle", "Lawrence", "Larry", "Leo", "Liam", "Logan", "Louis",
-            "Lucas", "Luke", "Matthew", "Matt", "Maxwell", "Max", "Michael",
-            "Mike", "Nathan", "Nathaniel", "Nicholas", "Nick", "Noah", "Nolan",
-            "Oscar", "Owen", "Patrick", "Pat", "Paul", "Phillip", "Phil",
-            "Randy", "Richard", "Rich", "Dick", "Riley", "Robert", "Bob",
-            "Ronald", "Ron", "Roy", "Ryan", "Samuel", "Sammy", "Sam", "Scott",
-            "Sean", "Shaun", "Sebastian", "Stanley", "Steven", "Stephen",
-            "Steve", "Taylor", "Theo", "Thomas", "Tom", "Tommy", "Timothy",
-            "Tim", "Tristan", "Tyler", "Wayne", "William", "Billy" };
+            "Corey", "Craig", "Daniel", "Dan", "David", "Dave", "Donald", "Don",
+            "Dylan", "Edward", "Ed", "Eric", "Elliot", "Eli", "Ethan", "Evan",
+            "Frank", "Frankie", "Freddie", "Fred", "Gabriel", "Gabe", "Gary",
+            "George", "Harry", "Henry", "Ian", "Isaac", "Jack", "Jackson",
+            "Jacob", "Jakob", "Jake", "James", "Jamie", "Jason", "Jay",
+            "Jeffrey", "Jeff", "Jeremy", "Jerry", "Gerry", "Joel", "John",
+            "Jonathan", "Jon", "Jordan", "Joseph", "Josef", "Joe", "Joey",
+            "Joshua", "Josh", "Justin", "Kenneth", "Ken", "Kevin", "Kyle",
+            "Lawrence", "Larry", "Leo", "Liam", "Logan", "Louis", "Lucas",
+            "Luke", "Matthew", "Matt", "Maxwell", "Max", "Michael", "Mike",
+            "Nathan", "Nathaniel", "Nicholas", "Nick", "Noah", "Nolan", "Oscar",
+            "Owen", "Patrick", "Pat", "Paul", "Phillip", "Phil", "Randy",
+            "Richard", "Rich", "Dick", "Riley", "Robert", "Bob", "Ronald",
+            "Ron", "Roy", "Ryan", "Samuel", "Sammy", "Sam", "Scott", "Sean",
+            "Shaun", "Sebastian", "Stanley", "Steven", "Stephen", "Steve",
+            "Taylor", "Theo", "Thomas", "Tom", "Tommy", "Timothy", "Tim",
+            "Tristan", "Tyler", "Wayne", "William", "Billy" };
 
     static String surname_list[] = { "Cohen", "Campbell", "Nevison", "Wesley",
             "Gosden", "Hamer", "Newell", "Conduit", "Roseborough", "Beeston",
             "Makepeace", "Hutchings", "Hammond", "Chetwnyd", "Dunford",
             "Macfarlane", "Tuley", "Bawler", "Brennan", "Bal", "Lyndicam",
             "Briggs", "Cabdy", "Nott", "Sargeantson", "Dickson", "Steel",
-            "Willis", "Wilton", "Snowball", "Smith", "Brown", "Jones",
-            "Taylor", "Williams", "Harris", "White", "Johnson", "Hall",
-            "Robinson", "Evans", "Jackson", "Wilson", "Walker", "Thompson" };
+            "Willis", "Wilton", "Snowball", "Smith", "Brown", "Jones", "Taylor",
+            "Williams", "Harris", "White", "Johnson", "Hall", "Robinson",
+            "Evans", "Jackson", "Wilson", "Walker", "Thompson" };
 
     static String title_list[] = { "Mr", "Dr", "Professor", "The Rt Revd Dr",
             "The Most Revd", "The Rt Revd", "The Revd Canon", "The Revd",
             "The Rt Revd Professor", "The Ven", "The Most Revd Dr", "Rabbi",
-            "Canon", "Chief", "Reverend", "Major", "Cllr", "Sir",
-            "Rt Hon Lord", "Rt Hon", "Lord", "Viscount", "Captain", "Master",
-            "Very Revd" };
+            "Canon", "Chief", "Reverend", "Major", "Cllr", "Sir", "Rt Hon Lord",
+            "Rt Hon", "Lord", "Viscount", "Captain", "Master", "Very Revd" };
 
     static Set<String> memory = new TreeSet<String>();
 
@@ -63,14 +69,24 @@ public class Texts {
     static Random rand = new Random();
 
     private static String[] read_fortunes() {
-        Path filePath = new File("proverbs.txt").toPath();
-        Charset charset = Charset.defaultCharset();
         List<String> stringList = null;
+        Charset charset = StandardCharsets.UTF_8;
+
         try {
+            Path filePath = new File(fortune_file).toPath();
             stringList = Files.readAllLines(filePath, charset);
         } catch (IOException e) {
-            System.err.println("Server can't load proverbs.txt file");
-            e.printStackTrace();
+            try {
+                InputStream in = Texts.class
+                        .getResourceAsStream("/" + fortune_file);
+                BufferedReader buffIn = new BufferedReader(
+                        new InputStreamReader(in, charset));
+                stringList = buffIn.lines().collect(Collectors.toList());
+            } catch (Exception e2) {
+                System.err.println(
+                        "Server can't load 'proverbs.txt' file from jar or filesystem");
+                System.exit(1);
+            }
         }
         return stringList.toArray(new String[] {});
     }
@@ -148,7 +164,8 @@ public class Texts {
         return change(text, places, "Hell's Kitchen");
     }
 
-    private static String change(String text, String[] list, String replacement) {
+    private static String change(String text, String[] list,
+            String replacement) {
         for (int index = 0; index < list.length; index++) {
             int where = text.indexOf(list[index]);
             if (where >= 0) {

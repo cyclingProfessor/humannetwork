@@ -25,6 +25,8 @@ The server has several optional arguments which are parsed in a standard way:
    "p", Port number to listen on.  Defaults to 10000
    "s", Session number used to identify clients so that a server can be restarted (not yet implemented)
 
+There is a file of messages that the Server provides as challenges to clients.  This file is included in the jar file, but can be overriden with more appropriate or even themed files, by placing a file called "proverbs.txt" in the same directory as the HumanNetworkServer.jar file.  The format is plain UTF_8 text, one message per line.
+
 The client is a standard (adaptive) web page application that should be hosted on a reachable web server.
 
 Code Organisation
