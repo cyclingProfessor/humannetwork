@@ -12,12 +12,13 @@ import joptsimple.OptionSpec;
 
 public class Server {
 
-    static Route route;
+    private static Route route;
 
     static Socket socket;
     static ServerSocket ssocket;
     static int port = 10000;
-    static int HANDSHAKE_WAIT_TIME = 200; // Number of milliseconds to wait when
+    final static int MAX_SESSION = 1000000;
+    final static int HANDSHAKE_WAIT_TIME = 200; // Number of milliseconds to wait when
                                           // accepting a connection
 
     /**
@@ -89,7 +90,7 @@ public class Server {
         final LinkList links = new LinkList();
         final PacketList messages = new PacketList();
         // TODO make the session work and be recoverable
-        Random rand = new Random(); int session = rand.nextInt();
+        Random rand = new Random(); int session = rand.nextInt(MAX_SESSION);
         route = new Route(connections, links, messages, session);
         listen(address, port);
         final ServerController controller = new ServerController(messages,
