@@ -13,7 +13,7 @@ Compilation can be done by going in the src directory and typing:
 
 > ant jar
 
-Ths creates an execuatble jar, HumanNetworkServer.jar, in the "jar" directory.
+This creates an executable jar, HumanNetworkServer.jar, in the "jar" directory.
 
 The jar file is self contained and can be run anywhere.  The server can be started with:
 
@@ -25,7 +25,7 @@ The server has several optional arguments which are parsed in a standard way:
    "p", Port number to listen on.  Defaults to 10000
    "s", Session number used to identify clients so that a server can be restarted (not yet implemented)
 
-There is a file of messages that the Server provides as challenges to clients.  This file is included in the jar file, but can be overriden with more appropriate or even themed files, by placing a file called "proverbs.txt" in the same directory as the HumanNetworkServer.jar file.  The format is plain UTF_8 text, one message per line.
+There is a file of messages that the Server provides as challenges to clients.  This file is included in the jar file, but can be overridden with more appropriate or even themed files, by placing a file called "proverbs.txt" in the same directory as the HumanNetworkServer.jar file.  The format is plain UTF_8 text, one message per line.
 
 The client is a standard (adaptive) web page application that should be hosted on a reachable web server.
 
@@ -40,16 +40,17 @@ All messages are encoded in JSON
 1. Client to Server: HELLO
 When a WebSocket connection is established the client sends a HELLO message
 {session: INT, node: INT, type: "HELLO"}
-Clients may use the HELLO message to re-establish a link to an existing server.
+Existing clients whose web page has been mysteriously closed can use the HELLO message to re-establish a link to an existing server by sending a non-zero session number.
+New clients will only be accepted before the first TASK has been sent.
 
 2. Server to Client: CONNECTED
 The first response from the server will be a CONNECTED message
 {session: INT, name: STRING, node: INT, type: "CONNECTED"}
-If the session matches the session id sent in the HELLO
-
+If the session matches the session id sent in the HELLO then the server assumes that the client is re-establishing a link and uses the client's existing data rather than generating new data (name etc.,)
+New clients trying to connect after the first task has begun will be silently ignored.
 
 3. At any time after the CONNECT message the server may send out one of two kinds of Message: PACKET or TASK
-  A PACKET message is normal network packet to be added tot he client's messages received tray.
+  A PACKET message is a normal network packet to be added to the client's messages received tray.
   {session: INT, text: STRING, from: INT, type: "PACKET"}
   The text will be at most 40 characters long.
 
@@ -81,7 +82,7 @@ The network has parameter: DropRate, CorruptionRate, Delay which have natural me
 
 Client Use
 ================
-Clients will enter an IP address or host name and a port number.  TOgether with the message "Welcome to the DarkNet."
+Clients will enter an IP address or host name and a port number.  Together with the message "Welcome to the DarkNet."
 They will then be connected.  The interface should display their NODE ID.
 
 Clients will be able to formulate packets, but the maximum message sent will by the client should be 40 characters.
