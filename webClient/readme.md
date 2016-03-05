@@ -98,6 +98,7 @@ In its data element, a BYOI Message will contain
 * a `text` property with the contents of the element with `class="text"`.
 * an `ID` property with a integer value identifying the message.
 * any other property passed to the `BYOIMessage` method, i.e.:
+    
     ```javascript
     $('#myMsg').BYOIMessage({
         prop_1:value_1, 
@@ -149,6 +150,7 @@ $('#myMsgHandler').BYOIMessageHandler();
 The BYOI Message Handler constructor provides the following hooks, which can be overridden:
 * `accept`: the accept method is a configurable way to define a method that implements rules for the message handler to filter messages, the method is a boolean method. Returning true means that the message is accepted, and therefore added to the message handler
 * `onError`: this method is called when an element that is not a message is added to the messageHandler. The API assumes that all the elements inside the message handlers are messages, but if you know what you're doing, you can override this behaviour.
+    
     ```javascript
     $('#myMsgHandler').BYOIMessageHandler({
         //this is the default implementation
