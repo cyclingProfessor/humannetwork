@@ -1,0 +1,63 @@
+
+#container{
+    width:800px;
+    margin:auto;
+}
+
+#sidebar{
+    width:200px;
+    float:right;
+}
+
+#sidebar button{
+    width:100%;
+}
+
+#main{
+    float:left;
+    width:600px;
+}
+
+#msgBox{
+    float:left;
+    margin-right:50px;
+}
+
+#recipient{
+    width:50px;
+}
+
+
+#systemMessages strong{
+    float:left;
+}
+
+#messageList{
+    background-color:#aaa;
+    width:95%;
+    margin:auto;
+}
+#messageList>div{
+    border: solid 1px white;
+}
+#messageList>div:nth-child(odd) {
+    background-color:#ccc;
+}
+
+#messageList>div:nth-child(even) {
+    background-color:#fff;
+}
+
+#messageList>div:hover{
+    border-color:black;
+}
+
+.BYOI-selected{
+    background:#88BACA !important;
+}
+
+.BYOI-last-selected{
+    background:red !important;
+}
+
+
