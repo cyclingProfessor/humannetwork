@@ -21,7 +21,6 @@ public class Route extends Thread {
     private Random rand = new Random();
     List<DelayedMessage> queue = new ArrayList<DelayedMessage>();
     private int session;
-    private static final int MIN_PER_NET = 8;
     private static final int MAX_PER_NET = 10;
     private Map<String, Network> cycles = new HashMap<String, Network>();
 
@@ -198,10 +197,8 @@ public class Route extends Thread {
         // The first update triggers network building.
         if (!started) {
             started = true;
-            int maxNets = Math.max(1, connections.size() / MIN_PER_NET);
-            int numNets = Math.min(
-                    (connections.size() + MAX_PER_NET - 1) / MAX_PER_NET,
-                    maxNets);
+
+            final int numNets = (this.connections.size() + MAX_PER_NET - 1) / MAX_PER_NET;
             createCycles(numNets);
             // Begin to check for messages.
             synchronized (queue) {
@@ -251,7 +248,18 @@ public class Route extends Thread {
         }
     }
 
+    private void createCycle(final String netName, final int[] nodeIndexes, final int first, final int last) {
+         for (int index = first; index < last; index++) {
+             this.connections.get(nodeIndexes[index]).setNetwork(netName);
+             this.addLink(nodeIndexes[index], nodeIndexes[index + 1], netName);
+         }
+         this.addLink(nodeIndexes[first], nodeIndexes[last], netName);
+         this.connections.get(nodeIndexes[last]).setNetwork(netName);
+         this.cycles.put(netName, new Network(this.links, netName, this.connections));
+    }
+
     private void createCycles(int count) {
+
         int[] nodeIndexes = new int[connections.size()];
         for (int index = 0; index < connections.size(); index++) {
             nodeIndexes[index] = index;
@@ -263,28 +271,12 @@ public class Route extends Thread {
             nodeIndexes[other] = nodeIndexes[index];
             nodeIndexes[index] = temp;
         }
+        // Make the cycles.
         double netSize = connections.size() / count;
-        int network = 1;
-        int firstIndex = 0;
-        double nextNetwork = netSize;
-        String netName = "Network" + network;
-        for (int index = 1; index <= netSize; index++) {
-            connections.get(nodeIndexes[index - 1])
-                    .setNetwork("Network" + network);
-            if (index > nextNetwork - 0.5) {
-                // We have finished all the nodes of a network.
-                // Add link between previous node and "firstNode"
-                // and store the network in "cycles"
-                addLink(nodeIndexes[index - 1], nodeIndexes[firstIndex],
-                        "Network" + network);
-                firstIndex = index;
-                cycles.put(netName, new Network(links, netName, connections));
-                network++;
-                netName = "Network" + network;
-                nextNetwork = Math.ceil(network * netSize);
-            } else {
-                addLink(nodeIndexes[index - 1], nodeIndexes[index], netName);
-            }
+        for (int network = 1; network <= count; ++network) {
+            final int first = (int)(netSize * (network - 1));
+            final int last = (int)(netSize * network - 1.0);
+            this.createCycle("Network" + network, nodeIndexes, first, last);
         }
     }
 }

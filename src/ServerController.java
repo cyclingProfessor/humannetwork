@@ -17,12 +17,14 @@ public class ServerController {
     private LinkList links;
     private Route route;
     private PacketList messages;
+    private ConnectionList connections;
 
     public ServerController(PacketList messages, LinkList links,
             ConnectionList connections, Route route) {
         this.links = links;
         this.route = route;
         this.messages = messages;
+        this.connections = connections;
     }
 
     public void bind(final JList<Connection> listNodes,
