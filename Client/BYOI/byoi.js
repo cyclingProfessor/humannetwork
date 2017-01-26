@@ -2,12 +2,38 @@
 var BYOI = {};
 var aux;
 
+var GetURLParameter = function (sParam)
+{
+    var sPageURL = window.location.search.substring(1);
+    var sURLVariables = sPageURL.split('&');
+    for (var i = 0; i < sURLVariables.length; i++)
+    {
+        var sParameterName = sURLVariables[i].split('=');
+        if (sParameterName[0] == sParam)
+        {
+            return sParameterName[1];
+        }
+    }
+};
+
+function deleteAllCookies() {
+    var cookies = document.cookie.split(";");
+
+    for (var i = 0; i < cookies.length; i++) {
+    	var cookie = cookies[i];
+    	var eqPos = cookie.indexOf("=");
+    	var name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+    	document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
+    }
+}
+
 function setCookie(cname, cvalue) {
     var d = new Date();
     d.setTime(d.getTime() + (24*60*60*1000));
     var expires = "expires="+d.toUTCString();
     document.cookie = cname + "=" + encodeURIComponent(cvalue) + "; " + expires;
 }
+
 function getCookie(cname) {
     var name = cname + "=";
     var ca = document.cookie.split(';');
@@ -83,6 +109,15 @@ function chunker(text, len){
             };
         }
 
+        //connection restored hook
+        if(typeof configuration.onConnectionRestored != 'undefined'){
+            BYOI.onConnectionRestored = configuration.onConnectionRestored;
+        } else {
+            BYOI.onConnectionRestored = function(){
+                BYOI.systemMessage('The game has been restored');
+            };
+        }
+
         //on message sent hook
         if(typeof configuration.onSend != 'undefined'){
             BYOI.onSend = configuration.onSend;
@@ -111,28 +146,37 @@ function chunker(text, len){
         // if we have the cookie, we should receive or own information back
         // so that we resume a previous session
         BYOI.connection.onopen = function (e) {
+            //deleteAllCookies(); //borrar
+            gmsg = e; //borrar
             var message = {
-                session: +getCookie("session"),
+                session: Math.abs(+getCookie("session")),
                 node: +getCookie("node"),
                 type: "HELLO"
             };
             BYOI.connection.send(JSON.stringify(message));
+            console.log('hello_message', message); //borrar
         };
         
         // handle messages received from the websocket server
         BYOI.connection.onmessage = function (e) {
             var received = JSON.parse(e.data);
+            greceived = received; //borrar
             var type = received.type; // Could be instructions, broadcast, connected or message
             var html;
             var metaData = {};
             if (type == 'CONNECTED') {
                 BYOI.mySession = received.session;
+                console.log('received', received);
                 // if the session number is the same as the cookie we already 
                 // have, we can reconnect to the same session
-                if (getCookie("session") == BYOI.mySession) {
+
+                var noCookie = GetURLParameter('noCookie');
+                console.log('noCookie', noCookie);
+                noCookie = (noCookie != undefined);
+                if (!noCookie && getCookie("session") == BYOI.mySession) {
                     BYOI.myName = decodeURI(getCookie("name"));
                     BYOI.myNode = decodeURI(getCookie("node"));
-                    BYOI.systemMessage("existing game restored");
+                    BYOI.onConnectionRestored();
                 } else {
                     // if our cookie does not match the information 
                     // sent by the server, we're joining a new session
@@ -141,7 +185,8 @@ function chunker(text, len){
                     setCookie("session", BYOI.mySession);
                     setCookie("node", BYOI.myNode);
                     setCookie("name", BYOI.myName);
-                    BYOI.systemMessage("new game join");
+
+                    //BYOI.systemMessage("new game join");
                 }
                 html = '<div class="received"><span class="connected">Node Number:  '+BYOI.myNode+'</span> | Node name: <span class="text">'+BYOI.myName+'</span></div>';
                 metaData = {
@@ -149,31 +194,38 @@ function chunker(text, len){
                     'text': BYOI.myName,
                     'session': BYOI.mySession
                 };
+                // document.getElementById('title-bar').innerHTML = BYOI.myName + ' | Node: ' + BYOI.myNode;
+
             }
 
             if (type == 'PACKET') {
                 var text = received.text;
                 var from = received.from;
-                if(text.substr(3,1) == ':'){
+                var to = received.to;
+                if(text.substr(2,1) == ':'){
                     html = '<div class="received BYOI-fragment"><span class="node"> '+from+'</span> : <span class="text">'+text+'</span></div>';
                     metaData['seq'] = parseInt(text.substr(0,2));
+                    text = text.substr(3);
                 }else{
                     html = '<div class="received"><span class="node"> '+from+'</span> : <span class="text">'+text+'</span></div>';
                 }
                 metaData['text'] = text;
                 metaData['from'] = from;
+                metaData['to'] = to;
             }
             if (type == 'TASK') {
-                console.log(received);
                 var task = received.task;
                 html = '<div class="task">Task: <span class="text"> ' +task+ '</span></div>';
                 metaData = {
                     'text':task
                 };
             }
+            metaData['type'] = type;
+            metaData['received'] = received;
             // create a new message from the received data
             var msg = $(html).BYOIMessage(metaData)
                 .relayMessage(); // relay the message to all message handlers
+            
             // call the hook
             BYOI.onMessageReceived(type, msg);
         };
@@ -216,7 +268,9 @@ function chunker(text, len){
 
             BYOI.onConnectionClose(event.code, reason);
         };
+
     };//BYOI.connect
+
 
     // relay the message to all system messages elements, 
     // if none exist, alert
@@ -384,10 +438,12 @@ function chunker(text, len){
             var content = '';
             var nextValidSeq = 1;
             var error = false;
+            var childrenMeta;
             this.find('.BYOI-message.BYOI-selected.BYOI-fragment')
                 .each(function(){
                     var frag = $(this);
                     var seq = parseInt(frag.data('seq'));
+                    childrenMeta = $(this).data();
                     if(seq == nextValidSeq){
                         nextValidSeq++;
                         content += frag.data('text');
@@ -398,9 +454,11 @@ function chunker(text, len){
                     }
                 });
             if(!error){
+                delete childrenMeta.seq;
+                childrenMeta.text = content;
                 this.addMessage(
                     $('<div class="combined"><span class="text">' + content + "</span></div>")
-                        .BYOIMessage()
+                        .BYOIMessage(childrenMeta)
                 );
             }
             return this;
@@ -478,7 +536,7 @@ function chunker(text, len){
                         text: content,
                         from: +BYOI.myNode,
                         to: recipient,
-                        type: "MESSAGE",
+                        type: 'MESSAGE',
                         date: Date.now()
                     };
                     // send message to server
@@ -497,7 +555,8 @@ function chunker(text, len){
                     // call hook
                     BYOI.onSend(msg);
                 } else {
-                    BYOI.systemMessage('ERROR: message too long to send.'); 
+                    // BYOI.systemMessage('ERROR: message too long to send.');
+                    $("#msg").notify("ERROR: message too long to send.\n Please split first.");
                 }
             });
             //return the relayed messages to allow for jQuery chaining
@@ -511,12 +570,13 @@ function chunker(text, len){
     $.fn.relayMessage = function(){
         if(this.hasClass('BYOI-message')){
             var mh;
+            var message = this;
             this.each(function(){
                 // get all the message handlers
                 mh = $('.BYOI-messageHandler');
                 // if there are no message handlers, inform the user
                 if(mh.length == 0){
-                    BYOI.systemMessage('ERROR: No message handler found, received' + message.html());
+                    BYOI.systemMessage('ERROR: No message handler found, received' + message.data('text'));
                 }else{
                     // add the message to this message handler
                     mh.addMessage($(this));
@@ -566,10 +626,12 @@ function chunker(text, len){
                 //var prevChunk = msg;
 
                 if(msg.data('text').length <= BYOI.MSG_MAX_LEN){
-                    BYOI.systemMessage('Warning: message too short to split.');
+                    $(".split-btn").notify("Message too short to split!", { position:"right" });
+                    //BYOI.systemMessage('Warning: message too short to split.');
                     return true;
                 }
                 var chunks = chunker(msg.data('text'), BYOI.MSG_MAX_LEN - 3);
+                var parentMeta = msg.data();
                 for(var i=0; i < chunks.length; i++){
                     var seq = '00' + (i + 1).toString();
                     seq = seq.substring(seq.length - 2); 
@@ -579,7 +641,7 @@ function chunker(text, len){
                         'text': chunks[i] 
                     };
                     var html = '<div class="fragment BYOI-fragment"><span class="text">'+text+'</span></div>';
-                    var chunk = $(html).BYOIMessage(meta);
+                    var chunk = $(html).BYOIMessage(parentMeta).addMetadata(meta);
                     //mh.addMessage(chunk, prevChunk);
                     //prevChunk = chunk;
                     msgList.append(chunk);
@@ -622,7 +684,9 @@ function chunker(text, len){
             // append the hash to the text
             var text = this.data('text') + ":" + hash;
 
-            var msg = $('<div class="checksum"><span class="text">'+text+'</span></div>').BYOIMessage();
+            var msg = $('<div class="checksum"><span class="text">'+text+'</span></div>')
+                .BYOIMessage(this.data())
+                .addMetadata({text: text});
             return msg;
         } else {
             BYOI.systemMessage('ERROR: called addChecksum on a non-message element.');
@@ -639,9 +703,12 @@ function chunker(text, len){
                 result = md5(this.data('text-no-hash')) == this.data('hash');
                 // let the user know about the validation
                 var message = result? 'Correct!':'Incorrect!';
-                BYOI.systemMessage('CHECKSUM:' + message);
+                //BYOI.systemMessage('CHECKSUM:' + message);
+                $('.verify-checksum-btn').notify('checksum '+message, "success");
             } else {
-                BYOI.systemMessage('ERROR: the message does not contain a checksum');
+                $(".verify-checksum-btn").notify("Message does not contain a checksum!", { position:"right" });
+
+                //BYOI.systemMessage('ERROR: the message does not contain a checksum');
             }
             return result;
         } else {
@@ -672,7 +739,8 @@ function chunker(text, len){
             var html = '<div class="encrypted"><span class="text">';
             html += encryptedString;
             html += '</span></div>';
-            var enc = $(html).BYOIMessage();
+            var enc = $(html).BYOIMessage(this.data())
+                .addMetadata({text:encryptedString});
             return enc;
         } else {
             BYOI.systemMessage('error: called encryptmessage on a non-message element.');
@@ -705,7 +773,7 @@ function chunker(text, len){
             var html = '<div class="decrypted"><span class="text">';
             html += s;
             html += '</span></div>';
-            var dec = $(html).BYOIMessage();
+            var dec = $(html).BYOIMessage(this.data()).addMetadata({text:s});
             return dec;
         } else {
             BYOI.systemMessage('ERROR: called addMetadata on a non-message element.');
@@ -724,7 +792,8 @@ function chunker(text, len){
             var html = '<div class="random"><span class="text">';
             html += text;
             html += '</span></div>';
-            var random = $(html).BYOIMessage();
+            var random = $(html).BYOIMessage(this.data())
+                .addMetadata({text:text});
             return random;
         } else {
             BYOI.systemMessage('ERROR: called addRandomNumber on a non-message element.');

@@ -1,0 +1,213 @@
+<!doctype html>
+    <!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang=""> <![endif]-->
+    <!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8" lang=""> <![endif]-->
+    <!--[if IE 8]>         <html class="no-js lt-ie9" lang=""> <![endif]-->
+    <!--[if gt IE 8]><!--> <html class="no-js" lang=""> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>BYOI</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="icon" href="img/logo.png" sizes="16*16">
+
+        <link rel="stylesheet" href="css/bootstrap.min.css">
+        <link rel="stylesheet" href="css/bootstrap-theme.min.css">
+        <link rel="stylesheet" href="css/font-awesome.min.css">
+        <link rel="stylesheet" href="css/main.css">
+
+        <script src="js/vendor/modernizr-2.8.3-respond-1.4.2.min.js"></script>
+    </head>
+    <body>
+        <!--[if lt IE 8]>
+        <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+
+        <!-- header only shows up in mobile views. Ignore header if working on desktop -->
+        <div class="container" id="mainDiv">
+            <header>
+                <nav class="navbar navbar-inverse">
+                    <div class="container-fluid">
+                        <div class="navbar-header">
+                            <button type="button" class="navbar-toggle pull-left" data-toggle="collapse" data-target="#leftNavbar">
+                                <span class="icon-bar"></span>
+                                <span class="icon-bar"></span>
+                                <span class="icon-bar"></span>
+                            </button>
+
+                            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#rightNavbar">
+                                <span class="icon-bar"></span>
+                                <span class="icon-bar"></span>
+                                <span class="icon-bar"></span>
+                            </button>
+                        </div>
+
+                        <div class="collapse navbar-collapse" id="leftNavbar">
+                            <ul class="nav navbar-nav pull-left sidebar">
+                                <li class="side-bar sidebar-link decrypt-btn">Decrypt</li>
+                                <li class="side-bar sidebar-link verify-checksum-btn">Verify Checksum</li>
+                                <li class="side-bar sidebar-link combine-btn">Combine</li>
+                                <li class="side-bar sidebar-link delete-msg-btn">Delete Message</li>
+                            </ul>
+                        </div>
+
+                        <div class="collapse navbar-collapse" id="rightNavbar">
+                            <ul class="nav navbar-nav pull-right sidebar">
+                                <li class="side-bar sidebar-link encrypt-btn">Encrypt</li>
+                                <li class="side-bar sidebar-link add-checksum-btn">Add Checksum</li>
+                                <li class="side-bar sidebar-link split-btn">Split</li>
+                                <li class="side-bar sidebar-link add-random-btn">Add Random Number</li>
+                            </ul>
+                        </div>
+
+                    </div>
+                </nav>
+            </header>
+
+
+            <div class="row">
+                <div class="text-center">
+                    <img src="img/logo.png" class="logo">
+                </div>
+
+                <div class="text-center">
+                    <h2 class="header-content">Build Your Own Internet</h2>
+                    <h4 class="task"><span id="task-title">Current task:</span>  <span id="currentTask"></span></h4>
+                </div>
+
+
+                <div id="receivingButtons" class="col-lg-3 col-md-3 col-xs-12 col-sm-2 text-center sidebar">
+                    <div class="btn-group-vertical text-center" role="group">
+                        <span class="sidebar-link combine-btn">
+                            <i class="fa fa-3x fa-compress" aria-hidden="true"></i>
+                        </span>
+                        <span class="btnname">Combine</span>
+                        <hr>
+                        <span class="sidebar-link disabled decrypt-btn">
+                            <i class="fa fa-3x fa-unlock" aria-hidden="true"></i>
+                        </span>
+                        <span class="btnname">Decrypt</span>
+                        <hr>
+                        <span class="sidebar-link disabled verify-checksum-btn">
+                            <i class="fa fa-3x fa-check-square-o" aria-hidden="true"></i>
+                        </span>
+                        <span class="btnname">Verify Checksum</span>
+                        <hr>
+                        <span class="sidebar-link delete-msg-btn">
+                            <i class="fa fa-3x fa-trash" aria-hidden="true"></i>
+                        </span>            
+                        <span class="btnname">Delete Message</span>
+                    </div>
+                </div>     
+
+
+                <div class="col-lg-6 col-lg-offset-0 col-md-8 col-sm-8 col-xs-6">
+                    <div class="shell-wrap">
+                        <!-- Nav tabs -->
+                        <ul class="nav nav-tabs" role="tablist">
+                            <li id="menu-all" role="presentation" class="active"><a href="#all" aria-controls="all" role="tab" data-toggle="tab">ALL</a></li>
+                            <li id="menu-broadcast" class="hidden" role="presentation"><a href="#broadcast" aria-controls="broadcast" role="tab" data-toggle="tab">Broadcast</a></li>
+                            <li id="menu-node-1" class="hidden" role="presentation"><a id="a-node-1" href="#node-1" aria-controls="node-1" role="tab" data-toggle="tab">Node 1</a></li>
+                            <li id="menu-node-2" class="hidden" role="presentation"><a id="a-node-2" href="#node-2" aria-controls="node-2" role="tab" data-toggle="tab">Node 2</a></li>
+                        </ul>
+                        <div class="tab-content" id="terminal">
+                            <div role="tabpanel" class="shell-body tab-pane active" id="all"><div>ALL</div></div>
+                            <div role="tabpanel" class="shell-body tab-pane" id="broadcast" send-to="0"><div>BRO</div></div>
+                            <div role="tabpanel" class="shell-body tab-pane" id="node-1"></div>
+                            <div role="tabpanel" class="shell-body tab-pane" id="node-2"></div>
+                            <!--div class="shell-body" id="messageList">
+                                <div></div>
+                            </div-->
+                        </div>
+                        <!-- Tab panes -->
+                        <div class="tab-content">
+                        </div>
+                    </div>
+                    <div class="msg-box container">
+                        <div class="row">
+                            <div class="col-lg-9">
+                                <div class="form-group">
+                                    <textarea class="form-control msg" placeholder="Type message here" id="msg" rows="3" required></textarea>
+                                </div>
+                            </div>
+                            <div class="col-lg-3">
+                                <div id="recipientBox">
+                                    <input  id="recipient" type="number" placeholder="Recipient" class="form-control recipientBox"/>
+                                </div>
+                                <button class="btn btn-sm sidebar-link send-btn">Send</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="sendingButtons" class="col-lg-3 col-md-3 col-sm-2 col-xs-12 sidebar text-center">
+                    <div class="btn-group-vertical text-center" role="group">
+                        <span class="sidebar-link split-btn">
+                            <i class="fa fa-3x fa-expand" aria-hidden="true"></i>
+                        </span>
+                        <span>Split</span>
+                        <hr>            
+                        <span class="sidebar-link disabled encrypt-btn">
+                            <i class="fa fa-3x fa-lock" aria-hidden="true"></i>
+                        </span>
+                        <span>Encrypt</span>
+                        <input id="encrypt-node" type="number" placeholder="Destination Node" class="form-control disabled"/>
+                        <hr>
+                        <span class="sidebar-link disabled add-checksum-btn">
+                            <i class="fa fa-3x fa-shield" aria-hidden="true"></i>
+                        </span>
+                        <span>Add Checksum</span>
+                        <hr>
+                        <span class="sidebar-link disabled add-random-btn">
+                            <i class="fa fa-3x fa-question-circle" aria-hidden="true"></i>
+                        </span>            
+                        <span>Add Random Number</span>
+                        <hr>            
+                        <span id="netstat" class="side-bar">
+                            <span>Drop:<div id="p-drop"></div></span>
+                            <span>Error:<div id="p-error"></div></span>
+                            <span>Delay:<div id="delay"></div></span>
+                        </span>
+                    </div>
+                </div>       
+
+            </div>
+
+            <!-- Modal for displaying success/failure messages -->
+            <div id="msgModal" class="modal fade" role="dialog">
+                <div class="modal-dialog modal-sm"> <!-- this class sets the proper width and margin of the modal -->
+
+                    <!-- Modal content -->
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title">Attention</h4>
+                        </div>
+                        <div class="modal-body">
+                            <p>The message was successfuly sent</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+        <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.11.2.min.js"><\/script>')</script>
+        <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+
+        <script src="js/vendor/bootstrap.min.js"></script>        
+        <script src="js/vendor/notify.js"></script>
+        <script src="../BYOI/md5/md5.js"></script>
+        <script src="config.js"></script>
+        <script src="../BYOI/byoi.js"></script>
+        <script src="js/bindings.js"></script>
+
+
+    </body>
+</html>
