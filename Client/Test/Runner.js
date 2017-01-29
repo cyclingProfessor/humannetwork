@@ -14,7 +14,8 @@
 
 const CLIENT_URL = "http://192.168.1.2/~dave/Client/Retro"
 const SERVER_PATH = "/home/dave/git/humannetwork/Server/jar/HumanNetworkServer.jar"
-const NUM_CLIENTS = 12
+const NUM_CLIENTS = 50;
+const NUM_MESSAGES = 500;
 //////////////////////////////////////////////////////////////////
 //  NICE GLOBALS that you might use for tests.
 //////////////////////////////////////////////////////////////////
@@ -75,8 +76,8 @@ console.log("Phantom: Created the terminals");
 /**
   * @summary Callback for when the final client is ready to begin testing.
   *
-  * Keeps checking the final client's task to see if the topology messgae is there.
-  * We it is it begins the tests by invoking doTests()
+  * Keeps checking the final client's task to see if the topology message is there.
+  * When it is it begins the tests by invoking doTests()
  */
 clients[NUM_CLIENTS - 1].onLoadFinished = function() {
     interval = setInterval(function () {
@@ -191,4 +192,31 @@ function moreTests() {
     nodes.forEach(function(id) {
         console.log("Num: " + id[0] + ", Name: " + id[1] + ", Session: " + id[2]);
     });
+    console.log("Waiting");
+    setTimeout(evenMoreTests,1000);
+}
+
+var messageCount = 0;
+function evenMoreTests() {
+    console.log("Now more testing....");
+    // Send messages now
+    interval = setInterval(function (count) {
+        if (messageCount != NUM_MESSAGES) {
+            var from = Math.floor((Math.random() * NUM_CLIENTS));
+            var toIndex = Math.floor((Math.random() * 2) + 1);
+            var rec = nextTo[from][toIndex];
+
+            clients[from].evaluate(function(rec) {
+                $('#recipient').val(rec);
+            }, rec);
+            msg = "Tester" + nodes[from][1] + messageCount.toString();
+            clients[from].evaluate(function(msg) {
+                $('#msg').val(msg);
+                $('.send-btn').click();
+            }, msg);
+            messageCount = messageCount + 1;
+        } else {
+            clearInterval(interval); // Stop this interval
+        }
+    }, 50);
 }
