@@ -12,7 +12,7 @@
   		
   <target name="compile" description="compile all source files">
   	<mkdir dir="${classes-dir}"/>
-	<javac fork="true" srcdir="${src-dir}" destdir="${classes-dir}" classpathref="classpath" includeantruntime="false" includes="Server.java" />
+	<javac fork="true" srcdir="${src-dir}" destdir="${classes-dir}" classpathref="classpath" includeantruntime="false" />
     <javac fork="true" srcdir="${test-dir}" destdir="${classes-dir}" classpathref="classpath" includeantruntime="false" includes="AllTests.java" />
   </target>
   	
