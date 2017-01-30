@@ -53,17 +53,18 @@ public class Connection {
         // Check that the first message is a HELLO message
         JsonObject message = read();
         if (message == null) {
-            throw new HandshakeException("Invalid client - no session message");
+            throw new HandshakeException("Invalid client - null HELLO message");
         }
         String type = message.getString("type");
         if (!type.equals("HELLO")) {
             close();
-            throw new HandshakeException("Invalid client - no session message");
+            throw new HandshakeException(
+                    "Invalid client - no HELLO message: " + message);
         }
         node = message.getInt("node", -1);
         session = message.getInt("session", -1);
         if (node < 0 || session < 0) {
-            throw new HandshakeException("Invalid HELLO message");
+            throw new HandshakeException("Invalid HELLO message: " + message);
         }
     }
 
@@ -134,7 +135,8 @@ public class Connection {
         try {
             buf = readBytes(2);
         } catch (IOException e) {
-            System.out.println("Something has gone wrong!!" + e.getMessage());
+            System.out.println("Something has gone wrong reading fixed hdr!!"
+                    + e.getMessage());
             return null;
         }
         int type = buf[0] & 0x0F;
@@ -146,12 +148,13 @@ public class Connection {
             }
             buf = readBytes(MASK_SIZE + length);
         } catch (IOException e) {
-            System.out.println("Something has gone wrong!!" + e.getMessage());
+            System.out.println("Something has gone wrong reading payload!!"
+                    + e.getMessage());
             return null;
         }
         byte[] payload = unMask(Arrays.copyOfRange(buf, 0, MASK_SIZE),
                 Arrays.copyOfRange(buf, MASK_SIZE, buf.length));
-        
+
         switch (type) {
         case 0x8: // close
             System.out.println("WS:Close");
@@ -171,6 +174,8 @@ public class Connection {
             System.out.println("WS:Ping");
             // send back a masked Pong of payload
             break;
+        default: // Unknown??
+            System.out.println("WS:unknown type>" + type);
         }
         if (!data) {
             return null;
@@ -277,6 +282,5 @@ public class Connection {
                 + "Origin: http://HumanNetwork.com\r\n" + "\r\n");
 
         out.flush();
-
     }
 }
