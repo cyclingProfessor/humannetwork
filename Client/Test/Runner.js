@@ -12,10 +12,10 @@
   * @summary (Headless) Tests the Retro client of BYOI using PhantomJS
 **/
 
-const CLIENT_URL = "http://192.168.1.2/~dave/Client/Retro"
+const CLIENT_URL = "http://127.0.0.1/~dave/Client/Retro"
 const SERVER_PATH = "/home/dave/git/humannetwork/Server/jar/HumanNetworkServer.jar"
-const NUM_CLIENTS = 50;
-const NUM_MESSAGES = 500;
+const NUM_CLIENTS = 32;
+const NUM_MESSAGES = 10;
 //////////////////////////////////////////////////////////////////
 //  NICE GLOBALS that you might use for tests.
 //////////////////////////////////////////////////////////////////
@@ -32,14 +32,13 @@ var nextTo = [];
 // Node info: nodes[i] == [num, name, sess]
 var nodes = [];
 
-
 ///////////////////////////////////////////////////////////////////////
 // First we Create a server instance.
 var spawn = require("child_process").spawn
 var child = spawn("/usr/bin/java", ["-jar", SERVER_PATH])
 
 //child.stdout.on("data", function (data) {
-//  console.log("Server:", data)
+//    console.log("Server:", data)
 //})
 
 child.on("exit", function (code) {
@@ -49,6 +48,43 @@ child.on("exit", function (code) {
 
 // The Client code starts here
 var openClients = 0; // A count of the number of currently opened web pages.
+
+// We begin by creating an array of client instances.
+for (i = 0; i < NUM_CLIENTS; i++) { 
+    clients[i] = require('webpage').create();
+    clients[i].cookieJar = require('cookiejar').create();
+    clients[i].onConsoleMessage = function(msg, line, source) {
+        if (msg.indexOf("Client:") >= 0) {
+            console.log(msg);
+        }
+    }
+    //  Wait 5 seconds for the server to have initialised before beginning to open terminals.
+}
+setTimeout(openPages, 5000);
+console.log("Phantom: Created the terminals");
+
+
+/**
+  * @summary Open each terminal in turn.
+  *
+ */
+function openPages() {
+    console.log("Phantom: Opening the terminals");
+    for (i = 0; i < NUM_CLIENTS; i++) { 
+        clients[i].open(CLIENT_URL, function(status) {
+             if (status === 'success') {
+                  openClients = openClients + 1;
+                  console.log("Phantom: Succeeded Opening client: " + openClients.toString());
+             } else {
+                  console.log("Phantom: Failed to start client: " + i);
+                  phantom.exit();
+             }
+        });
+    }
+    console.log("Phantom: Opened the terminals");
+    //  Wait for clients to have connected.
+    setTimeout(checker, 5000);
+}
 
 /**
   * @summary Check if the first task has begun.
@@ -61,52 +97,19 @@ checkStarted = function() {
     });
 }
 
-// We begin by creating an array of client instances.
-for (i = 0; i < NUM_CLIENTS; i++) { 
-    clients[i] = require('webpage').create();
-    clients[i].cookieJar = require('cookiejar').create();
-    clients[i].onConsoleMessage = function(msg, line, source) {
-        if (msg.indexOf("Client:") >= 0) {
-            console.log(msg);
-        }
-    }
-}
-console.log("Phantom: Created the terminals");
-
 /**
-  * @summary Callback for when the final client is ready to begin testing.
-  *
   * Keeps checking the final client's task to see if the topology message is there.
   * When it is it begins the tests by invoking doTests()
  */
-clients[NUM_CLIENTS - 1].onLoadFinished = function() {
+function checker() {
     interval = setInterval(function () {
         if (checkStarted()) {
-            clearInterval(interval); // Stop this interval
+        clearInterval(interval); // Stop this interval
             console.log("Phantom: Ready to Roll");
             doTests()
         }},
         250);
 }
-
-/**
-  * @summary Open each terminal in turn.
-  *
-  * Wait 5 seconds for the server to have initialised before beginning to open terminals.
- */
-setTimeout(function() {
-    console.log("Phantom: Opening the terminals");
-    for (i = 0; i < NUM_CLIENTS; i++) { 
-        clients[i].open(CLIENT_URL, function(status) {
-             if (status === 'success') {
-                  openClients = openClients + 1;
-             } else {
-                  console.log("Phantom: Failed to start client: " + i);
-                  phantom.exit();
-             }
-        });
-    }
-}, 5000);
 
 /**
   * @summary Find network topology and perform several tests.
@@ -116,6 +119,7 @@ function doTests() {
         nodes[i] = clients[i].evaluate(function() {
             return Array(BYOI.myNode, BYOI.myName, BYOI.mySession);
         });
+        console.log(nodes[i].toString());
     }
 
     // Broadcast an identifiable message from each client
