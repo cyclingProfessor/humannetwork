@@ -1,4 +1,5 @@
 import java.awt.Dimension;
+import java.awt.event.ItemEvent;
 import java.util.Formatter;
 
 import javax.swing.JButton;
@@ -10,11 +11,73 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JSpinner;
+import javax.swing.JToggleButton;
+import javax.swing.ListModel;
+import javax.swing.ListSelectionModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
+import javax.swing.event.ListDataEvent;
+import javax.swing.event.ListDataListener;
 
 @SuppressWarnings("serial")
 public class ServerGui extends JFrame {
+
+    private class LinkWatcher implements ListDataListener {
+
+        private JList<Connection> toColour;
+        
+        public LinkWatcher(JList<Connection> listNodes) {
+            toColour = listNodes;
+        }
+
+        @Override
+        public void intervalAdded(ListDataEvent e) {
+            @SuppressWarnings("unchecked")
+            ListModel<Connection> l = (ListModel<Connection>) e.getSource();
+            int required = toColour.getModel().getSize();
+            if (l.getSize() == required) {
+                // We have finished adding all of the links
+                toColour.repaint();
+            }
+        }
+
+        @Override
+        public void intervalRemoved(ListDataEvent e) {
+        }
+
+        @Override
+        public void contentsChanged(ListDataEvent e) {
+        }
+
+    }
+
+    /**
+     * @author dave
+     *
+     */
+
+    private class NodeCountListener implements ListDataListener {
+        JLabel lbl;
+        NodeCountListener(JLabel l) {
+            this.lbl = l;
+        }
+        @Override
+        public void intervalAdded(ListDataEvent e) {
+            @SuppressWarnings("unchecked")
+            ListModel<Object> mdl = (ListModel<Object>) e.getSource();
+            lbl.setText("Node Count : " + mdl.getSize());
+            lbl.paintImmediately(lbl.getVisibleRect());
+        }
+
+        @Override
+        public void intervalRemoved(ListDataEvent e) {
+        }
+
+        @Override
+        public void contentsChanged(ListDataEvent e) {
+        }
+
+    }
 
     /**
      * Initialise the contents of the contents.
@@ -36,13 +99,43 @@ public class ServerGui extends JFrame {
         JList<Connection> listNodes = new JList<Connection>(connections);
         listNodes.setCellRenderer(new NodeRenderer());
         scrollPaneNodes.setViewportView(listNodes);
+        listNodes.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
+        JLabel lblNodeCount = new JLabel("Node Count : 0");
+        lblNodeCount.setBounds(12, 395, 160, 15);
+        contents.add(lblNodeCount);
+        JToggleButton NodeFilter = new JToggleButton("Filter Nodes", false);
+        NodeFilter.setBounds(12, 420, 140, 35);
+        contents.add(NodeFilter);
+        NodeFilter.addItemListener((ev) -> {
+            if (ev.getStateChange() == ItemEvent.SELECTED) {
+                int node = listNodes.getSelectedValue().getNode();
+                System.out.println("Selected: " + node);
+                messages.setFilter(node);
+            } else {
+                messages.setFilter(0);
+            }
+        });
+
+        connections.addListDataListener(new NodeCountListener(lblNodeCount));
+        listNodes.addListSelectionListener((event) -> {
+            if (NodeFilter.isSelected()) {
+               int node = listNodes.getSelectedValue().getNode();
+               System.out.println("Selected: " + node);
+               if (messages.getFilter() != node) {
+                   messages.setFilter(node);
+               }
+            }
+        });
+        
         JScrollPane scrollPaneLinks = new JScrollPane();
         scrollPaneLinks.setBounds(204, 12, 180, 374);
         contents.add(scrollPaneLinks);
         JList<Link> listLinks = new JList<Link>(links);
         listLinks.setCellRenderer(new LinkRenderer());
         scrollPaneLinks.setViewportView(listLinks);
+        
+        links.addListDataListener(new LinkWatcher(listNodes));
 
         JScrollPane scrollPanePackets = new JScrollPane();
         scrollPanePackets.setBounds(396, 12, 386, 549);

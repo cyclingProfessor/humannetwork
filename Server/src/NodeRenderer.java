@@ -1,3 +1,4 @@
+import java.awt.Color;
 import java.awt.Component;
 
 import javax.swing.JLabel;
@@ -32,6 +33,13 @@ public class NodeRenderer extends JLabel implements ListCellRenderer<Connection>
     public Component getListCellRendererComponent(
             JList<? extends Connection> list, Connection node, int index,
             boolean isSelected, boolean cellHasFocus) {
+
+        setOpaque(true);
+        if (isSelected) {
+            setBackground(Color.YELLOW);
+        } else {
+            setBackground(Color.WHITE);
+        }
         setText("<html> <font color="
                 + Network.getColor(node.getNetwork())
                 + "> <strong>"

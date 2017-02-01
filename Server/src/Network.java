@@ -13,6 +13,8 @@ public class Network {
     private int nodeCount;
     private boolean isHamiltonian;
     private int[] next, previous;
+    private static final String[] COLORS = {"black", "red", "green", "blue"};
+    private static int netNum = 0;
 
     public Network(LinkList links, String group, ConnectionList connections) {
         this.links = links;
@@ -33,6 +35,7 @@ public class Network {
                 previous[next[index]] = index;
             }
         }
+        addColour(group, COLORS[netNum++]);
     }
 
     public static void addColour(String net, String htmlColor){
