@@ -84,7 +84,7 @@ $(document).ready(function() {
     // check for exceeded char length
     $("#msg").on('keyup', function(e) {
         if($("#msg").val().length > 40){
-           $("#msg").notify("Message over 40 chars!\n This will require you to split the message befor sending!");
+           $("#msg").notify("Message over 40 chars!\n This will require you to split the message before sending!");
         }
     });
 
