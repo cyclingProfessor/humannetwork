@@ -460,7 +460,7 @@ function chunker(text, len){
                         nextValidSeq++;
                         content += frag.data('text');
                     }else{
-                        BYOI.systemMessage('ERROR: fragments must have consecutive sequence numbers.');
+                        $(this).notify('ERROR: fragments must have consecutive sequence numbers.');
                         error = true;
                         return false;
                     }
