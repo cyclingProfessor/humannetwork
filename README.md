@@ -5,11 +5,11 @@ A network simulator for a STEM challenge activity.
 
 Can be used in a lecture to introduce concepts of the Internet since it now relies only on a client web browser that supports WebSocket.
 
-It is made of two parts: a server which controls the topology and quality of the network, and a client that pupils can use to receive,build and send messages to each other.
+It is made of two parts: a server which controls the topology and quality of the network, and a client that pupils can use to receive, build and send messages to each other.
 
 Usage
 -----
-Compilation can be done by going in the src directory and typing:
+Compilation can be done by going in the Server directory and typing:
 
 > ant jar
 
@@ -27,11 +27,28 @@ The server has several optional arguments which are parsed in a standard way:
 
 There is a file of messages that the Server provides as challenges to clients.  This file is included in the jar file, but can be overridden with more appropriate or even themed files, by placing a file called "proverbs.txt" in the same directory as the HumanNetworkServer.jar file.  The format is plain UTF_8 text, one message per line.
 
-The client is a standard (adaptive) web page application that should be hosted on a reachable web server.
+The client is a standard (adaptive) web page application that should be hosted on a reachable web server.  Clients all use the Javascript API in Client/BYOI.  As such the Client subtree can be copied into your web server tree.
+
+A good client has been constructed using this API which is loaded from Client/Retro/index.html
+
+Testing
+-------
+A headless test suite of the server and Retro cleint using PhantomJS is executed from the Runner.js script in Client/Test
+This suite is configurable, but at least you must specify the path tot he server and the URL from which to load the Retro client.
+
+The server has standard Junit tests.
 
 Code Organisation
 -----------------
 The Server class is the entry point for the server. Its state is represented by the classes ConnectionList, LinkList and MessageList. Its logic is defined in Route, using DelayedMessages. Its GUI is in ServerGui and ServerController.
+
+The client consists of two parts: a web page and an API.
+The API is generic and provides hooks for connecting to the server and processing messages.  it is well documented and is contained in Client/BYOI.
+There are several example clients provided.  The simple APIexample shows how the API can be used, while the NoAPIexample is an undecorated JQuery page that exercises the server.
+The Retro client is a full working user friendly example.
+
+The client API uses cookies to store connection information so that clients can be restarted after a connection failure.  This means that only one client can be run per web browser session.
+
 
 Protocol
 --------
