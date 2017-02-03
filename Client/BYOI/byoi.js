@@ -84,6 +84,13 @@ function chunker(text, len){
             BYOI.MSG_MAX_LEN = 40;
         }
 
+        //minimum length left after HEADER (up to::) when fragmenting
+        if(typeof configuration.MSG_MAX_LEN != 'undefined'){
+            BYOI.MSG_MIN_FRAGMENT = configuration.MSG_MIN_FRAGMENT;
+        } else {
+            BYOI.MSG_MIN_FRAGMENT = 20;
+        }
+
         //message received hook
         if(typeof configuration.onMessageReceived != 'undefined'){
             BYOI.onMessageReceived = configuration.onMessageReceived;
@@ -205,8 +212,11 @@ function chunker(text, len){
                 if(text.substr(2,1) == ':'){
                     html = '<div class="received BYOI-fragment"><span class="node"> '+from+'</span> : <span class="text">'+text+'</span></div>';
                     metaData['seq'] = parseInt(text.substr(0,2));
+                    if (text.indexOf('::') > 0){
+                        metaData['hdr'] = test.substr(2,texr.substr('::'));
+                    }
                     text = text.substr(3);
-                }else{
+                } else {
                     html = '<div class="received"><span class="node"> '+from+'</span> : <span class="text">'+text+'</span></div>';
                 }
                 metaData['text'] = text;
@@ -439,9 +449,11 @@ function chunker(text, len){
             var nextValidSeq = 1;
             var error = false;
             var childrenMeta;
+            var header;
             this.find('.BYOI-message.BYOI-selected.BYOI-fragment')
                 .each(function(){
                     var frag = $(this);
+                    header = frag.data('hdr');
                     var seq = parseInt(frag.data('seq'));
                     childrenMeta = $(this).data();
                     if(seq == nextValidSeq){
@@ -455,6 +467,7 @@ function chunker(text, len){
                 });
             if(!error){
                 delete childrenMeta.seq;
+                content = header + content;
                 childrenMeta.text = content;
                 this.addMessage(
                     $('<div class="combined"><span class="text">' + content + "</span></div>")
@@ -630,14 +643,33 @@ function chunker(text, len){
                     //BYOI.systemMessage('Warning: message too short to split.');
                     return true;
                 }
-                var chunks = chunker(msg.data('text'), BYOI.MSG_MAX_LEN - 3);
+                var header = ""; // Up to "::" - the header of each fragment
+                var chunks; // List of fragments
+                var headerOffset = 0;
+                var fragmentSize = BYOI.MSG_MAX_LEN - 3
+
+                // Identify where the (possible) message header ends
+                var endHeader = msg.data('text').indexOf("::");
+                if (endHeader > 0) {
+                    // Make sure that we have some characters in each message fragment!
+                    if (BYOI.MSG_MAX_LEN <= 5 + endHeader + BYOI.MSG_MIN_FRAGMENT) {
+                        $(".split-btn").notify("Message Header too long for split!", { position:"right" });
+                        return true;
+                    }
+                    headerOffset = endHeader + 2;
+                    fragmentSize = fragmentSize - headerOffset;
+                    header = msg.data('text').substr(0, headerOffset);
+                }
+                var chunks = chunker(msg.data('text').substring(headerOffset), fragmentSize);
+
                 var parentMeta = msg.data();
                 for(var i=0; i < chunks.length; i++){
                     var seq = '00' + (i + 1).toString();
                     seq = seq.substring(seq.length - 2); 
-                    var text = seq + ':' + chunks[i];
+                    var text = seq + ':' + header + chunks[i];
                     var meta = {
                         'seq': i + 1,
+                        'hdr' : header,
                         'text': chunks[i] 
                     };
                     var html = '<div class="fragment BYOI-fragment"><span class="text">'+text+'</span></div>';
