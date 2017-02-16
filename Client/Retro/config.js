@@ -115,7 +115,6 @@ $(document).ready(function() {
                     +localStorage.getItem('delay')
                 );
                 $('#currentTask').html(localStorage.getItem('lastTask'));
-                BYOI.systemMessage('The game has been restored');
             },
             // called when the connection to the server is closed,
             // as they may be different reasons that can cause this,

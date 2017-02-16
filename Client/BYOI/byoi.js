@@ -121,7 +121,7 @@ function chunker(text, len){
             BYOI.onConnectionRestored = configuration.onConnectionRestored;
         } else {
             BYOI.onConnectionRestored = function(){
-                BYOI.systemMessage('The game has been restored');
+                //BYOI.systemMessage('The game has been restored');
             };
         }
 
@@ -133,6 +133,7 @@ function chunker(text, len){
         }
          // used to assing a unique id to every message
         BYOI.currID = 0;
+        BYOI.hasStarted = false;
         return BYOI;
     };
     
@@ -224,6 +225,8 @@ function chunker(text, len){
                 metaData['to'] = to;
             }
             if (type == 'TASK') {
+                // The first task message enables the send function.
+                BYOI.hasStarted = true;
                 var task = received.task;
                 html = '<div class="task">Task: <span class="text"> ' +task+ '</span></div>';
                 metaData = {
@@ -527,7 +530,7 @@ function chunker(text, len){
     // if valid, sends the message to the server 
     // and call the onSend hook
     $.fn.send = function(recipient){
-        if(this.hasClass('BYOI-message')){
+        if(this.hasClass('BYOI-message') && BYOI.hasStarted){
             console.log(recipient);
             // if no recipient is provided, broadcast
             if(typeof recipient == 'undefined')
@@ -574,6 +577,8 @@ function chunker(text, len){
             });
             //return the relayed messages to allow for jQuery chaining
             return $('.BYOI-messageHandler').getMessage($(this).data('ID'));
+        } else if(!BYOI.hasStarted){
+            $("#msg").notify("WARNING: cannot send message before network is up.");
         } else {
             BYOI.systemMessage('ERROR: called send on a non-message element.');
         }

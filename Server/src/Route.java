@@ -53,10 +53,6 @@ public class Route extends Thread {
                         connections.set(actualNode, c);
                     });
                     keep = true;
-                    synchronized (queue) {
-                        // add the appropriate status reply
-                        queue.add(new ConnectMessage(c, -1, true));
-                    }
                     break;
                 }
             }
@@ -74,7 +70,17 @@ public class Route extends Thread {
             } catch (InvocationTargetException | InterruptedException e) {
                 throw new HandshakeException("Failed to add new connection");
             }
-            (new ConnectMessage(c, -1, true)).send();
+        }
+        // add the appropriate status reply
+        DelayedMessage msg = new ConnectMessage(c, -1, keep);
+        synchronized (queue) {
+            if (started) {
+                System.out.println("Queueing message: " + msg);
+                queue.add(msg);
+            } else {
+                System.out.println("Sending message out: " + msg);
+                msg.send();
+            }
         }
     }
 

@@ -42,4 +42,11 @@ public class DelayedMessage {
     public boolean current(long startTime) {
         return time >= startTime;
     }
+
+    public String toString() {
+      return 
+          "Delay:" + delay +
+          "\nPayload:" +  payload +
+          "Connection:" + connection;
+    }
 }
