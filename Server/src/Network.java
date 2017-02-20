@@ -35,7 +35,7 @@ public class Network {
                 previous[next[index]] = index;
             }
         }
-        addColour(group, COLORS[netNum++]);
+        addColour(group, COLORS[(netNum++) % COLORS.length]);
     }
 
     public static void addColour(String net, String htmlColor){

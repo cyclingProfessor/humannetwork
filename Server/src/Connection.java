@@ -6,7 +6,6 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.net.Socket;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
@@ -26,7 +25,6 @@ import javax.json.JsonWriter;
 
 public class Connection {
 
-    private Socket connection;
     private String hostname = null;
     private String network = null;
     private int node = 0;
@@ -219,7 +217,7 @@ public class Connection {
      */
     public void close() {
         try {
-            connection.close();
+            isr.close();
         } catch (IOException e) {
             System.err.println("IOException: " + e);
         }

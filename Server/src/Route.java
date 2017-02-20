@@ -227,8 +227,8 @@ public class Route extends Thread {
                     if (links.getOffset() == 0) {
                         queue.add(new TaskMessage(c, -1, links));
                     } else {
-                        int recipient = cycles.get(c.getNetwork())
-                                .offsetNode(c.getNode(), links.getOffset());
+                        Network n = cycles.get(c.getNetwork());
+                        int recipient = n.offsetNode(c.getNode(), links.getOffset());
                         System.out.println("Node:" + c.getNode()
                                 + "sending to: " + recipient);
                         if (links.isCheckwhois()) {
@@ -278,11 +278,12 @@ public class Route extends Thread {
             nodeIndexes[index] = temp;
         }
         // Make the cycles.
-        double netSize = connections.size() / count;
+        float netSize = connections.size() / (float) count;
+        int first = 0;
         for (int network = 1; network <= count; ++network) {
-            final int first = (int)(netSize * (network - 1));
-            final int last = (int)(netSize * network - 1.0);
+            final int last = Math.round((netSize * network - 1.0f));
             this.createCycle("Network" + network, nodeIndexes, first, last);
+            first = last + 1;
         }
     }
 }

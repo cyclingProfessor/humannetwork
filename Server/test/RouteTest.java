@@ -13,8 +13,7 @@ public class RouteTest {
     private static PacketList msgList = new PacketList();
     private static Route r;
     private static final int COUNT = 5;
-    private final static int NUM_GROUPS = 3;
-    private final static int NUM_NODES = 23;
+    private final static int NUM_NODES = 69;
 
     @Before
     public void setUpBefore() throws Exception {
@@ -22,15 +21,12 @@ public class RouteTest {
         linkList = new LinkList();
         r = new Route(connList, linkList, msgList, 0);
 
-        for (int index = 0; index < NUM_GROUPS * NUM_NODES; index++) {
+        for (int index = 0; index < NUM_NODES; index++) {
             Connection conn = new Connection(new BufferedOutputStream(
-                    System.out), System.in);
+                    System.out), new MyStream());
             conn.setNode(index);
-            conn.setNetwork("Network" + (index % NUM_GROUPS));
             conn.setup(1234);
             connList.addElement(conn);
-            linkList.addElement(new Link(index, (index + NUM_GROUPS)
-                    % (NUM_GROUPS * NUM_NODES), "Group" + (index % NUM_GROUPS)));
         }
     }
 
@@ -38,7 +34,7 @@ public class RouteTest {
     public void testTopology() {
         r.updateStatus();
         System.out.println("TOP:" + r.queue.get(0));
-        assertTrue(r.queue.get(0).toString().contains("topology"));
+        assertTrue(r.queue.get(0).toString().contains("TOPOLOGY"));
     }
 
     @Test

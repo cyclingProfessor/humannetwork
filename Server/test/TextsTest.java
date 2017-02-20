@@ -12,7 +12,7 @@ public class TextsTest {
     Set<String> s;
     List<String> texts;
     List<String> messages;
-    final int COUNT = 100000;
+    final int COUNT = 1000;
 
     @Before
     public void setup() {
