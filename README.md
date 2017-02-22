@@ -31,9 +31,13 @@ The client is a standard (adaptive) web page application that should be hosted o
 
 A good client has been constructed using this API which is loaded from Client/Retro/index.html
 
+The Retro client supports the 'ip' and 'port' flags in the client URL with their obvious meanings.
+
+To allow multiple clients on the same web browser you can use the 'nocookie' flag in the client URL.  Otherwise each new client is seen as a reconnect of the others.  On the other hand this cookie mechanism provides graceful reconnect if clients should disconnect for any reason.
+
 Testing
 -------
-A headless test suite of the server and Retro cleint using PhantomJS is executed from the Runner.js script in Client/Test
+A headless test suite of the server and Retro client using PhantomJS is executed from the Runner.js script in Client/Test
 This suite is configurable, but at least you must specify the path tot he server and the URL from which to load the Retro client.
 
 The server has standard Junit tests.
