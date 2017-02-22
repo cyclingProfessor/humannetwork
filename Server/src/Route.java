@@ -59,6 +59,8 @@ public class Route extends Thread {
         }
         if (!keep) {
             if (started) {
+		// Should create a FAIL messge and send it out.
+                c.close();
                 throw new HandshakeException(
                         "Cannot add new connections after the game has started");
             }
