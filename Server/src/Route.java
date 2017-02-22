@@ -22,6 +22,8 @@ public class Route extends Thread {
     List<DelayedMessage> queue = new ArrayList<DelayedMessage>();
     private int session;
     private static final int MAX_PER_NET = 10;
+    private static final int ONE_NET_SIZE = 12; // If fewer than this then just one net.
+    private static final int SMALLEST_NET_SIZE = 5; // Cannot play with fewer than this number of nodes.
     private Map<String, Network> cycles = new HashMap<String, Network>();
 
     public Route(ConnectionList connections, LinkList links,
@@ -206,7 +208,14 @@ public class Route extends Thread {
         if (!started) {
             started = true;
 
-            final int numNets = (this.connections.size() + MAX_PER_NET - 1) / MAX_PER_NET;
+            final int nodes = this.connections.size();
+            int numNets = 1;
+            if (nodes < SMALLEST_NET_SIZE) {
+                System.err.println("Cannot play with fewer than: " + SMALLEST_NET_SIZE + " nodes");
+                System.exit(1);
+            } else if (nodes > ONE_NET_SIZE) {
+                numNets = (nodes + MAX_PER_NET - 1) / MAX_PER_NET;
+            }
             createCycles(numNets);
             // Begin to check for messages.
             synchronized (queue) {
