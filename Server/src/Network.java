@@ -10,6 +10,7 @@ public class Network {
     // 2.Find Hamiltonian for each network
     private ArrayList<Integer> groupNodes;
     private LinkList links;
+    private String name;
     private int nodeCount;
     private boolean isHamiltonian;
     private int[] next, previous;
@@ -18,6 +19,7 @@ public class Network {
 
     public Network(LinkList links, String group, ConnectionList connections) {
         this.links = links;
+        this.name = group;
 
         groupNodes = new ArrayList<Integer>();
         for (int index = 0; index < connections.size(); index++) {
@@ -108,5 +110,9 @@ public class Network {
             }
         }
         return groupNodes.get(index);
+    }
+    
+    public String getName() {
+        return name;
     }
 }
