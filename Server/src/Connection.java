@@ -29,6 +29,7 @@ public class Connection {
     private String network = null;
     private int node = 0;
     private int session = 0;
+    private TaskMessage lastTask = null;
 
     private BufferedOutputStream osw;
     private InputStream isr;
@@ -39,7 +40,7 @@ public class Connection {
 
     /**
      * Constructor for the Server
-     * 
+     *
      * @param osw
      * @param isr
      */
@@ -87,7 +88,7 @@ public class Connection {
 
     /**
      * Sends a message through the connection
-     * 
+     *
      * @param msg
      *            the message
      * @return true if the write is successful
@@ -121,7 +122,7 @@ public class Connection {
 
     /**
      * Reads a message from that connection
-     * 
+     *
      * @return the message read (empty if something fails)
      */
 
@@ -241,6 +242,17 @@ public class Connection {
 
     public void setHostname(String name) {
         hostname = name;
+    }
+
+    public boolean hasLastTask() {
+        return lastTask != null;
+    }
+    public void setLastTask(TaskMessage tm) {
+        tm.setConnection(this);
+        lastTask = tm;
+    }
+    public TaskMessage getLastTask() {
+        return lastTask;
     }
 
     private void doHandshake() throws HandshakeException {

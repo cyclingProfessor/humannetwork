@@ -48,6 +48,8 @@ public class Route extends Thread {
                     // Keep old node Name
                     c.setHostname(cc.getHostname());
                     c.setNetwork(cc.getNetwork());
+                    c.setLastTask(cc.getLastTask());
+                    System.out.println("Restored the node.  It had a last task? " + cc.hasLastTask());
                     final int actualNode = i;
                     SwingUtilities.invokeLater(() -> {
                         // This is not a structural modification so will not
@@ -61,7 +63,7 @@ public class Route extends Thread {
         }
         if (!keep) {
             if (started) {
-		// Should create a FAIL messge and send it out.
+                // Should create a FAIL messge and send it out.
                 c.close();
                 throw new HandshakeException(
                         "Cannot add new connections after the game has started");
@@ -79,6 +81,11 @@ public class Route extends Thread {
         DelayedMessage msg = new ConnectMessage(c, -1, keep);
         synchronized (queue) {
             if (started) {
+                // Must be keeping an old connection.
+                if (c.hasLastTask()) {
+                    System.out.println("Sending out the restored task" + c.getLastTask());
+                    queue.add(c.getLastTask());
+                }
                 System.out.println("Queueing message: " + msg);
                 queue.add(msg);
             } else {
@@ -165,6 +172,7 @@ public class Route extends Thread {
     public void sendNow(List<DelayedMessage> messageList) {
         for (int i = messageList.size() - 1; i >= 0; i--) {
             DelayedMessage m = messageList.get(i);
+            System.out.println("Attempting to send out: " + m);
             if (m.ready()) {
                 if (m.current(startTime)) {
                     m.send();
@@ -235,8 +243,9 @@ public class Route extends Thread {
             for (int i = 0; i < l; i++) {
                 Connection c = connections.get(i);
                 if (c != null) {
+                    TaskMessage tm ;
                     if (links.getOffset() == 0) {
-                        queue.add(new TaskMessage(c, -1, links));
+                        tm = new TaskMessage(c, -1, links);
                     } else {
                         Network n = cycles.get(c.getNetwork());
                         int recipient = n.offsetNode(c.getNode(), links.getOffset());
@@ -245,12 +254,14 @@ public class Route extends Thread {
                         if (links.isCheckwhois()) {
                             String unknown = connections
                                     .get(nodeToIndex(recipient)).getHostname();
-                            queue.add(new TaskMessage(c, -1, links, unknown));
+                            tm = new TaskMessage(c, -1, links, unknown);
                         } else {
-                            queue.add(new TaskMessage(c, -1, links, recipient,
-                                    texts.get(i)));
+                            tm = new TaskMessage(c, -1, links, recipient, texts.get(i));
                         }
                     }
+                    // Store current task in the connection and send it out
+                    c.setLastTask(tm);
+                    queue.add(tm);
                 }
             }
         }
