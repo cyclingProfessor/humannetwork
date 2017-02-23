@@ -85,6 +85,7 @@ If no BYOI System Alert is defined, the alerts will default to being javascript 
 ## BYOI Message
 The BYOI Message is the basic unit used in the API. The API will only send/receive BYOI Messages to/from the BYOI server.
 Any DOM element can be converted to a BYOI Message, but it is expected to contain an element with `class="text"` as a child element for a correct interaction with the API.
+The text element is parsed to add appropriate data elements and classes.
 
 For instance, we can convert
 ```html
@@ -107,16 +108,29 @@ In its data element, a BYOI Message will contain
         prop_n:value_n 
     });
     ```
+### Structure
+The text element has the form: n/m:Hdr!!payload[R]#nn
+where all parts except the payload are optional, but must occur in the order shown if present.
+n/m: is required if the payload is a fragment.  A fragment has the two data elements: 'fragNum', 'fragOutOf'
+Hdr!! may be a header element that is copied to all fragments, and placed once when combining.  If there is a header it is indicated by the data element: 'hdr'
+[R] is a random number that can be used as a nonce in encryption. It is the value of the data element: 'rnd'
+#nn is a possible hashnum.  Only unfragmented messages can have hashes, so only the final fragment can retain a hash. Data: 'hash'
+
+Only complete messages can be encrypted or hashed or nonced.  The hdr is not encrypted.
+
+See ### Methods.
+The two sources of BYOIMessages are those received from the server, and those built by the user.
+
 ### Types
 Many methods of the API create BYOI Messages and sends them to every BYOI Message Handler. Depending on how each message is created, the API tags them with the following CSS classes:
 * `class="sent"`: the BYOI Connection creates this type of message after sending a message to a specific node.
 * `class="broadcast"`: the BYOI Connection creates this type of message after sending a broadcast message.
-* `class="fragment"`: messages created by the `splitMessages` method.
-* `class="combined"`: messages created by the `combineMessages` method. 
-* `class="checksum"`: messages created by the `addChecksum` method. 
+* `class="fragment"`: messages that appear to be created by the `splitMessages` method.
+* `class="combined"`: messages that appear to be created by the `combineMessages` method. 
+* `class="checksum"`: messages that appear to be created by the `addChecksum` method. 
 * `class="encrypted"`: messages created by the `encryptMessage` method. 
 * `class="decrypted"`: messages created by the `decryptMessage` method. 
-* `class="random"`: messages created by the `addRandomNumber` method. 
+* `class="random"`: messages that appear to be created by the `addRandomNumber` method. 
 
 
 ### Methods
@@ -126,10 +140,13 @@ A BYOI Message has the following methods:
 * `addMetadata(options)`: adds `options` to the BYOI Message `data`.
 * `toggleSelectMessage()`: toggles whether the message is selected.
 * `addChecksum()`: creates a copy of the BYOI Message with a checksum appended.
+   Can only be applied to complete (unfragmented) messages.
 * `verifyChecksum()`: returns whether the checksum is valid and sends the appropriate System Alert.
 * `encryptMessage(key)`: creates a copy of the BYOI Message with the encrypted text.
+   Can only be applied to complete (unfragmented) messages.
 * `decryptMessage(key)`: creates a copy of the BYOI Message with the decrypted text.
 * `addRandomNumber()`: creates a copy of the BYOI Message with a random number appended.
+   Can only be applied to complete (unfragmented) messages.
 
 This methods can be used within a jQuery chain, i.e.:
 ```javascript

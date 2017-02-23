@@ -36,7 +36,7 @@ $(document).ready(function() {
                 nodeToSendTo = 0;
             var msg = $(html).BYOIMessage();
             if($("#msg").val().length > 40){
-                console.log('levanta un alert');
+                console.log('Watch Out!');
                 var meta = {
                     text: $('#msg').val(),
                     from: +BYOI.myNode,
@@ -66,35 +66,27 @@ $(document).ready(function() {
 
     $("#msg").on('keydown', function(e){
         if (e.which == 13) { //ENTER
-//            $('.BYOI-messageHandler.active').getSelectedMessages().toggleSelectMessage();
-//            var msg = $('<div class="added"><span class="text">' + $('#msg').val() + '</span>&nbsp;</div>').BYOIMessage();
-//            msg.relayMessage()
-//            .css('background', 'green')
-//            .animate(
-//                {'background-color':'transparent'}, 
-//                'slow', 
-//                'swing', 
-//                function(){$(this).removeAttr('style');
-//            });
             sendMessage();
             e.preventDefault();
         }
     });
 
     // check for exceeded char length
-    $("#msg").on('keyup', function(e) {
-        if($("#msg").val().length > 40){
-           $("#msg").notify("Message over 40 chars!\n This will require you to split the message before sending!");
+    // TODO - Nuno should make this nicer!
+    $("#msg").change(checklength);
+    $("#msg").keyup(checklength);
+
+    function checklength() {
+        if($("#msg").val().length >= 41){
+           // $("#msg").notify("Message over 40 chars!\n This will require you to split the message before sending!");
+           $("#msg").css('border-color', 'red')
+           $("#msg").css('background-color', 'pink')
         }
-    });
-
-
-    //bind elements of the DOM to BYOI methods    
-    $('#connectButton').click(function(){
-        // attempt connection to the server
-        
-    });
-
+        if($("#msg").val().length < 41){
+           $("#msg").css('border-color', '')
+           $("#msg").css('background-color', '')
+        }
+    }
 
     $('.delete-msg-btn').click(function(){
         // delete all selected messages from the main Message Handler
@@ -115,15 +107,8 @@ $(document).ready(function() {
         // toggle selection
         $(this).toggleSelectMessage();
         // set the input value to the selected message's text 
-        var text = '';
-        if($(this).data('seq') != undefined){
-            var seq = '00' + $(this).data('seq').toString();
-            seq = seq.substring(seq.length - 2); 
-            text += seq + ':';
-        }
-        text += $(this).data('text');
-        $('#msg').val(text);
-
+        $('#msg').val($(this).data('text'));
+        checklength();
     });
 
     // bind combine method to the message handler
@@ -263,12 +248,11 @@ $(document).ready(function() {
             if(message.data('type') == 'TASK'){
                 var data = message.data();
                 var task = '';
-                console.log('task.data', data);
                 if(data.received.task == 'MESSAGE'){
                     task += 'Send the message "' + data.received.text;  
                     task += '" to node: ' + data.received.recipient;
                 } else if (data.received.task == 'TOPOLOGY'){
-                    task += 'Find out the topology of the network';
+                    task += 'Find all the connections in your network';
                 } else if (data.received.task == 'WHOIS'){
                     task += 'Who is ' + data.received.other; 
                 }
@@ -286,15 +270,16 @@ $(document).ready(function() {
                     data.received.PercentageError,
                     data.received.randDelay
                 );
-                localStorage.setItem('lastTask',message[0].outerHTML);
-                localStorage.setItem('drop', data.received.PercentageDrop);
-                localStorage.setItem('error', data.received.PercentageError);
-                localStorage.setItem('delay', data.received.randDelay);
                 return true;
             }
             return false;
         }
     });
+
+    // Begin with an empty task
+    // TODO This does not work!!!
+    var initialTask = '<div><span class="text"> Please wait for your first Task </span></div>';
+    BYOI.addMessageToContainer($(initialTask).BYOIMessage(),$('#currentTask'));
     
     // create a Message Handler for all the messages
     $('#all').BYOIMessageHandler({
