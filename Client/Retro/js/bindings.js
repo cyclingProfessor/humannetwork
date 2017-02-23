@@ -255,6 +255,8 @@ $(document).ready(function() {
                     task += 'Find all the connections in your network';
                 } else if (data.received.task == 'WHOIS'){
                     task += 'Who is ' + data.received.other; 
+                } else if (data.received.task == 'NONE'){
+                    task += 'Please wait for your first task';
                 }
                 console.log('task', task);
                 var html = '<div class="task"><span class="text"> ' +task+ '</span></div>';
@@ -278,8 +280,12 @@ $(document).ready(function() {
 
     // Begin with an empty task
     // TODO This does not work!!!
-    var initialTask = '<div><span class="text"> Please wait for your first Task </span></div>';
-    BYOI.addMessageToContainer($(initialTask).BYOIMessage(),$('#currentTask'));
+    var initialTask = '<div><span class="text"> wait </span></div>';
+    var extra = { 'task': 'NONE'};
+    var msg = $(initialTask).BYOIMessage();
+    msg.data('received', extra); 
+    msg.data('type', 'TASK'); 
+    BYOI.addMessageToContainer(msg, $('#currentTask'));
     
     // create a Message Handler for all the messages
     $('#all').BYOIMessageHandler({
