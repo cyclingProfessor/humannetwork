@@ -152,21 +152,17 @@ function chunker(text, len){
         // if we have the cookie, we should receive or own information back
         // so that we resume a previous session
         BYOI.connection.onopen = function (e) {
-            //deleteAllCookies(); //borrar
-            gmsg = e; //borrar
             var message = {
                 session: Math.abs(+getCookie("session")),
                 node: +getCookie("node"),
                 type: "HELLO"
             };
             BYOI.connection.send(JSON.stringify(message));
-            console.log('hello_message', message); //borrar
         };
         
         // handle messages received from the websocket server
         BYOI.connection.onmessage = function (e) {
             var received = JSON.parse(e.data);
-            greceived = received; //borrar
             var type = received.type; // Could be instructions, broadcast, connected or message
             var html;
             var metaData = {};
@@ -566,10 +562,10 @@ function chunker(text, len){
                     var html;
                     if(message.to == 0){ // broadcast message
                         html = '<div class="broadcast">Broadcast Message: <span class="text">'+message.text+'</span></div>';
-                        m.addClass('broadcast');
+                        msg.addClass('broadcast');
                     } else { // regular message
                         html = '<div class="sent">Sent To:<span class="node">'+message.to+'</span> Message: <span class="text">'+message.text+'</span></div>';
-                        m.addClass('sent');
+                        msg.addClass('sent');
                     }
                     msg.html(html)// modify content
                         .addMetadata(message)// add metadata
