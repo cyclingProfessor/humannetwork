@@ -1,4 +1,4 @@
-var setupTab = {};  // map to assign "TAB-NodeOne" and "TABNodeTwo" to neighbour nodes when messages arrive.
+var neighbours = [];  // map to assign "TAB-NodeOne" and "TABNodeTwo" to neighbour nodes when messages arrive.
 
 $(document).ready(function() {
     $('#netstat').hide(); 
@@ -314,29 +314,35 @@ $(document).ready(function() {
         onError:function(msg){console.log(msg);}
     });
 
-    function acceptMessage(msg, tab, menu, title) {
+    function acceptMessage(msg, tab) {
         if(msg.data('type') != 'PACKET' && msg.data('type') != 'MESSAGE'){
             return false;
         }
 
+        var menu = $('#menu-node-' + tab);
+        var tabFor = menu.attr('neighbour');
+
         if(msg.hasClass('received')){ // incoming message
             var from = msg.data('from');
 
-            // For first message set up headings.
-            if (setupTab[tab] == undefined) {
-                setupTab[tab] = from;
+            // For unassigned tab and an unseen neighbour set up headings.
+            if (tabFor == undefined  && neighbours.indexOf(from) < 0) {
+                menu.attr('neighbour', from);
+                neighbours.push(from);
+                tabFor = from;
+
                 menu.removeClass('hidden');
                 menu.attr('send-to', from);
-                title.html('To/From Node '+ from);
+                $('#a-node-' + tab).html('To/From Node '+ from);
             }
-            if (from == setupTab[tab]) {
+            if (from == tabFor) {
                 return true;
             }
         }
 
         if (msg.hasClass('sent')) {
-            if (msg.data('to') == setupTab[tab]){ 
-                $('#menu-node-1').addClass('unread');
+            if (msg.data('to') == tabFor){ 
+                $(menu.addClass('unread'));
                 return true;
             }
         }
@@ -345,7 +351,7 @@ $(document).ready(function() {
     // create a Message Handler for all the messages from node 1
     $('#node-1').BYOIMessageHandler({
         accept:function(message){
-            return acceptMessage(message, "TAB-NodeOne", $('#menu-node-1'), $('#a-node-1'));
+            return acceptMessage(message, 1);
         }, 
         onError:function(msg){console.log(msg);}
     });
@@ -353,7 +359,7 @@ $(document).ready(function() {
     // create a Message Handler for all the messages node 2
     $('#node-2').BYOIMessageHandler({
         accept:function(message){ 
-            return acceptMessage(message, "TAB-NodeTwo", $('#menu-node-2'), $('#a-node-2'));
+            return acceptMessage(message, 2);
         }, 
         onError:function(msg){console.log(msg);}
     });
