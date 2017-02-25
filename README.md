@@ -116,8 +116,8 @@ Clients can (automatically):
  Encrypt or decrypt a message
  Send or broadcast messages
 
-Split will add fragment IDs ("nn:") to each fragment. Merge will check that the fragment ids are consecutive beginning with a "01:" fragment.
-If there is a :: in the message then characters precedingit are deemed to be message header and are copied to every message fragement.  Hence you can put the destination node for a fragmented multi-hop message as a fragment header.  Merge notices fragment headers properly.  
+Split will add fragment IDs ("n/m:") to each fragment. Merge will check that the fragment ids are consecutive beginning with a "1/m:" fragment.
+If there is a !! in the message then characters precedingit are deemed to be message header and are copied to every message fragement.  Hence you can put the destination node for a fragmented multi-hop message as a fragment header.  Merge notices fragment headers properly.  
 
 Since passwords are not to be shared encryption must be commutative:  I.e., if A encrypts, B encrypts, A decrypts then B decrypts the original text should be recovered.  Shamir three pass protocol will be used with the client requiring to perform exponentiation modulo a large prime (the session key: p).  The client will be expected to generate its own pair of keys d,e with de ≡ 1 (mod p-1).  It is expected that clients will use Peter Olson's Big Integers (https://www.npmjs.com/package/big-integer)
 
