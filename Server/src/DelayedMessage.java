@@ -49,4 +49,7 @@ public class DelayedMessage {
           "\nPayload:" +  payload +
           "Connection:" + connection;
     }
+    public void setConnection(Connection cc) {
+        connection = cc;
+    }
 }

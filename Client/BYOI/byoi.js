@@ -1,6 +1,5 @@
 'use strict';
 var BYOI = {};
-var aux;
 
 var GetURLParameter = function (sParam)
 {
@@ -84,7 +83,7 @@ function chunker(text, len){
             BYOI.MSG_MAX_LEN = 40;
         }
 
-        //minimum length left after HEADER (up to::) when fragmenting
+        //minimum length left after HEADER (up to $$) when fragmenting
         if(typeof configuration.MSG_MAX_LEN != 'undefined'){
             BYOI.MSG_MIN_FRAGMENT = configuration.MSG_MIN_FRAGMENT;
         } else {
@@ -133,7 +132,6 @@ function chunker(text, len){
         }
          // used to assing a unique id to every message
         BYOI.currID = 0;
-        BYOI.hasStarted = false;
         return BYOI;
     };
     
@@ -154,25 +152,22 @@ function chunker(text, len){
         // if we have the cookie, we should receive or own information back
         // so that we resume a previous session
         BYOI.connection.onopen = function (e) {
-            //deleteAllCookies(); //borrar
-            gmsg = e; //borrar
             var message = {
                 session: Math.abs(+getCookie("session")),
                 node: +getCookie("node"),
                 type: "HELLO"
             };
             BYOI.connection.send(JSON.stringify(message));
-            console.log('hello_message', message); //borrar
         };
         
         // handle messages received from the websocket server
         BYOI.connection.onmessage = function (e) {
             var received = JSON.parse(e.data);
-            greceived = received; //borrar
             var type = received.type; // Could be instructions, broadcast, connected or message
             var html;
             var metaData = {};
             if (type == 'CONNECTED') {
+                BYOI.hasStarted = false;
                 BYOI.mySession = received.session;
                 console.log('received', received);
                 // if the session number is the same as the cookie we already 
@@ -202,25 +197,13 @@ function chunker(text, len){
                     'text': BYOI.myName,
                     'session': BYOI.mySession
                 };
-                // document.getElementById('title-bar').innerHTML = BYOI.myName + ' | Node: ' + BYOI.myNode;
 
             }
-
             if (type == 'PACKET') {
                 var text = received.text;
                 var from = received.from;
                 var to = received.to;
-                if(text.substr(2,1) == ':'){
-                    html = '<div class="received BYOI-fragment"><span class="node"> '+from+'</span> : <span class="text">'+text+'</span></div>';
-                    metaData['seq'] = parseInt(text.substr(0,2));
-                    if (text.indexOf('::') > 0){
-                        metaData['hdr'] = test.substr(2,texr.substr('::'));
-                    }
-                    text = text.substr(3);
-                } else {
-                    html = '<div class="received"><span class="node"> '+from+'</span> : <span class="text">'+text+'</span></div>';
-                }
-                metaData['text'] = text;
+                html = '<div class="received"><span class="node"> '+from+'</span> : <span class="text">'+text+'</span></div>';
                 metaData['from'] = from;
                 metaData['to'] = to;
             }
@@ -450,34 +433,47 @@ function chunker(text, len){
         if(this.hasClass('BYOI-messageHandler')){
             var content = '';
             var nextValidSeq = 1;
-            var error = false;
             var childrenMeta;
-            var header;
-            this.find('.BYOI-message.BYOI-selected.BYOI-fragment')
+            var header = '';
+            var offset = 4;
+            var error = false;
+            
+            this.find('.BYOI-message.BYOI-selected.fragment')
+                .sort(function(a, b){
+                    return $(a).data('fragNum') > $(b).data('fragNum');
+                })
                 .each(function(){
                     var frag = $(this);
-                    header = frag.data('hdr');
-                    var seq = parseInt(frag.data('seq'));
+                    if (offset == 4 && frag.data('hdr') != undefined) {
+                        header = frag.data('hdr') + "!!";
+                        offset = header.length + 4;
+                    }
+                    var seq = parseInt(frag.data('fragNum'));
                     childrenMeta = $(this).data();
                     if(seq == nextValidSeq){
                         nextValidSeq++;
-                        content += frag.data('text');
+                        content += frag.data('text').substr(offset);
                     }else{
                         $(this).notify('ERROR: fragments must have consecutive sequence numbers.');
                         error = true;
                         return false;
                     }
                 });
-            if(!error){
+            if (!error) {
+                if (nextValidSeq != childrenMeta.fragOutOf + 1) {
+                    $(this).notify('ERROR: Missing final fragment(s).');
+                    return this;
+                }
+
                 delete childrenMeta.seq;
                 content = header + content;
                 childrenMeta.text = content;
                 this.addMessage(
                     $('<div class="combined"><span class="text">' + content + "</span></div>")
-                        .BYOIMessage(childrenMeta)
+                         .BYOIMessage(childrenMeta)
                 );
+                return this;
             }
-            return this;
         } else {
             BYOI.systemMessage('ERROR: called combineMessages on a non-messageHandler element.');
         }
@@ -485,38 +481,42 @@ function chunker(text, len){
 /*=============================================================================
                     Message 
 =============================================================================*/
-    // marks an element as a BYOI message
+    // Marks an element as a BYOI message
     $.fn.BYOIMessage = function(options){
         if(typeof options == 'undefined')
             options = {};
         return this.each(function(){
             var m = $(this);
-
-            // attempt to find a tag marked as with the text class inside
-            // the message. if found, check whether it's the correct
-            // format to store a hash
+            // Parse the text classes.
             var t = m.find('.text');
             if(t){
-                // we assume that everything to the right of the last colon
-                // is a hash digested from everything to the left of that 
-                // same colon
-                
-                // find the index of the last colon in the string
-                var index = t.html().lastIndexOf(':');
-                // if no colon was found, everything is text
-                if(index == -1) index = t.html().length;
-
-                var text = t.html().substr(0,index);
-                var hash = t.html().substr(index + 1);
-                // if a hash was found, add the hash and the text to the
-                // data element of the message without stepping on 
-                // possibly user-defined fields
-                if(hash){
-                    if(!options.hasOwnProperty('hash')) options['hash'] = hash;
-                    if(!options.hasOwnProperty('text-no-hash')) 
-                        options['text-no-hash'] = text;
+                // first check whether this is a fragment
+                var str = t.text();
+                var offset = 0;
+                if (str.charAt(3) == ':') {
+                    if(!m.hasOwnProperty('fragNum')) options['fragNum'] = Number(str.charAt(0));
+                    if(!m.hasOwnProperty('fragOutOf')) options['fragOutOf'] = Number(str.charAt(2));
+                    m.addClass('fragment');
+                    offset = 4;
                 }
-                if(!options.hasOwnProperty('text')) options['text'] = t.html();
+                var endHeader = str.indexOf("!!", offset);
+                if (endHeader > 0) {
+                    if(!m.hasOwnProperty('hdr')) options['hdr'] = str.substring(offset, endHeader);
+                    offset = endHeader + 2;
+                }
+                var nonce = str.match(/\[\d\d*\]/);
+                if (nonce != null) {
+                    if(!m.hasOwnProperty('rnd')) options['rnd'] = Number(nonce.match(/\d*/));
+                    m.addClass('random');
+                }
+                var checksum = str.match(/#\d\d*$/);
+                if (checksum != null) {
+                    if(!m.hasOwnProperty('hash')) options['hash'] = Number(checksum.substr(1));
+                    m.addClass('checksum');
+                    index = str.substr(checksum);
+                    if(!m.hasOwnProperty('text-no-hash')) options['text-no-hash'] = str.substr(0,checksum);
+                }
+                if(!m.hasOwnProperty('text')) options['text'] = t.html();
             }
             // mark the message
             m.addClass('BYOI-message');
@@ -562,8 +562,10 @@ function chunker(text, len){
                     var html;
                     if(message.to == 0){ // broadcast message
                         html = '<div class="broadcast">Broadcast Message: <span class="text">'+message.text+'</span></div>';
+                        msg.addClass('broadcast');
                     } else { // regular message
                         html = '<div class="sent">Sent To:<span class="node">'+message.to+'</span> Message: <span class="text">'+message.text+'</span></div>';
+                        msg.addClass('sent');
                     }
                     msg.html(html)// modify content
                         .addMetadata(message)// add metadata
@@ -645,42 +647,43 @@ function chunker(text, len){
 
                 if(msg.data('text').length <= BYOI.MSG_MAX_LEN){
                     $(".split-btn").notify("Message too short to split!", { position:"right" });
-                    //BYOI.systemMessage('Warning: message too short to split.');
                     return true;
                 }
-                var header = ""; // Up to "::" - the header of each fragment
+                if(msg.data('fragNum')){
+                    $(".split-btn").notify("Cannot split a fragment!", { position:"right" });
+                    return true;
+                }
+                var header = '';
                 var chunks; // List of fragments
-                var headerOffset = 0;
-                var fragmentSize = BYOI.MSG_MAX_LEN - 3
+                var offset = 0;
+                var fragmentSize = BYOI.MSG_MAX_LEN - 4
 
                 // Identify where the (possible) message header ends
-                var endHeader = msg.data('text').indexOf("::");
+                var endHeader = msg.data('text').indexOf("!!");
                 if (endHeader > 0) {
+                    header = msg.data('hdr') + "!!";
                     // Make sure that we have some characters in each message fragment!
-                    if (BYOI.MSG_MAX_LEN <= 5 + endHeader + BYOI.MSG_MIN_FRAGMENT) {
+                    if (BYOI.MSG_MAX_LEN <= 4 + endHeader + BYOI.MSG_MIN_FRAGMENT) {
                         $(".split-btn").notify("Message Header too long for split!", { position:"right" });
                         return true;
                     }
-                    headerOffset = endHeader + 2;
-                    fragmentSize = fragmentSize - headerOffset;
-                    header = msg.data('text').substr(0, headerOffset);
+                    fragmentSize = fragmentSize - endHeader - 2;
+                    offset = endHeader + 2;
                 }
-                var chunks = chunker(msg.data('text').substring(headerOffset), fragmentSize);
+                var chunks = chunker(msg.data('text').substring(offset), fragmentSize);
+                if (chunks.length > 9){
+                    $(".split-btn").notify("Message requires too many fragements (>9) for split!", { position:"right" });
+                    return true;
+                }
 
                 var parentMeta = msg.data();
+                var outOf = chunks.length.toString();
                 for(var i=0; i < chunks.length; i++){
-                    var seq = '00' + (i + 1).toString();
-                    seq = seq.substring(seq.length - 2); 
-                    var text = seq + ':' + header + chunks[i];
-                    var meta = {
-                        'seq': i + 1,
-                        'hdr' : header,
-                        'text': chunks[i] 
-                    };
-                    var html = '<div class="fragment BYOI-fragment"><span class="text">'+text+'</span></div>';
-                    var chunk = $(html).BYOIMessage(parentMeta).addMetadata(meta);
-                    //mh.addMessage(chunk, prevChunk);
-                    //prevChunk = chunk;
+                    var seq = (i+1).toString();
+                    var text = seq + '/' + outOf + ':' + header + chunks[i];
+                    parentMeta.text = text;
+                    var html = '<div><span class="text">'+text+'</span></div>';
+                    var chunk = $(html).BYOIMessage(parentMeta);
                     msgList.append(chunk);
                 }
             } else {
@@ -719,7 +722,7 @@ function chunker(text, len){
             // create the digest
             var hash = md5(this.data('text'));
             // append the hash to the text
-            var text = this.data('text') + ":" + hash;
+            var text = this.data('text') + "#" + hash;
 
             var msg = $('<div class="checksum"><span class="text">'+text+'</span></div>')
                 .BYOIMessage(this.data())

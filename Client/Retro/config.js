@@ -91,14 +91,8 @@ $(document).ready(function() {
             // called when any message from the server is received
             onMessageReceived: function(type, msg){
                 if(type == 'CONNECTED'){
-                    $('#connectionButtons').hide();
-                    $('#loggedInButtons').show();
                     $('#main').show();
                     $('#task-title').html('NODE '+BYOI.myNode+' your current task is:');
-                } else if ( type == 'PACKET'){
-                    //react in a meaningful way :)
-                } else if ( type == 'TASK' ){
-                    //react in a meaningful way :)
                 }
                 gmsg = msg;
                 console.log(msg);
@@ -107,14 +101,6 @@ $(document).ready(function() {
             onConnectionError: function(){
                 $('#main').show();
                 BYOI.systemMessage("Connection Error - Is the server running?");
-            },
-            onConnectionRestored: function(){
-                updatePercentages(
-                    +localStorage.getItem('drop'),
-                    +localStorage.getItem('error'),
-                    +localStorage.getItem('delay')
-                );
-                $('#currentTask').html(localStorage.getItem('lastTask'));
             },
             // called when the connection to the server is closed,
             // as they may be different reasons that can cause this,
