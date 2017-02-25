@@ -37,9 +37,9 @@ var nodes = [];
 var spawn = require("child_process").spawn
 var child = spawn("/usr/bin/java", ["-jar", SERVER_PATH])
 
-// child.stdout.on("data", function (data) {
-//     console.log("Server:", data)
-// })
+child.stdout.on("data", function (data) {
+    console.log("Server:", data)
+})
 
 child.on("exit", function (code) {
   console.log("Server EXIT:", code)
@@ -215,14 +215,13 @@ function evenMoreTests() {
                 $('#msg').val(msg);
                 $('.split-btn').click();
 
-                $('#all .fragment').each(function(index) {
-                    var outval = "";
-                    $.each($(this).data(), function(key, value) {
-                        outval += "[" + key + "] => [" + value + "]";
-                    });
-                    console.log("Client: fragment found: " + outval + "::::" + $(this).text());
-                    });
             }, msg);
+            clients[from].evaluate(function() {
+                $('#all .fragment').each(function() {
+                    $(this).click();
+                    $('.send-btn').click();
+                    });
+                });
 
             console.log("Message from: " + nodes[from] + " to: " + rec);
             clients[from].evaluate(function(rec) {
