@@ -1,18 +1,7 @@
-var neighbours = [];  // map to assign "TAB-NodeOne" and "TABNodeTwo" to neighbour nodes when messages arrive.
+var neighbours = [];  // List of neighbours from whom we have seen a message
 
 $(document).ready(function() {
     $('#netstat').hide(); 
-
-    var envMeta = function(){
-        var meta = {
-            text: $('#msg').val(),
-            from: +BYOI.myNode,
-            to: +$('#recipient').val(),
-            type: 'MESSAGE',
-            date: Date.now()
-        };
-        return meta;
-    }
 
     var sendMessage = function(){
         if(!$("#msg").val().length){
@@ -20,13 +9,6 @@ $(document).ready(function() {
         }
         else{
             // create a new message 
-            // NOTE at least one tag with class "text" should be inside the 
-            // html of a message, otherwise the content sent will be an 
-            // empty string
-            //
-            // also, notice that because of this, the message is not inserted with 
-            // all the html tags provided, but only those that were inside the 
-            // tag with the "text" class.
             var html = '<div><span class="text">'+$('#msg').val()+'</span></div>';
             // sent message to the server
             var nodeToSendTo = $('#recipient').val();
@@ -35,14 +17,7 @@ $(document).ready(function() {
             var msg = $(html).BYOIMessage();
             if($("#msg").val().length > 40){
                 console.log('Watch Out!');
-                var meta = {
-                    text: $('#msg').val(),
-                    from: +BYOI.myNode,
-                    to: nodeToSendTo,
-                    type: 'MESSAGE',
-                    date: Date.now()
-                };
-                msg.addMetadata(meta).relayMessage();
+                msg.addMetadata().relayMessage();
             } else {
                 msg.send(nodeToSendTo);
             }
@@ -99,7 +74,6 @@ $(document).ready(function() {
 
     });    
 
-
     // enable click selection of messages
     $(document).on('click', '.BYOI-message', function(){// bind to every BYOI message, regardless of their Message Handler
         // toggle selection
@@ -112,7 +86,6 @@ $(document).ready(function() {
     // bind combine method to the message handler
     $('.combine-btn').click(function(){
         if(!$("#msg").val().length){
-
                $(".combine-btn").notify("No message selected!", { position:"right" });
         }
         else{
@@ -124,13 +97,11 @@ $(document).ready(function() {
     // bind split method to the message handler
     $('.split-btn').click(function(){
         if(!$("#msg").val().length){
-
                $(".split-btn").notify("No message selected!", { position:"right" });
         }
         else{
-
             $('<div><span class="text">' + $('#msg').val() +'</span></div>')
-                .BYOIMessage(envMeta())
+                .BYOIMessage()
                 .splitMessage()
                 .relayMessage();
             $('.BYOI-messageHandler.active').getSelectedMessages().toggleSelectMessage();
@@ -140,19 +111,13 @@ $(document).ready(function() {
     // bind checksum method to the message
     $('.add-checksum-btn').click(function(){
         if(!$("#msg").val().length){
-
                $(".add-checksum-btn").notify("No message selected!", { position:"right" });
         }
         else{
-            // get the text
-            var input = $('#msg');
-            // create a new message from the input text and add a checksum to it
-            var msg = $('<div><span class="text">' + input.val() +'</span></div>')
-                .BYOIMessage(envMeta())
+            var msg = $('<div><span class="text">' + $('#msg').val() +'</span></div>')
+                .BYOIMessage()
                 .addChecksum()
                 .relayMessage();
-            console.log(msg.data());
-            // add the message to the input (update field value)
             BYOI.addMessageToContainer(msg, input);
             $('.BYOI-messageHandler.active').getSelectedMessages().toggleSelectMessage();
         }
@@ -181,7 +146,7 @@ $(document).ready(function() {
         else{
             // encrypt the last select
             var msg = $('<div><span class="text">' + $('#msg').val() +'</span></div>')
-                .BYOIMessage(envMeta())
+                .BYOIMessage()
                 .encryptMessage(parseInt(+$('#encrypt-node').val())) // encryption key is the recipient node
                 .relayMessage(); // send to every message handler
             // add the message to the input (update field value)
@@ -197,7 +162,7 @@ $(document).ready(function() {
         }
         else{
             var msg = $('<div><span class="text">' + $('#msg').val() +'</span></div>')
-                .BYOIMessage(envMeta())
+                .BYOIMessage()
                 .decryptMessage( 0 )
                 .relayMessage(); // send to every message handler
             // add the message to the input (update field value)
@@ -214,7 +179,7 @@ $(document).ready(function() {
         else{
             // add a random number to the last selected element of the message handler
             var msg = $('<div><span class="text">' + $('#msg').val() +'</span></div>')
-                .BYOIMessage(envMeta())
+                .BYOIMessage()
                 .addRandomNumber()
                 .relayMessage();
             // add the message to the input (update field value)
@@ -224,22 +189,6 @@ $(document).ready(function() {
 
     // bind send method to the message handler
     $('.send-btn').click(sendMessage);
-
-
-    // bind close connection method to the message handler
-    $('#closeButton').click(function() {
-        BYOI.connection.close();
-    });
-
-
-    // create a System Alert
-    //$('#systemMessage').BYOISystemAlert();
-    $('#systemMessage').BYOISystemAlert({
-        //this is the default behaviour if the onAlert property is not provided
-        onAlert:function(alert){ 
-            $('#systemMessage').html(alert); 
-        }
-    });
 
     $('#currentTask').BYOIMessageHandler({
         accept: function(message){
@@ -256,11 +205,8 @@ $(document).ready(function() {
                 } else if (data.received.task == 'NONE'){
                     task += 'Please wait for your first task';
                 }
-                console.log('task', task);
                 var html = '<div class="task"><span class="text"> ' +task+ '</span></div>';
                 message.html(html);
-                gmsg = message;
-                console.log(message);
                 $('#currentTask .BYOI-message').each(function(){
                     $(this).hide();
                 });
