@@ -14,8 +14,8 @@
 
 const CLIENT_URL = "http://127.0.0.1/~dave/Client/Retro"
 const SERVER_PATH = "/home/dave/git/humannetwork/Server/jar/HumanNetworkServer.jar"
-const NUM_CLIENTS = 32;
-const NUM_MESSAGES = 10;
+const NUM_CLIENTS = 6;
+const NUM_MESSAGES = 6;
 //////////////////////////////////////////////////////////////////
 //  NICE GLOBALS that you might use for tests.
 //////////////////////////////////////////////////////////////////
@@ -37,9 +37,9 @@ var nodes = [];
 var spawn = require("child_process").spawn
 var child = spawn("/usr/bin/java", ["-jar", SERVER_PATH])
 
-//child.stdout.on("data", function (data) {
-//    console.log("Server:", data)
-//})
+// child.stdout.on("data", function (data) {
+//     console.log("Server:", data)
+// })
 
 child.on("exit", function (code) {
   console.log("Server EXIT:", code)
@@ -93,7 +93,7 @@ function openPages() {
  */
 checkStarted = function() {
     return openClients == NUM_CLIENTS && clients[NUM_CLIENTS - 1].evaluate(function () {
-        return $("#currentTask:contains('Find out the topology of the network')").length;
+        return $("#currentTask:contains('connections in your network')").length;
     });
 }
 
@@ -206,10 +206,25 @@ function evenMoreTests() {
     // Send messages now
     interval = setInterval(function (count) {
         if (messageCount != NUM_MESSAGES) {
-            var from = Math.floor((Math.random() * NUM_CLIENTS));
-            var toIndex = Math.floor((Math.random() * 2) + 1);
-            var rec = nextTo[from][toIndex];
+            var from = messageCount % NUM_CLIENTS;
+            var rec = nextTo[from][1];
+            console.log("Broadcast from: " + nodes[from]);
 
+            msg = "Header!!Tester - a long message with a Header" + nodes[from][1] + messageCount.toString();
+            clients[from].evaluate(function(msg) {
+                $('#msg').val(msg);
+                $('.split-btn').click();
+
+                $('#all .fragment').each(function(index) {
+                    var outval = "";
+                    $.each($(this).data(), function(key, value) {
+                        outval += "[" + key + "] => [" + value + "]";
+                    });
+                    console.log("Client: fragment found: " + outval + "::::" + $(this).text());
+                    });
+            }, msg);
+
+            console.log("Message from: " + nodes[from] + " to: " + rec);
             clients[from].evaluate(function(rec) {
                 $('#recipient').val(rec);
             }, rec);

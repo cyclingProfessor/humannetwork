@@ -1,6 +1,4 @@
-var from1 = 'not';
-var from2 = 'not';
-
+var setupTab = {};  // map to assign "TAB-NodeOne" and "TABNodeTwo" to neighbour nodes when messages arrive.
 
 $(document).ready(function() {
     $('#netstat').hide(); 
@@ -303,8 +301,9 @@ $(document).ready(function() {
     // create a Message Handler for all the broadcasted messages
     $('#broadcast').BYOIMessageHandler({
         accept:function(message){ 
-            var to = message.data('to');
-            if (to == 0){
+            var bcastSent = message.hasClass('broadcast');
+            var bcastRec = message.hasClass('received')  && message.data('to') == '0';
+            if (bcastSent || bcastRec){
                 $('#menu-broadcast').removeClass('hidden');
                 $('#menu-broadcast').addClass('unread');
                 $('.nav li.active').removeClass('unread');
@@ -315,32 +314,38 @@ $(document).ready(function() {
         onError:function(msg){console.log(msg);}
     });
 
+    function acceptMessage(msg, tab, menu, title) {
+        if(msg.data('type') != 'PACKET' && msg.data('type') != 'MESSAGE'){
+            return false;
+        }
+
+        if(msg.hasClass('received')){ // incoming message
+            var from = msg.data('from');
+
+            // For first message set up headings.
+            if (setupTab[tab] == undefined) {
+                setupTab[tab] = from;
+                menu.removeClass('hidden');
+                menu.attr('send-to', from);
+                title.html('To/From Node '+ from);
+            }
+            if (from == setupTab[tab]) {
+                return true;
+            }
+        }
+
+        if (msg.hasClass('sent')) {
+            if (msg.data('to') == setupTab[tab]){ 
+                $('#menu-node-1').addClass('unread');
+                return true;
+            }
+        }
+        return false;
+    }
     // create a Message Handler for all the messages from node 1
     $('#node-1').BYOIMessageHandler({
-        accept:function(message){ 
-            console.log('node-1-message',message); //borrar
-            gmsg = message; //borrar
-            var rtn = false;
-            if(message.data('type') == 'PACKET' || message.data('type') == 'MESSAGE'){
-                var to = message.data('to');
-                var from = message.data('from');
-                if(from != BYOI.myNode){ // incoming message
-                    if(from1 == 'not'){
-                        from1 = from;
-                        $('#menu-node-1').removeClass('hidden');
-                        $('#menu-node-1').attr('send-to', from);
-                        $('#a-node-1').html('Node '+ from);
-                    }
-                    if (to != 0 && from == from1){ rtn = true; } 
-                } else { // outgoing message
-                    if(from1 == to){ rtn = true; }
-                }
-            }
-            if(rtn){
-                $('#menu-node-1').addClass('unread');
-                $('.nav li.active').removeClass('unread');
-            }
-            return rtn; 
+        accept:function(message){
+            return acceptMessage(message, "TAB-NodeOne", $('#menu-node-1'), $('#a-node-1'));
         }, 
         onError:function(msg){console.log(msg);}
     });
@@ -348,28 +353,7 @@ $(document).ready(function() {
     // create a Message Handler for all the messages node 2
     $('#node-2').BYOIMessageHandler({
         accept:function(message){ 
-            var rtn = false;
-            if(message.data('type') == 'PACKET' || message.data('type') == 'MESSAGE'){
-                var to = message.data('to');
-                var from = message.data('from');
-                if(from != BYOI.myNode){
-                    if(from1 != 'not' && from != from1 && from2 == 'not'){
-                        from2 = from;
-                        $('#menu-node-2').removeClass('hidden');
-                        $('#menu-node-2').attr('send-to', from);
-                        $('#a-node-2').html('Node '+ from);
-                    }
-                    if (to != 0 && from == from2){ rtn = true; }
-                    
-                } else {
-                    if (from2 == to){ rtn = true; }
-                }
-            }
-            if(rtn){
-                $('#menu-node-2').addClass('unread');
-                $('.nav li.active').removeClass('unread');
-            }
-            return rtn; 
+            return acceptMessage(message, "TAB-NodeTwo", $('#menu-node-2'), $('#a-node-2'));
         }, 
         onError:function(msg){console.log(msg);}
     });
