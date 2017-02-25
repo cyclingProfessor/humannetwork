@@ -667,7 +667,7 @@ function chunker(text, len){
                         $(".split-btn").notify("Message Header too long for split!", { position:"right" });
                         return true;
                     }
-                    fragmentSize = fragmentSize - endHeader;
+                    fragmentSize = fragmentSize - endHeader - 2;
                     offset = endHeader + 2;
                 }
                 var chunks = chunker(msg.data('text').substring(offset), fragmentSize);
