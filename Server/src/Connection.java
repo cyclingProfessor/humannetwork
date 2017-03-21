@@ -248,7 +248,9 @@ public class Connection {
         return lastTask != null;
     }
     public void setLastTask(TaskMessage tm) {
-        tm.setConnection(this);
+        if (tm != null) {
+            tm.setConnection(this);
+        }
         lastTask = tm;
     }
     public TaskMessage getLastTask() {
