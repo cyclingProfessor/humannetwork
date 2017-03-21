@@ -343,7 +343,7 @@ $(document).ready(function() {
     $('#recipient').tooltip({'trigger':'focus', 'title': 'Node Number (0 or empty for Broadcast)'});
             var msg = "Header!!Tester - a long message with a Header - long is it not - come on - this is long";
             $('#msg').val(msg);
-            $('.split-btn').click();
+            $('#sendingButtons .split-btn').click();
             //$('#all .fragment').each(function() {
             //    console.log("Client: found a fragment in the #all tab: " + $(this).text());
             //    });
