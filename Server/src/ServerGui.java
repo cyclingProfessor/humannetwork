@@ -19,6 +19,11 @@ import javax.swing.SwingConstants;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
+    /**
+     * @author dave
+     *
+     */
+
 @SuppressWarnings("serial")
 public class ServerGui extends JFrame {
 
@@ -51,11 +56,6 @@ public class ServerGui extends JFrame {
 
     }
 
-    /**
-     * @author dave
-     *
-     */
-
     private class NodeCountListener implements ListDataListener {
         JLabel lbl;
         NodeCountListener(JLabel l) {
@@ -82,10 +82,10 @@ public class ServerGui extends JFrame {
     /**
      * Initialise the contents of the contents.
      */
-    public void initialize(int port, final ConnectionList connections,
+    public void initialize(int session, int port, final ConnectionList connections,
             final LinkList links, PacketList messages,
             ServerController controller) {
-        setTitle("HumanNetwork Server");
+        setTitle("HumanNetwork Server: " + session);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         JPanel contents = new JPanel();
