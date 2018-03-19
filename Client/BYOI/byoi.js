@@ -152,11 +152,20 @@ function chunker(text, len){
         // if we have the cookie, we should receive or own information back
         // so that we resume a previous session
         BYOI.connection.onopen = function (e) {
+            var s = 999;
+            var n;
+            if (GetURLParameter("session") == '999') {
+                n = GetURLParameter("node");
+            } else {
+                s = Math.abs(+getCookie("session"));
+                n = Math.abs(+getCookie("node"));
+            }
             var message = {
-                session: Math.abs(+getCookie("session")),
-                node: +getCookie("node"),
+                session: s,
+                node: +n,
                 type: "HELLO"
             };
+            
             BYOI.connection.send(JSON.stringify(message));
         };
         
@@ -172,17 +181,13 @@ function chunker(text, len){
                 console.log('received', received);
                 // if the session number is the same as the cookie we already 
                 // have, we can reconnect to the same session
-
-                var noCookie = GetURLParameter('noCookie');
-                console.log('noCookie', noCookie);
-                noCookie = (noCookie != undefined);
-                if (!noCookie && getCookie("session") == BYOI.mySession) {
+                if (getCookie("session") == BYOI.mySession) {
                     BYOI.myName = decodeURI(getCookie("name"));
                     BYOI.myNode = decodeURI(getCookie("node"));
                     BYOI.onConnectionRestored();
                 } else {
                     // if our cookie does not match the information 
-                    // sent by the server, we're joining a new session
+                    // sent by the server, we're joining a new session or forcing a rejoin.
                     BYOI.myName = received.name;
                     BYOI.myNode = received.node;
                     setCookie("session", BYOI.mySession);

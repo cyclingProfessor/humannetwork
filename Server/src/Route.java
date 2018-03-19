@@ -40,11 +40,19 @@ public class Route extends Thread {
 
         int setNode = c.getNode();
         boolean keep = false;
-        if (session == c.getSession() && setNode != 0) {
+        System.out.println("+++++++++++++++ Session: " + c.getSession() + " +++++++++++++++++");
+        System.out.println("+++++++++++++++    Node: " + setNode + " +++++++++++++++++");
+        if ((session == c.getSession() || c.getSession() == 999) && setNode != 0) {
             // Loop through the connections and find the node number
             for (int i = 0; i < connections.size(); i++) {
                 Connection cc = connections.get(i);
+                System.out.println("++++++++++++ Checking the Old Node :" + cc.getNode() + " +++++++++++++++++");
                 if (cc.getNode() == setNode) {
+                    // if session is 999 check that the node is actually broken
+                    if (c.getSession() == 999 && cc.isGood()) {
+                        System.out.println("Cannot restore session 999 node - not broken - is the nodenum correct?");
+                        continue;
+                    }
                     // Keep old node Name
                     c.setHostname(cc.getHostname());
                     c.setNetwork(cc.getNetwork());
@@ -62,11 +70,17 @@ public class Route extends Thread {
             }
         }
         if (!keep) {
+            // If we are not keeping the session this is bad if we were asked to, even if the game has not started.
+            if (c.getSession() == 999) {
+                c.close();
+                throw new HandshakeException(
+                        "Cannot reconnect to (session=999), either it is still running, or the node numbder is wrong");
+            }
             if (started) {
                 // Should create a FAIL messge and send it out.
                 c.close();
                 throw new HandshakeException(
-                        "Cannot add new connections after the game has started");
+                        "Cannot add new connections after the game has started - try URL: session=999 and node=num");
             }
             c.setup(session);
             try {
