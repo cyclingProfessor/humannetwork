@@ -19,10 +19,10 @@ function deleteAllCookies() {
     var cookies = document.cookie.split(";");
 
     for (var i = 0; i < cookies.length; i++) {
-    	var cookie = cookies[i];
-    	var eqPos = cookie.indexOf("=");
-    	var name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
-    	document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
+        var cookie = cookies[i];
+        var eqPos = cookie.indexOf("=");
+        var name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+        document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
     }
 }
 
@@ -719,14 +719,17 @@ function chunker(text, len){
     // to the text of this message
     $.fn.addChecksum = function(){
         if(this.hasClass('BYOI-message')){
+            if (this.hasClass('fragment')) {
+                $(".check-btn").notify("Cannot add a checksum to a fragment.", { position:"right" });
+                return true;                
+            }
             // create the digest
             var hash = md5(this.data('text'));
             // append the hash to the text
-            var text = this.data('text') + "#" + hash;
+            var hashedText = this.data('text') + "#" + hash;
 
-            var msg = $('<div class="checksum"><span class="text">'+text+'</span></div>')
-                .BYOIMessage(this.data())
-                .addMetadata({text: text});
+            var msg = $('<div class="checksum"><span class="text">'+hashedText+'</span></div>')
+                .BYOIMessage(this.data()).addMetadata({text:hashedText});
             return msg;
         } else {
             BYOI.systemMessage('ERROR: called addChecksum on a non-message element.');
@@ -747,8 +750,6 @@ function chunker(text, len){
                 $('.verify-checksum-btn').notify('checksum '+message, "success");
             } else {
                 $(".verify-checksum-btn").notify("Message does not contain a checksum!", { position:"right" });
-
-                //BYOI.systemMessage('ERROR: the message does not contain a checksum');
             }
             return result;
         } else {
@@ -761,6 +762,10 @@ function chunker(text, len){
     // and returns the encrypted message
     $.fn.encryptMessage = function(key){
         if(this.hasClass('BYOI-message')){
+            if (this.hasClass('fragment')) {
+                $(".check-btn").notify("Cannot encrypt a fragment.", { position:"right" });
+                return true;                
+            }
             // if a key is provided, use, otherwise, get the value from the 
             // recipient field, if that field is empty, defaults to node number
             key = typeof key == 'number' && key != 0? key : parseInt(BYOI.myNode);
@@ -823,6 +828,11 @@ function chunker(text, len){
     //append a random number to the message box
     $.fn.addRandomNumber = function(){
         if(this.hasClass('BYOI-message')){
+            if (this.hasClass('fragment')) {
+                $(".check-btn").notify("Cannot add a random to a fragment.", { position:"right" });
+                return true;                
+            }
+
             var msg = $(this);
             // get the text from the message and append a random 4 digit 
             // number to it
@@ -832,8 +842,7 @@ function chunker(text, len){
             var html = '<div class="random"><span class="text">';
             html += text;
             html += '</span></div>';
-            var random = $(html).BYOIMessage(this.data())
-                .addMetadata({text:text});
+            var random = $(html).BYOIMessage(this.data()).addMetadata({text:s});
             return random;
         } else {
             BYOI.systemMessage('ERROR: called addRandomNumber on a non-message element.');
@@ -843,7 +852,6 @@ function chunker(text, len){
 
     //http://stackoverflow.com/questions/10592537
     $.fn.setVal = function(value) {
-
         return this.each(function() {
 
             if ($.inArray( this.tagName.toLowerCase(), ['input', 'textarea', 'select'] ) != -1) {
