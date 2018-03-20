@@ -42,7 +42,7 @@ public class PacketList extends AbstractListModel<Packet> {
         items.add(packet);
         if (nMatch(filterNode, packet)) {
             filteredList.add(packet);
-            fireIntervalAdded(this, filteredList.size() - 2,
+            fireIntervalAdded(this, filteredList.size() - 1,
                     filteredList.size() - 1);
         }
     }
