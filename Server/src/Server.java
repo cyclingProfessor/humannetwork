@@ -101,7 +101,7 @@ public class Server {
         EventQueue.invokeLater(new Runnable() {
             public void run() {
                 try {
-                    window.initialize(actualPort, connections, links, messages,
+                    window.initialize(session, actualPort, connections, links, messages,
                             controller);
                     window.setVisible(true);
                 } catch (Exception e) {

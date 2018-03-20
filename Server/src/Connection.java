@@ -30,6 +30,7 @@ public class Connection {
     private int node = 0;
     private int session = 0;
     private TaskMessage lastTask = null;
+    private long lastActiveSend = System.currentTimeMillis();
 
     private BufferedOutputStream osw;
     private InputStream isr;
@@ -113,11 +114,21 @@ public class Connection {
             }
             osw.write(msgBytes);
             osw.flush();
+            lastActiveSend = System.currentTimeMillis();
         } catch (IOException f) {
             System.err.println("IOException: " + f);
             result = false;
         }
         return result;
+    }
+
+    /** 
+     * Checkw whether a connection is live by seeing whether any activity has occured in the last minute.
+     *
+     * Not perfect - but then....
+    **/
+    boolean isGood() {
+        return System.currentTimeMillis() - lastActiveSend < 60000;
     }
 
     /**
