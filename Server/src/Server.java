@@ -90,7 +90,8 @@ public class Server {
         final LinkList links = new LinkList();
         final PacketList messages = new PacketList();
         // TODO make the session work and be recoverable
-        Random rand = new Random(); int session = rand.nextInt(MAX_SESSION);
+        // Make sure that the session number cannot be the emergency session (999)!
+        Random rand = new Random(); int session = rand.nextInt(MAX_SESSION - 1000) + 1000;
         route = new Route(connections, links, messages, session);
         listen(address, port);
         final ServerController controller = new ServerController(messages,
