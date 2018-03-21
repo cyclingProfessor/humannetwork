@@ -264,7 +264,9 @@
     content: '$';
     position: absolute;
     left: 0;
-    top: 0; }
+    top: 0; 
+    color: #45D40C;
+  }
 
   .shell-body > div {
     word-wrap: break-word;
@@ -396,3 +398,18 @@
     }
     
 
+/*==================================================================
+                BYOI Messages
+====================================================================*/
+.BYOI-message *{
+  color: yellow;
+}
+
+
+.BYOI-message .text{
+  color: #45D40C;
+}
+
+.task .text{
+  color:black;
+}

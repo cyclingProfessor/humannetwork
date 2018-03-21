@@ -1,23 +1,40 @@
 var neighbours = [];  // List of neighbours from whom we have seen a message
 
+// object that carries all the messages so they can be restored later on
+var messages = {
+    all: [], // carries all the messages
+    broadcast: [], // broadcast tab
+    neighbours: {} // will take one tab per neighbours
+}; 
+
 $(document).ready(function() {
     $('#netstat').hide(); 
+
+    var envMeta = function(){
+        var meta = {
+            text: $('#msg').val(),
+            from: +BYOI.myNode,
+            to: +$('#recipient').val(),
+            type: 'MESSAGE',
+            date: Date.now()
+        };
+        return meta;
+    }
 
     var sendMessage = function(){
         if(!$("#msg").val().length){
             $(".send-btn").notify("No message selected!", { position:"below" });
-        }
-        else{
+        } else {
             // create a new message 
             var html = '<div><span class="text">'+$('#msg').val()+'</span></div>';
             // sent message to the server
             var nodeToSendTo = $('#recipient').val();
             if (!nodeToSendTo)
                 nodeToSendTo = 0;
-            var msg = $(html).BYOIMessage();
+            var msg = $(html).BYOIMessage(envMeta());
             if($("#msg").val().length > 40){
                 console.log('Watch Out!');
-                msg.addMetadata().relayMessage();
+                msg.addMetadata(envMeta()).relayMessage();
             } else {
                 msg.send(nodeToSendTo);
             }
@@ -64,10 +81,8 @@ $(document).ready(function() {
     $('.delete-msg-btn').click(function(){
         // delete all selected messages from the main Message Handler
         if(!$("#msg").val().length){
-
-               $(".delete-msg-btn").notify("No message selected!", { position:"right" });
-        }
-        else{
+            $(".delete-msg-btn").notify("No message selected!", { position:"right" });
+        } else {
             $('.BYOI-messageHandler.active').getSelectedMessages().remove();
             $('#msg').val('');
         }
@@ -87,8 +102,7 @@ $(document).ready(function() {
     $('.combine-btn').click(function(){
         if(!$("#msg").val().length){
                $(".combine-btn").notify("No message selected!", { position:"right" });
-        }
-        else{
+        } else {
             $('.BYOI-messageHandler.active').combineMessages(); 
             $('.BYOI-messageHandler.active').getSelectedMessages().toggleSelectMessage();
         }
@@ -97,11 +111,10 @@ $(document).ready(function() {
     // bind split method to the message handler
     $('.split-btn').click(function(){
         if(!$("#msg").val().length){
-               $(".split-btn").notify("No message selected!", { position:"right" });
-        }
-        else{
+            $(".split-btn").notify("No message selected!", { position:"right" });
+        } else {
             $('<div><span class="text">' + $('#msg').val() +'</span></div>')
-                .BYOIMessage()
+                .BYOIMessage(envMeta())
                 .splitMessage()
                 .relayMessage();
             $('.BYOI-messageHandler.active').getSelectedMessages().toggleSelectMessage();
@@ -111,27 +124,35 @@ $(document).ready(function() {
     // bind checksum method to the message
     $('.add-checksum-btn').click(function(){
         if(!$("#msg").val().length){
-               $(".add-checksum-btn").notify("No message selected!", { position:"right" });
-        }
-        else{
-            var msg = $('<div><span class="text">' + $('#msg').val() +'</span></div>')
-                .BYOIMessage()
-                .addChecksum()
-                .relayMessage();
-            BYOI.addMessageToContainer(msg, input);
+            $(".add-checksum-btn").notify("No message selected!", { position:"right" });
+        } else {
+            // get the text
+            var input = $('#msg');
+            // create a new message from the input text and add a checksum to it
+            
+            var msg = $('<div><span class="text">' + input.val() +'</span></div>')
+                .BYOIMessage(envMeta());
+            if (msg.hasClass('fragment')) {
+                $('.add-checksum-btn').notify("Cannot add a checksum to a fragment.", { position:"right" });
+            } else {
+                msg.addChecksum().relayMessage();
+                // add the message to the input (update field value)
+                BYOI.addMessageToContainer(msg, input);
+            }
+
             $('.BYOI-messageHandler.active').getSelectedMessages().toggleSelectMessage();
         }
     });
+    
     
     // bind verify checksum method to the message handler
     $('.verify-checksum-btn').click(function(){
         // create a new message and verify the checksum
         if(!$("#msg").val().length){
             $(".verify-checksum-btn").notify("No message selected!", { position:"right" });
-        }
-        else{
+        } else {
             var verify = $('<div><span class="text">' + $('#msg').val() +'</span></div>')
-                .BYOIMessage()
+                .BYOIMessage(envMeta())
                 .verifyChecksum();
             $('.BYOI-messageHandler.active').getSelectedMessages().toggleSelectMessage();
         }
@@ -142,15 +163,20 @@ $(document).ready(function() {
     $('.encrypt-btn').click(function(){
         if(!$("#msg").val().length){
             $(".encrypt-btn").notify("No message selected!", { position:"right" });
-        }
-        else{
+        } else {
             // encrypt the last select
             var msg = $('<div><span class="text">' + $('#msg').val() +'</span></div>')
-                .BYOIMessage()
-                .encryptMessage(parseInt(+$('#encrypt-node').val())) // encryption key is the recipient node
-                .relayMessage(); // send to every message handler
-            // add the message to the input (update field value)
-            BYOI.addMessageToContainer(msg, $('#msg'));
+                .BYOIMessage(envMeta());
+
+            if (msg.hasClass('fragment')) {
+                $(".check-btn").notify("Cannot encrypt a fragment.", { position:"right" });
+                return true;                
+            } else {
+                msg.encryptMessage(parseInt(+$('#encrypt-node').val())) // encryption key is the recipient node
+                   .relayMessage(); // send to every message handler
+                // add the message to the input (update field value)
+                BYOI.addMessageToContainer(msg, $('#msg'));
+            }
             $('.BYOI-messageHandler.active').getSelectedMessages().toggleSelectMessage();
         }
     });
@@ -159,10 +185,9 @@ $(document).ready(function() {
     $('.decrypt-btn').click(function(){
         if(!$("#msg").val().length){
             $(".decrypt-btn").notify("No message selected!", { position:"right" });
-        }
-        else{
+        } else {
             var msg = $('<div><span class="text">' + $('#msg').val() +'</span></div>')
-                .BYOIMessage()
+                .BYOIMessage(envMeta())
                 .decryptMessage( 0 )
                 .relayMessage(); // send to every message handler
             // add the message to the input (update field value)
@@ -175,15 +200,18 @@ $(document).ready(function() {
     $('.add-random-btn').click(function(){
         if(!$("#msg").val().length){
             $(".add-random-btn").notify("No message selected!", { position:"right" });
-        }
-        else{
+        } else {
             // add a random number to the last selected element of the message handler
-            var msg = $('<div><span class="text">' + $('#msg').val() +'</span></div>')
-                .BYOIMessage()
-                .addRandomNumber()
-                .relayMessage();
-            // add the message to the input (update field value)
-            BYOI.addMessageToContainer(msg, $('#msg'));
+
+            var msg = $('<div><span class="text">' + $('#msg').val() +'</span></div>').BYOIMessage(envMeta())
+            if (msg.hasClass('fragment')) {
+                $('.add-random-btn').notify("Cannot add a random to a fragment.", { position:"right" });
+            } else {
+                msg.addRandomNumber().relayMessage();
+                // add the message to the input (update field value)
+                BYOI.addMessageToContainer(msg, $('#msg'));
+            }
+            $('.BYOI-messageHandler.active').getSelectedMessages().toggleSelectMessage();
         }
     });
 
@@ -235,10 +263,12 @@ $(document).ready(function() {
     $('#all').BYOIMessageHandler({
         accept:function(message){ 
             if(message.data('type') != 'TASK'){
+                console.log('accepted by all', message);
                 $('#menu-all').addClass('unread');
                 $('.nav li.active').removeClass('unread');
                 return true; 
             }
+            console.log('rejected by all', msg.data('text'));
             return false;
         }, 
         onError:function(msg){console.log(msg);}
@@ -248,7 +278,7 @@ $(document).ready(function() {
     $('#broadcast').BYOIMessageHandler({
         accept:function(message){ 
             var bcastSent = message.hasClass('broadcast');
-            var bcastRec = message.hasClass('received')  && message.data('to') == '0';
+            var bcastRec = message.data('to') == '0';
             if (bcastSent || bcastRec){
                 $('#menu-broadcast').removeClass('hidden');
                 $('#menu-broadcast').addClass('unread');
@@ -260,17 +290,20 @@ $(document).ready(function() {
         onError:function(msg){console.log(msg);}
     });
 
-    function acceptMessage(msg, tab) {
-        if(msg.data('type') != 'PACKET' && msg.data('type') != 'MESSAGE'){
+    var acceptMessage = function(msg, tab) {
+        //if(msg.data('type') != 'PACKET' && msg.data('type') != 'MESSAGE'){
+        if(msg.data('type') == 'TASK' || msg.data('type') == 'CONNECTED'){
             return false;
         }
 
         var menu = $('#menu-node-' + tab);
         var tabFor = menu.attr('neighbour');
+        var to = msg.data('to');
+        var from = msg.data('from');
+        console.log(msg);
+
 
         if(msg.hasClass('received')){ // incoming message
-            var from = msg.data('from');
-
             // For unassigned tab and an unseen neighbour set up headings.
             if (tabFor == undefined  && neighbours.indexOf(from) < 0) {
                 menu.attr('neighbour', from);
@@ -279,16 +312,17 @@ $(document).ready(function() {
 
                 menu.removeClass('hidden');
                 menu.attr('send-to', from);
-                $('#a-node-' + tab).html('To/From Node '+ from);
+                $('#a-node-' + tab).html('Node '+ from);
             }
-            if (from == tabFor) {
+            if (from == tabFor && to != 0) {
+                $(menu.addClass('unread'));
+                $('.nav li.active').removeClass('unread');
                 return true;
             }
-        }
-
-        if (msg.hasClass('sent')) {
-            if (msg.data('to') == tabFor){ 
+        } else {
+            if (to == tabFor){ 
                 $(menu.addClass('unread'));
+                $('.nav li.active').removeClass('unread');
                 return true;
             }
         }
