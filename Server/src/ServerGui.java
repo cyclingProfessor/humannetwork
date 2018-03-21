@@ -108,11 +108,16 @@ public class ServerGui extends JFrame {
         NodeFilter.setBounds(12, 420, 140, 35);
         contents.add(NodeFilter);
         NodeFilter.addItemListener((ev) -> {
+            if (listNodes.isSelectionEmpty()) {
+                NodeFilter.setSelected(false);
+                return;
+            }
             if (ev.getStateChange() == ItemEvent.SELECTED) {
                 int node = listNodes.getSelectedValue().getNode();
                 System.out.println("Selected: " + node);
                 messages.setFilter(node);
             } else {
+                System.out.println("Selected: ALL");
                 messages.setFilter(0);
             }
         });
