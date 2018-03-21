@@ -60,7 +60,7 @@ function chunker(text, len){
 /******************************************************************************
                     BYOI API
 ******************************************************************************/
-     // this is the starting point of the API, all configurations and 
+    // this is the starting point of the API, all configurations and 
     // hooks will be overwritten here
     BYOI.config = function(configuration){
         //host
@@ -130,7 +130,7 @@ function chunker(text, len){
         } else {
             BYOI.onSend = function(msg){};
         }
-         // used to assing a unique id to every message
+        // used to assign a unique id to every message
         BYOI.currID = 0;
         return BYOI;
     };
@@ -196,7 +196,7 @@ function chunker(text, len){
 
                     //BYOI.systemMessage("new game join");
                 }
-                html = '<div class="received"><span class="connected">Node Number:  '+BYOI.myNode+'</span> | Node name: <span class="text">'+BYOI.myName+'</span></div>';
+                html = '<div class="received"><span class="connected">Node Number:  '+BYOI.myNode+' | Node name: </span><span class="text">'+BYOI.myName+'</span></div>';
                 metaData = {
                     'node': BYOI.myNode, 
                     'text': BYOI.myName,
@@ -208,7 +208,7 @@ function chunker(text, len){
                 var text = received.text;
                 var from = received.from;
                 var to = received.to;
-                html = '<div class="received"><span class="node"> '+from+'</span> : <span class="text">'+text+'</span></div>';
+                html = '<div class="received"><span class="node"> Received from node '+from+': </span><span class="text">'+text+'</span></div>';
                 metaData['from'] = from;
                 metaData['to'] = to;
             }
@@ -420,6 +420,7 @@ function chunker(text, len){
                 }
                 // call the accept method to decide on whether add the 
                 // message to the handler or not
+                console.log(mh.attr('id'));
                 if(mh.data('accept')(message)){
                     //add metadata to message
                     if(typeof afterTarget == 'undefined'){
@@ -436,6 +437,7 @@ function chunker(text, len){
     $.fn.combineMessages = function(){
         // collection is a selection of messages
         if(this.hasClass('BYOI-messageHandler')){
+            var mh = this;
             var content = '';
             var nextValidSeq = 1;
             var childrenMeta;
@@ -454,30 +456,32 @@ function chunker(text, len){
                         offset = header.length + 4;
                     }
                     var seq = parseInt(frag.data('fragNum'));
-                    childrenMeta = $(this).data();
+                    childrenMeta = $.extend(true, {}, $(this).data());
                     if(seq == nextValidSeq){
                         nextValidSeq++;
                         content += frag.data('text').substr(offset);
                     }else{
-                        $(this).notify('ERROR: fragments must have consecutive sequence numbers.');
+                        //BYOI.systemMessage('ERROR: fragments must have consecutive sequence numbers.');
+                        $(mh).notify('ERROR: fragments must have consecutive sequence numbers.');
                         error = true;
                         return false;
                     }
                 });
+                console.log('asdfasdf');
             if (!error) {
                 if (nextValidSeq != childrenMeta.fragOutOf + 1) {
-                    $(this).notify('ERROR: Missing final fragment(s).');
-                    return this;
+                    $(mh).notify('ERROR: Missing final fragment(s).');
+                    return mh;
                 }
 
                 delete childrenMeta.seq;
                 content = header + content;
                 childrenMeta.text = content;
-                this.addMessage(
+                mh.addMessage(
                     $('<div class="combined"><span class="text">' + content + "</span></div>")
                          .BYOIMessage(childrenMeta)
                 );
-                return this;
+                return mh;
             }
         } else {
             BYOI.systemMessage('ERROR: called combineMessages on a non-messageHandler element.');
@@ -514,12 +518,12 @@ function chunker(text, len){
                     if(!m.hasOwnProperty('rnd')) options['rnd'] = Number(nonce.match(/\d*/));
                     m.addClass('random');
                 }
-                var checksum = str.match(/#\d\d*$/);
+                var checksum = str.match(/#[a-f0-9]{32}$/);
                 if (checksum != null) {
-                    if(!m.hasOwnProperty('hash')) options['hash'] = Number(checksum.substr(1));
+                    if(!m.hasOwnProperty('hash')) options['hash'] = checksum[0].substring(1);
                     m.addClass('checksum');
-                    index = str.substr(checksum);
-                    if(!m.hasOwnProperty('text-no-hash')) options['text-no-hash'] = str.substr(0,checksum);
+                    var index = str.lastIndexOf(checksum[0]);
+                    if(!m.hasOwnProperty('text-no-hash')) options['text-no-hash'] = str.substring(0,index);
                 }
                 if(!m.hasOwnProperty('text')) options['text'] = t.html();
             }
@@ -569,7 +573,7 @@ function chunker(text, len){
                         html = '<div class="broadcast">Broadcast Message: <span class="text">'+message.text+'</span></div>';
                         msg.addClass('broadcast');
                     } else { // regular message
-                        html = '<div class="sent">Sent To:<span class="node">'+message.to+'</span> Message: <span class="text">'+message.text+'</span></div>';
+                        html = '<div class="sent">Sent to node <span class="node">'+message.to+'</span>: <span class="text">'+message.text+'</span></div>';
                         msg.addClass('sent');
                     }
                     msg.html(html)// modify content
@@ -599,6 +603,7 @@ function chunker(text, len){
             this.each(function(){
                 // get all the message handlers
                 mh = $('.BYOI-messageHandler');
+                console.log(mh);
                 // if there are no message handlers, inform the user
                 if(mh.length == 0){
                     BYOI.systemMessage('ERROR: No message handler found, received' + message.data('text'));
@@ -724,10 +729,6 @@ function chunker(text, len){
     // to the text of this message
     $.fn.addChecksum = function(){
         if(this.hasClass('BYOI-message')){
-            if (this.hasClass('fragment')) {
-                $(".check-btn").notify("Cannot add a checksum to a fragment.", { position:"right" });
-                return true;                
-            }
             // create the digest
             var hash = md5(this.data('text'));
             // append the hash to the text
@@ -767,10 +768,6 @@ function chunker(text, len){
     // and returns the encrypted message
     $.fn.encryptMessage = function(key){
         if(this.hasClass('BYOI-message')){
-            if (this.hasClass('fragment')) {
-                $(".check-btn").notify("Cannot encrypt a fragment.", { position:"right" });
-                return true;                
-            }
             // if a key is provided, use, otherwise, get the value from the 
             // recipient field, if that field is empty, defaults to node number
             key = typeof key == 'number' && key != 0? key : parseInt(BYOI.myNode);
@@ -833,19 +830,14 @@ function chunker(text, len){
     //append a random number to the message box
     $.fn.addRandomNumber = function(){
         if(this.hasClass('BYOI-message')){
-            if (this.hasClass('fragment')) {
-                $(".check-btn").notify("Cannot add a random to a fragment.", { position:"right" });
-                return true;                
-            }
-
             var msg = $(this);
             // get the text from the message and append a random 4 digit 
             // number to it
-            var text = msg.data('text') + '|' + Math.floor(Math.random() * 10000);
+            var s = msg.data('text') + '|' + Math.floor(Math.random() * 10000);
 
             // create a new message with the nonce appended
             var html = '<div class="random"><span class="text">';
-            html += text;
+            html += s;
             html += '</span></div>';
             var random = $(html).BYOIMessage(this.data()).addMetadata({text:s});
             return random;
