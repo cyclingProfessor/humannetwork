@@ -178,7 +178,6 @@ function chunker(text, len){
             if (type == 'CONNECTED') {
                 BYOI.hasStarted = false;
                 BYOI.mySession = received.session;
-                console.log('received', received);
                 // if the session number is the same as the cookie we already 
                 // have, we can reconnect to the same session
                 if (getCookie("session") == BYOI.mySession) {
@@ -420,7 +419,6 @@ function chunker(text, len){
                 }
                 // call the accept method to decide on whether add the 
                 // message to the handler or not
-                console.log(mh.attr('id'));
                 if(mh.data('accept')(message)){
                     //add metadata to message
                     if(typeof afterTarget == 'undefined'){
@@ -467,7 +465,6 @@ function chunker(text, len){
                         return false;
                     }
                 });
-                console.log('asdfasdf');
             if (!error) {
                 if (nextValidSeq != childrenMeta.fragOutOf + 1) {
                     $(mh).notify('ERROR: Missing final fragment(s).');
@@ -540,7 +537,6 @@ function chunker(text, len){
     // and call the onSend hook
     $.fn.send = function(recipient){
         if(this.hasClass('BYOI-message') && BYOI.hasStarted){
-            console.log(recipient);
             // if no recipient is provided, broadcast
             if(typeof recipient == 'undefined')
                 recipient = 0;
@@ -603,7 +599,6 @@ function chunker(text, len){
             this.each(function(){
                 // get all the message handlers
                 mh = $('.BYOI-messageHandler');
-                console.log(mh);
                 // if there are no message handlers, inform the user
                 if(mh.length == 0){
                     BYOI.systemMessage('ERROR: No message handler found, received' + message.data('text'));

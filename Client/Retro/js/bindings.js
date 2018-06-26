@@ -320,7 +320,7 @@ $(document).ready(function() {
                 return true;
             }
         } else {
-            if (to == tabFor){ 
+            if (to == tabFor || from == tabFor){ 
                 $(menu.addClass('unread'));
                 $('.nav li.active').removeClass('unread');
                 return true;
