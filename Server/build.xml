@@ -37,6 +37,7 @@
         <pathelement location="${classes-dir}"/>
         <pathelement location="${lib-dir}/junit*.jar"/>
         <pathelement location="${lib-dir}/hamcrest*.jar"/>
+        <pathelement location="${lib-dir}/javax.json*.jar"/>
       </classpath>
       <test name="AllTests"/>
     </junit>
