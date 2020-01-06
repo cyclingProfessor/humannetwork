@@ -46,13 +46,15 @@ BYOI.config({
     // server
     onSend: function(msg){},
 });
-
 ```
+
 ### Connect
 * `BYOI.connect(configuration)`: attempts to establish a connection with the server. If passed, the configuration will override the host/port defined by the `BYOI.config`.
 
 A possible way to use this function is obtaining the host/port from the HTML
+
 ```html
+
 <div id="connectionFields">
     <span>host</span>
     <input id="host" type="text"/>
@@ -60,6 +62,7 @@ A possible way to use this function is obtaining the host/port from the HTML
     <input id="port" type="text"/>
 </div>
 ```
+
 ```javascript
 BYOI.connect({host: $('#host').val(), port: $('#port').val()});
 ```
@@ -69,9 +72,11 @@ BYOI.connect({host: $('#host').val(), port: $('#port').val()});
 This type of element will receive all the alerts sent by the API. You can have as many system alert receivers as you want.
 
 To establish a system alert element you can:
+
 ```html
 <div id="systemAlerts"></div>
 ```
+
 ```javascript
 $('#systemAlerts').BYOISystemAlert({
     //this is the default behaviour if the onAlert property is not provided
@@ -80,6 +85,7 @@ $('#systemAlerts').BYOISystemAlert({
     }
 });
 ```
+
 If no BYOI System Alert is defined, the alerts will default to being javascript alerts.
     
 ## BYOI Message
@@ -88,18 +94,21 @@ Any DOM element can be converted to a BYOI Message, but it is expected to contai
 The text element is parsed to add appropriate data elements and classes.
 
 For instance, we can convert
+
 ```html
 <div id="myMsg"><span class="text">Hello World</span></div>
 ```
+
 to a BYOI Message by
+
 ```javascript
 $('#myMsg').BYOIMessage();
 ```
-In its data element, a BYOI Message will contain
+
+In its data element, a BYOI Message will contain:
 * a `text` property with the contents of the element with `class="text"`.
 * an `ID` property with a integer value identifying the message.
 * any other property passed to the `BYOIMessage` method, i.e.:
-    
     ```javascript
     $('#myMsg').BYOIMessage({
         prop_1:value_1, 

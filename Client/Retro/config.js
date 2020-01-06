@@ -75,15 +75,15 @@ $(document).ready(function() {
         $('#sidebar').hide();
         $('body').append("<strong>Browser does not support Web Socket.</br>Please reload page in a modern Browser.</strong>");
     }else{
-        var urlIP = GetURLParameter('ip');
-        if(urlIP === undefined) urlIP = '127.0.0.1';
+        var urlHost = GetURLParameter('host');
+        if(urlHost === undefined) urlHost = '127.0.0.1';
         var urlPort = GetURLParameter('port');
         if(urlPort === undefined) urlPort = 10000;
 
         // the browser is from this millenium :D
         BYOI.config({
             // Configuration variables
-            host : urlIP, // defaults to 127.0.0.1
+            host : urlHost, // defaults to 127.0.0.1
             port : urlPort, // defaults to 10000
             MSG_MAX_LEN : 40, // defaults to 40
 
@@ -95,7 +95,6 @@ $(document).ready(function() {
                     $('#task-title').html('NODE '+BYOI.myNode+' your current task is:');
                 }
                 gmsg = msg;
-                console.log(msg);
             }, 
             // called when the connection to the server fails
             onConnectionError: function(){

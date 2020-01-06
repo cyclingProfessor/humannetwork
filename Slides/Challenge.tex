@@ -1,0 +1,193 @@
+\documentclass[svgnames]{beamer}
+\mode<presentation>
+{
+%  \usetheme{Boadilla}
+  \usetheme{Madrid}
+}
+
+\usepackage{pgfpages}
+\usepackage[tikz]{bclogo}
+\usepackage{colortbl}
+\newcolumntype{b}{>{\columncolor{yellow}}c}
+\newcolumntype{a}{>{\columncolor{orange}}c}
+\newcolumntype{d}{>{\color{white}\columncolor{blue}}c}
+\newcolumntype{e}{>{\columncolor{purple}}c}
+
+\usepackage[font={sc,color=red},labelformat=empty]{caption}
+
+\usepackage[T1]{fontenc}
+\usepackage{frcursive}
+%\usepackage{calligra}
+\usetikzlibrary{positioning}
+\usepackage[english]{babel}
+%\usepackage[latin1]{inputenc}
+\usepackage{times}
+\usepackage{alltt}
+
+\newcommand{\setfont}[2]{{\fontfamily{#1}\selectfont #2}}
+\mode<handout>
+{
+\pgfpagesuselayout{4 on 1}[a4paper,landscape,border shrink=3mm]
+}
+
+
+
+%\usepackage[T1]{fontenc}
+
+\title{Build Your Own Internet}
+
+\subtitle{Be Part of the Solution}
+
+\author % (optional, use only with lots of authors)
+{The Outreach Team}
+%\date{February 13th, 2014}
+\date{}
+
+\institute[RHUL] % (optional, but mostly needed)
+{
+  Department of Computer Science\\
+  Royal Holloway College\\
+  University of London
+}
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}{The Setup}
+\begin{alertblock}{Zombie Apocalypse: A credible threat?
+}
+\begin{center}
+
+We cannot afford not to know.  
+
+The internet will fail.  
+
+How can we build a Human Internet!
+\end{center}
+\end{alertblock}
+\end{frame}
+\begin{frame}{The Game}
+\begin{block}{Process}
+\begin{itemize}
+\item You are facing a screen.
+\item Check that you are logged in and can see the web browser open at \url{http://cs.rhul.io/byoi}
+\item \dots then wait\ldots (more on the next slide)
+\end{itemize}
+\end{block}
+\end{frame}
+\begin{frame}{The Software}
+\begin{block}{You are a node in a network connected to other nodes}
+\begin{itemize}
+\item You can send/receive messages \textbf{only} to nodes to which you are \alert{directly} connected.
+\item You "broadcast" to all \alert{directly} connected nodes.
+\item Sending to a node to which you are not \alert{directly} connected will \textbf{silently} fail.
+\item Your screen will have several TABS (list of messages) - all sent and received messages will appear in these lists.
+\item Only one TAB shows \alert{all} of the messages that you send/receive.
+\item You have a box in which you can type a message, and buttons that process messages.
+\item \alert{Try sending a message now\ldots}
+\end{itemize}
+\end{block}
+\end{frame}
+
+\begin{frame}{Task: Maintain the Network (RIP, broadcast)}
+\vspace*{-2mm}
+\begin{alertblock}{Find all the connections in your network.}
+\begin{itemize}
+\item \alert{There is no talking required in this game}.
+\item Just edit and send messages from your interface.
+\item You are \alert{not all in one network}.
+\item \large You have until the first person correctly knows their network.
+\end{itemize}
+\end{alertblock}
+
+\vspace*{-2mm}
+\begin{block}{Your Interface: Your own node number is at the top.}
+\begin{itemize}
+\item One TAB shows you all messages that you have sent or received.
+\item Each node you receive a message from gets its own TAB.
+\item Selecting a message from any message list enters it into the sending box.
+\item Sending to Node 0 broadcasts to all \alert{directly} connected nodes.
+\end{itemize}
+\end{block}
+\pause
+\begin{alertblock}{Hint. The Internet is a cooperative game.}
+{Broadcast your knowledge as lists: e.g. 17-23-45-2-67-4}
+\end{alertblock}
+\end{frame}
+
+\begin{frame}{Task: Send a long Message (fragmentation)}
+\begin{block}{Your Interface}
+\begin{itemize}
+\item Your Task is on the top of your screen.
+\item You have a (long) message to send to another node.
+\item You will need to use the \alert{Split} button to break up long text.
+\item The \alert{Split} button will add fragment IDs (\alert{"n/m:"}) to each fragment.
+\item The received message can be reassembled by selecting all parts and pressing \alert{Merge}.
+%\item Three points for every delivered (complete) message.
+\end{itemize}
+\end{block}
+\end{frame}
+
+\begin{frame}{Task: Multi-Hop a long Message (forwarding)}
+\begin{block}{Your Interface}
+\begin{itemize}
+\item Your task is at the top of your screen.
+\item You have a (long) message to send to another node.
+\item \dots but you are not connected to that node.
+\item A \alert{!!} in the message splits a message header from the body.
+\item Message headers are copied to every fragment when you \alert{split}.
+\item Use a header that gives intermediate nodes enough information to forward your fragments.
+\end{itemize}
+\end{block}
+\end{frame}
+
+\begin{frame}{Task: Multi-Hop on a Typical Network (acknowledge)}
+\begin{block}{Your Interface}
+\begin{itemize}
+\item Your task is at the top of your screen.
+\item You have a (long) message to send to another node.
+\item \dots but you are not connected to that node.
+\item \dots and some messages will be \alert{silently} dropped, or delayed.
+\item Your screen indicates the percentage of messages that will not be delivered.
+\item How will you be able to tell if a message has been delivered?
+\end{itemize}
+\end{block}
+\pause
+\begin{alertblock}{Hint. Acknowledge with enough information.}
+{Simply send back each received message as an acknowledgement.}
+\end{alertblock}
+
+\end{frame}
+\begin{frame}{Task: A Malicious Intruder (encryption, checksums, nonces)}
+\begin{block}{Your Interface}
+\begin{itemize}
+\item Your task is at the top of your screen.
+\item You have a (long) message to send to another node.
+\item \dots but you are not connected to that node.
+\item \dots and some messages will be \alert{silently} dropped, or delayed.
+\item \dots and some messages will be \alert{altered/corrupted by the network}
+\item Your screen indicates the percentage of messages that will not be delivered, or will be corrupted.
+\item You will need to \alert{encrypt} and \alert{checksum} each message so that it cannot be altered.
+\item Why not add a \alert{nonce} so that malicious intruders cannot replay old messages?
+\end{itemize}
+\end{block}
+\end{frame}
+\begin{frame}{Task: Protocols}
+\begin{block}{WHOIS Protocol}
+\begin{itemize}
+\item All messages in this round must be one of:
+\begin{enumerate}
+\item \texttt{WHOIS(Query, Node nnn)} where \texttt{nnn} is a number
+\item \texttt{WHOIS(Answer, Node nnn is name)} where \texttt{nnn} is the node number of \texttt{name}
+\end{enumerate}
+\item You can use a paper and pencil to make notes.
+\item You have twenty minutes.
+\item One point for every name discovered.
+\end{itemize}
+\end{block}
+\end{frame}
+
+\end{document}
